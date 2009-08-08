@@ -84,6 +84,8 @@ class ChangelogBuilder(object):
 %(changelog)s
 
  -- Webdrive Developers <developers@webdrive.ru>  %(timestamp)s
+
+%(old_changelog)s
 """
         pretty_changes = '\n'.join(['  * %s' % ch for ch in actual_changes])
         values = {
@@ -91,12 +93,12 @@ class ChangelogBuilder(object):
             'base_version': self.base_version,
             'changelog': pretty_changes,
             'cur_version': cur_version,
-            'timestamp': formatdate(localtime=True)
+            'timestamp': formatdate(localtime=True),
+            'old_changelog': self.read_changelog(),
         }
+
         f = open(self.changelog_file_name(), 'w')
         f.write(changelog_template % values)
-        f.write('\n')
-        f.write(self.read_changelog())
         f.close()
 
 def main():
