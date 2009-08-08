@@ -12,7 +12,7 @@ class ChangelogBuilder(object):
 
     def create_changelog(self):
         self.check_on_master()
-        actual_changes = self.changes_list()
+        actual_changes = self.actual_changes_list()
         if len(actual_changes):
             self.save_changelog(actual_changes, self.current_package_num())
             self.fix_building_success()
@@ -25,7 +25,7 @@ class ChangelogBuilder(object):
         except ValueError:
             raise Exception('git repository is not on master branch')
 
-    def changes_list(self):
+    def actual_changes_list(self):
         """
         returns changes from last git commit till now.
         list sorted in descent order.
@@ -34,7 +34,7 @@ class ChangelogBuilder(object):
         changes = []
         for ch in self.all_commits():
             commit, descr = ch.split(' ', 1)
-            if commit == last_commit:
+            if commit.strip() == last_commit.strip():
                 break
             else:
                 changes.append(descr)
