@@ -61,7 +61,7 @@ class ChangelogBuilder(object):
 
     def fix_building_success(self):
         """
-        Saves last current commit to package.LAST_VERSION file
+        Saves last current commit to LAST_VERSION file
         """
         name = self.last_version_file_name()
         f = open(name, 'w')
