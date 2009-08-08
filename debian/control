@@ -1,5 +1,5 @@
 Source: python-helixcore
-Section: non-free/devel
+Section: non-free/python
 Priority: extra
 Maintainer: Webdrive Developers <developers@webdrive.ru>
 Build-Depends: debhelper (>= 7)

@@ -2,3 +2,14 @@
 .project
 .settings
 .pydevproject
+build-stamp
+configure-stamp
+debian/LAST_VERSION
+debian/changelog
+debian/files
+debian/python-helixcore.debhelper.log
+debian/python-helixcore.postinst.debhelper
+debian/python-helixcore.prerm.debhelper
+debian/python-helixcore.substvars
+debian/python-helixcore/
+dist/
