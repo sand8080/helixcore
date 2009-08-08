@@ -1,0 +1,14 @@
+#!/bin/sh
+
+BASEDIR=`dirname $0`
+
+pushd $BASEDIR > /dev/null
+
+./create-changelog --package=python-helixcore
+dpkg-buildpackage -uc -us -b -rfakeroot
+mkdir -p dist
+mv ../python-helixcore*.deb dist
+rm -f  ../python-helixcore*.changes
+
+popd > /dev/null
+

@@ -57,7 +57,7 @@ class ChangelogBuilder(object):
         return len(self.all_commits())
 
     def last_version_file_name(self):
-        return os.path.join(self.root_dir, 'debian', '%s.LAST_VERSION' % self.package)
+        return os.path.join(self.root_dir, 'debian', 'LAST_VERSION')
 
     def fix_building_success(self):
         """
@@ -69,7 +69,7 @@ class ChangelogBuilder(object):
         f.close()
 
     def changelog_file_name(self):
-        return os.path.join(self.root_dir, 'debian', '%s.changelog' % self.package)
+        return os.path.join(self.root_dir, 'debian', 'changelog')
 
     def read_changelog(self):
         name = self.changelog_file_name()
@@ -103,11 +103,22 @@ def main():
     try:
         parser = OptionParser(usage="usage: %prog [options]")
         parser.set_defaults(
-            package='unknownpackage',
             base_version='1.0',
         )
         parser.add_option('-p', '--package', type='string', help='debian package name', dest='package')
+        parser.add_option(
+            '-b',
+            '--base-version', type='string',
+            help='debian package base version. 1.0 by default', dest='base_version'
+        )
         options, args = parser.parse_args()
+
+        mandatories = ['package']
+        for m in mandatories:
+            if not options.__dict__[m]:
+                parser.print_usage()
+                parser.print_help()
+                exit(-1)
 
         builder = ChangelogBuilder(options.package, options.base_version)
         builder.create_changelog()

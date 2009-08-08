@@ -1,0 +1,15 @@
+Source: python-helixcore
+Section: non-free/devel
+Priority: extra
+Maintainer: Webdrive Developers <developers@webdrive.ru>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.7.3
+Homepage: http://webdrive.ru
+
+Package: python-helixcore
+Architecture: any
+Depends: python (>= 2.5), python-psycopg2 (>= 2.0.5)
+Description: Helix family core library
+ Contains postgres db wrapper, sql requests builder
+ and patches system.
+ Used by helixbilling software.
