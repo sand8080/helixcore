@@ -7,7 +7,7 @@ Standards-Version: 3.7.3
 Homepage: http://webdrive.ru
 
 Package: python-helixcore
-Architecture: any
+Architecture: all
 Depends: python (>= 2.5), python-psycopg2 (>= 2.0.5)
 Description: Helix family core library
  Contains postgres db wrapper, sql requests builder
