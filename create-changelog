@@ -42,7 +42,7 @@ class ChangelogBuilder(object):
 
     def last_package_commit(self):
         name = self.last_version_file_name()
-        commit = None
+        commit = ''
         if os.path.exists(name):
             commit = open(name, 'r').readline()
         return commit
