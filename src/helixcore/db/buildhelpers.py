@@ -13,15 +13,16 @@ def where(cond):
         return ('', [])
 
 def order(order_by):
-    if order_by is not None:
-        orders = []
-        for o in order_by:
-            if o.startswith('-'):
-                orders.append('%s DESC' % quote(o[1:]))
-            else:
-                orders.append('%s ASC' % quote(o))
-        return 'ORDER BY %s' % ','.join(orders)
-    else:
+    if order_by is None:
         return ''
+    if isinstance(order_by, str):
+        order_by = [order_by]
+    orders = []
+    for o in order_by:
+        if o.startswith('-'):
+            orders.append('%s DESC' % quote(o[1:]))
+        else:
+            orders.append('%s ASC' % quote(o))
+    return 'ORDER BY %s' % ','.join(orders)
 
 
