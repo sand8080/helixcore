@@ -29,8 +29,9 @@ class PatchProcessor(object):
         self.apply(None)
 
     def revert(self, last_applied):
+        if last_applied is None:
+            return
         patches = filtering.filter_backward(None, last_applied, self.get_patches())
-        print 'patches', patches
         self.dynamic_patch_call(patches, 'revert', self.unregister_patch)
 
     def revert_all(self):
