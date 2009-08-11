@@ -1,0 +1,30 @@
+python-helixcore (1.0.12) unstable; urgency=low
+
+  * [Alexander Kislitsky] Merge commit 'office/master'
+  * [Alexander Kislitsky] Workaround for installation on systems with 2.5 and 2.4 pythons.
+  * [Andrew Skryabin] Validol integrated into helixcore.
+
+ -- Webdrive Developers <developers@webdrive.ru>  Tue, 11 Aug 2009 10:45:23 +0400
+
+python-helixcore (1.0.9) unstable; urgency=low
+
+  * [Alexander Kislitsky] Architecture of package set to all.
+  * [Alexander Kislitsky] Fix bug in building - first time last_package_commit is None.
+  * [Alexander Kislitsky] *.swp added to .gitignore
+
+ -- Webdrive Developers <developers@webdrive.ru>  Mon, 10 Aug 2009 16:44:49 +0400
+
+python-helixcore (1.0.6) unstable; urgency=low
+
+  * [Alexander Kislitsky] Old changelogs rewriting fixed.
+  * [Alexander Kislitsky] Fix in changelog generation - wrong detection of actual changes.
+  * [Alexander Kislitsky] Function description fixed.
+  * [Alexander Kislitsky] Package errors fixed. (thanks to lintian)
+  * [Alexander Kislitsky] Helixcore debianized.
+  * [Alexander Kislitsky] Initial commit
+
+ -- Webdrive Developers <developers@webdrive.ru>  Mon, 10 Aug 2009 10:00:48 +0400
+
+
+
+

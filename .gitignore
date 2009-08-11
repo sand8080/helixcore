@@ -5,8 +5,6 @@
 .pydevproject
 build-stamp
 configure-stamp
-debian/LAST_VERSION
-debian/changelog
 debian/files
 debian/python-helixcore.debhelper.log
 debian/python-helixcore.postinst.debhelper
