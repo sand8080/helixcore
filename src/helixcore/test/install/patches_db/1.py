@@ -14,5 +14,5 @@ def apply(curs):
 
 def revert(curs):
     print 'Dropping table %s' % table
-    curs.execute('DROP TABLE IF EXISTS %s' % table)
+    curs.execute('DROP TABLE %s' % table)
 

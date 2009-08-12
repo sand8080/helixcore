@@ -40,13 +40,16 @@ class FilteringTestCase(unittest.TestCase):
             ['4-1', '4', '2-2', '1'],
             filter_patches(None, '4-1', patches, reverse=True)
         )
-        
+        self.assertEqual(
+            ['1', '2-2', '4', '4-1', '4-1-0', '35', '35-0', '37'],
+            filter_patches(None, None, patches)
+        )
+
     def test_filter_backward(self):
         patches = ['1', '2-2', '3', '7-9-9', '6']
-        self.assertEqual(
-            ['7-9-9', '6', '3', '2-2', '1'],
-            filter_backward(None, None, patches)
-        )
+        self.assertEqual(['7-9-9', '6', '3', '2-2', '1'], filter_backward(None, None, patches))
+        self.assertEqual(['6', '3', '2-2', '1'], filter_backward(None, '6-1', patches))
+        self.assertEqual(['6', '3', '2-2', '1'], filter_backward(None, '6', patches))
 
 if __name__ == '__main__':
     unittest.main()

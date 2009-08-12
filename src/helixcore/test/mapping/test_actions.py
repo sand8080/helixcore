@@ -7,7 +7,7 @@ from helixcore.db.cond import Eq
 from helixcore.mapping.objects import Mapped
 from helixcore.mapping import actions
 
-from helixcore.test.helpers import transaction
+from helixcore.test.test_environment import transaction
 
 class ActionsTestCase(unittest.TestCase):
     class T(Mapped):

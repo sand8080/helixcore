@@ -2,7 +2,7 @@ import unittest
 import os
 
 from helixcore.install.install import PatchProcessor
-from helixcore.test.helpers import get_connection, transaction
+from helixcore.test.test_environment import get_connection, transaction
 from helixcore.db import query_builder, wrapper
 
 class PatchProcessorTestCase(unittest.TestCase):
@@ -15,7 +15,6 @@ class PatchProcessorTestCase(unittest.TestCase):
 
     def setUp(self):
         self.processor = PatchProcessor(get_connection, self.table, self.path)
-#        self.processor.revert(self.processor.get_last_applied())
 
     @transaction()
     def get_patches_list(self, curs=None):
@@ -24,6 +23,7 @@ class PatchProcessorTestCase(unittest.TestCase):
 
     def test_get_patches(self):
         try:
+            self.processor.revert_all()
             self.processor.apply_all()
             self.assertEqual(len(self.processor.get_patches()), len(self.get_patches_list()))
         finally:
@@ -45,6 +45,7 @@ class PatchProcessorTestCase(unittest.TestCase):
 
     def test_get_last_applied(self):
         try:
+            self.processor.revert_all()
             self.processor.apply_all()
             last_applied = self.processor.get_last_applied()
             self.assertEqual('2', last_applied)
@@ -57,6 +58,7 @@ class PatchProcessorTestCase(unittest.TestCase):
             'patches_no_action'
         )
         processor = PatchProcessor(get_connection, '___', patches_path)
+        processor.revert_all()
         processor.apply_all()
         processor.revert_all()
 

@@ -6,7 +6,7 @@ from datetime import datetime
 from helixcore.db.wrapper import fetchall_dicts, fetchone_dict, dict_from_lists, EmptyResultSetError
 from helixcore.db.query_builder import select, update, insert
 from helixcore.db.cond import Eq
-from helixcore.test.helpers import transaction, get_connection
+from helixcore.test.test_environment import transaction, get_connection
 
 class WrapperTestCase(unittest.TestCase):
 

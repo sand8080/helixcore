@@ -1,5 +1,5 @@
 def apply(curs): #IGNORE:W0613
-    pass
+    print 'apply 2.py'
 
 def revert(curs): #IGNORE:W0613
-    pass
+    print 'revert 2.py'

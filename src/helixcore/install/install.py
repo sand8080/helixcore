@@ -29,7 +29,7 @@ class PatchProcessor(object):
         self.apply(None)
 
     def revert(self, last_applied):
-        if last_applied is None:
+        if not self.is_revert_will_processed():
             return
         patches = filtering.filter_backward(None, last_applied, self.get_patches())
         self.dynamic_patch_call(patches, 'revert', self.unregister_patch)
@@ -58,6 +58,10 @@ class PatchProcessor(object):
     def unregister_patch(self, curs, name):
         cond = And(Eq('name', name), Eq('path', self.path))
         curs.execute(*query_builder.delete(self.table, cond=cond))
+
+    @transaction()
+    def is_revert_will_processed(self, curs=None):
+        return self.is_table_exist(curs)
 
     def is_table_exist(self, curs):
         curs.execute(*query_builder.select('pg_tables', cond=Eq('tablename', self.table)))
