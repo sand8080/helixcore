@@ -1,6 +1,9 @@
 import buildhelpers
 from utils import lists_from_dict
 
+class Columns(object):
+    COUNT_ALL = buildhelpers.Unquoted('COUNT(*)')
+
 def select(table, columns=None, cond=None, group_by=None, order_by=None, limit=None, offset=0, for_update=False):
     where_str, where_params = buildhelpers.where(cond)
     sql = 'SELECT %(target)s FROM %(table)s %(where)s %(group_by)s %(order_by)s %(limit)s %(offset)s %(locking)s' % {

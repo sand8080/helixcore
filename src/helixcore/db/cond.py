@@ -21,6 +21,34 @@ class Eq(Leaf):
     def __init__(self, lh, rh):
         super(Eq, self).__init__(lh, '=', rh)
 
+class MoreEq(Leaf):
+    """
+    lh >= rh
+    """
+    def __init__(self, lh, rh):
+        super(MoreEq, self).__init__(lh, '>=', rh)
+
+class LessEq(Leaf):
+    """
+    lh <= rh
+    """
+    def __init__(self, lh, rh):
+        super(LessEq, self).__init__(lh, '<=', rh)
+
+class Less(Leaf):
+    """
+    lh < rh
+    """
+    def __init__(self, lh, rh):
+        super(Less, self).__init__(lh, '<', rh)
+
+class More(Leaf):
+    """
+    lh > rh
+    """
+    def __init__(self, lh, rh):
+        super(More, self).__init__(lh, '>', rh)
+
 class Scoped(object):
     def __init__(self, cond):
         self.cond = cond

@@ -275,6 +275,56 @@ class AnyOf(BaseValidator):
     def __str__(self):
         return "<AnyOf: '%s'>" % str(self.validators)
 
+class NonNegative(BaseValidator):
+    """
+    Validates if data >= 0.
+    If such comparison operator is not applicable to data you will get compile error
+
+    >>> NonNegative(int).validate(1)
+    True
+    >>> NonNegative(int).validate(0)
+    True
+    >>> NonNegative(int).validate(-9)
+    False
+    """
+    def __init__(self, validator):
+        self.validator = validator
+
+    def validate(self, data):
+        if not validate_common(self.validator, data):
+            return False
+        if data < 0:
+            return False
+        return True
+
+    def __str__(self):
+        return "<NonNegative: '%s'>" % str(self.validator)
+
+class Positive(BaseValidator):
+    """
+    Validates if data > 0.
+    If such comparison operator is not applicable to data uoy will get compile error
+
+    >>> Positive(int).validate(1)
+    True
+    >>> Positive(int).validate(0)
+    True
+    >>> Positive(int).validate(-9)
+    False
+    """
+    def __init__(self, validator):
+        self.validator = validator
+
+    def validate(self, data):
+        if not validate_common(self.validator, data):
+            return False
+        if data <= 0:
+            return False
+        return True
+
+    def __str__(self):
+        return "<Positive: '%s'>" % str(self.validator)
+
 
 class Many(BaseValidator):
     """

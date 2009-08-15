@@ -1,11 +1,14 @@
 from helixcore.db import query_builder
 from helixcore.db.wrapper import fetchone_dict, fetchall_dicts
 from helixcore.db.cond import Eq
+import helixcore.db.deadlock_detector as deadlock_detector
 
 class MappingError(Exception):
     pass
 
 def get(curs, cls, cond, for_update=False):
+    if for_update:
+        deadlock_detector.handle_lock(cls.table)
     curs.execute(*query_builder.select(cls.table, cond=cond, for_update=for_update))
     return cls(**fetchone_dict(curs))
 
@@ -39,3 +42,7 @@ def delete(curs, obj):
     curs.execute(*query_builder.delete(obj.table, cond=Eq('id', obj.id)))
     del obj.id
 
+def reload(curs, obj, for_update=False):
+    if not hasattr(obj, 'id'):
+        raise MappingError('Reloading %s without id' % obj.__class__.__name__)
+    return get(curs, obj.__class__, Eq('id', obj.id), for_update)

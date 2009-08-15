@@ -1,4 +1,5 @@
 from utils import dict_from_lists
+import deadlock_detector
 
 class EmptyResultSetError(Exception):
     pass
@@ -26,11 +27,11 @@ def transaction(get_conn):
             kwargs['curs'] = curs
             try:
                 result = fun(*args, **kwargs)
-                curs.close()
+                _end_trans(curs)
                 conn.commit()
                 return result
             except :
-                curs.close()
+                _end_trans(curs)
                 conn.rollback()
                 raise
         return decorated
@@ -45,13 +46,16 @@ def transaction_with_dynamic_connection_getter():
             kwargs['curs'] = curs
             try:
                 result = fun(self, *args, **kwargs)
-                curs.close()
+                _end_trans(curs)
                 conn.commit()
                 return result
             except :
-                curs.close()
+                _end_trans(curs)
                 conn.rollback()
                 raise
         return decorated
     return decorator
 
+def _end_trans(curs):
+    curs.close()
+    deadlock_detector.clear_context()

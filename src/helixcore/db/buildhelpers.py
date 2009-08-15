@@ -1,4 +1,12 @@
+class Unquoted(object):
+    def __init__(self, column):
+        self.column = column
+    def __str__(self):
+        return self.column
+
 def quote(val):
+    if isinstance(val, Unquoted):
+        return val.column
     q, s = '"', '.'
     return  s.join(x.startswith(q) and x.endswith(q) and x or '"%s"' % x for x in val.split(s))
 
