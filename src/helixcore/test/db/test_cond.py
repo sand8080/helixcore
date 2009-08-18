@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from helixcore.db.cond import Leaf, Eq, And, Or, Scoped
+from helixcore.db.cond import Leaf, Eq, And, Or, Scoped, NullLeaf
 
 class CondTestCase(unittest.TestCase):
     def test_cond(self):
@@ -54,6 +54,29 @@ class CondTestCase(unittest.TestCase):
             cond
         )
         self.assertEqual(['a', 'b'], params)
+
+    def test_null_leaf(self):
+        cond_and = And(NullLeaf(), Eq('a', 'b'))
+        c, p = cond_and.glue()
+        self.assertEqual('"a" = %s', c)
+        self.assertEqual(['b'], p)
+
+        cond_and = And(Eq('c', 'd'), NullLeaf())
+        c, p = cond_and.glue()
+        self.assertEqual('"c" = %s', c)
+        self.assertEqual(['d'], p)
+
+        cond_and = And(NullLeaf(), NullLeaf())
+        c, p = cond_and.glue()
+        self.assertEqual('', c)
+        self.assertEqual([], p)
+
+        cond_and = And(Eq('c', 'd'), NullLeaf())
+        cond_or = Or(Eq('e', 'f'), cond_and)
+        c, p = cond_or.glue()
+        self.assertEqual('"e" = %s OR "c" = %s', c)
+        self.assertEqual(['f', 'd'], p)
+
 
 if __name__ == '__main__':
     unittest.main()

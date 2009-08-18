@@ -1,5 +1,12 @@
 import buildhelpers
 
+class NullLeaf(object):
+    """
+    Empty leaf condition
+    """
+    def glue(self):
+        return ('', [])
+
 class Leaf(object):
     """
     Leaf condition
@@ -62,12 +69,17 @@ class Composite(object):
         self.oper = oper
         self.rh = rh
     def glue(self):
-        cond_lh, params_lh = self.lh.glue()
-        cond_rh, params_rh = self.rh.glue()
-        return (
-            '%s %s %s' % (cond_lh, self.oper, cond_rh),
-            params_lh + params_rh
-        )
+        if isinstance(self.lh, NullLeaf):
+            return self.rh.glue()
+        elif isinstance(self.rh, NullLeaf):
+            return self.lh.glue()
+        else:
+            cond_lh, params_lh = self.lh.glue()
+            cond_rh, params_rh = self.rh.glue()
+            return (
+                '%s %s %s' % (cond_lh, self.oper, cond_rh),
+                params_lh + params_rh
+            )
 
 class And(Composite):
     def __init__(self, lh, rh):

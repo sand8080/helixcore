@@ -7,10 +7,6 @@ class Mapped(object):
                 setattr(self, k, kwargs[k])
             else:
                 raise TypeError('Property "%s" undefinded' % k)
-    
+
     def update(self, data):
         for (attr, v) in data.iteritems(): setattr(self, attr, v)
-    
-#class Patch(Mapped):
-#    __slots__ = ['id', 'name', 'path', 'date']
-#    table = 'patch'
