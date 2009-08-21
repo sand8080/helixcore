@@ -19,7 +19,7 @@ __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
 
 import unittest
 import re
-from helixcore.validol.validol import validate, AnyOf, Many, Optional, Scheme, BaseValidator
+from helixcore.validol.validol import validate, AnyOf, Many, Optional, Scheme, BaseValidator, Text
 
 
 class BaseValidatorTestCase(unittest.TestCase):
@@ -235,6 +235,21 @@ class DictTestCase(unittest.TestCase):
         x = {'a': 'b', 'c': 'd', Optional('foo'): 'bar', Optional('zoo'): 'xar'}
         self.assertFalse(validate(x, {'a': 'b', 'c': 'd', 'zoo': 'bar'}))
 
+
+class TextTestCase(unittest.TestCase):
+    def test_str_001(self):
+        x = Text()
+        self.assertTrue(validate(x, str('abc')))
+
+    def test_unicode_001(self):
+        x = Text()
+        self.assertTrue(validate(x, unicode('abc')))
+
+    def test_int_001(self):
+        x = Text()
+        self.assertFalse(validate(x, 10))
+
+
 class JobRelatedTestCase(unittest.TestCase):
     """ production-use use-cases for me """
 
@@ -326,6 +341,31 @@ class SamplesTestCase(unittest.TestCase):
         d['anotherKey'] = 'look ma, still validates'
         self.assertTrue(validate(scheme, d))
         d['badKey'] = 10
+        self.assertFalse(validate(scheme, d))
+
+    def test_callables_001(self):
+        d = {'x': 10}
+        scheme = {'x': lambda x: x > 0}
+        self.assertTrue(validate(scheme,  d))
+
+    def test_callables_002(self):
+        d = {'x': -10}
+        scheme = {'x': lambda x: x > 0}
+        self.assertFalse(validate(scheme,  d))
+
+    def test_callables_003(self):
+        d = {'x': 'boom'}
+        scheme = {'x': lambda x: x > 0}
+        self.assertTrue(validate(scheme, d)) # NOTE what the hell, seriously!
+
+    def test_callables_004(self):
+        d = {'x': "foo"}
+        scheme = {'x': lambda x: len(x) > 0}
+        self.assertTrue(validate(scheme, d))
+
+    def test_callables_005(self):
+        d = {'x': 10}
+        scheme = {'x': lambda x: len(x) > 0}
         self.assertFalse(validate(scheme, d))
 
 
