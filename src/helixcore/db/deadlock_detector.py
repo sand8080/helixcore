@@ -56,5 +56,8 @@ def handle_lock(table, *args):
         return
 
     transition = (context.locks[-2].table, context.locks[-1].table)
+    if transition[0] == transition[1]:
+        return
+
     if not transition in ALLOWED_TRANSITIONS:
         raise TransitionNotAllowedError()
