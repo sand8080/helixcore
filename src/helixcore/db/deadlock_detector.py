@@ -26,7 +26,7 @@ class TransitionNotAllowedError(Exception):
         self.locks = context.locks
 
     def __str__(self):
-        msg = self.message + "\n\tLocks chain:\n"
+        msg = self.message + "\n\tLocks chain: %s\n" % ', '.join([lock.table for lock in self.locks])
         for lock in self.locks:
             msg += self._format_lock(lock)
         return msg
@@ -56,8 +56,6 @@ def handle_lock(table, *args):
         return
 
     transition = (context.locks[-2].table, context.locks[-1].table)
-    if transition[0] == transition[1]:
-        return
 
     if not transition in ALLOWED_TRANSITIONS:
         raise TransitionNotAllowedError()
