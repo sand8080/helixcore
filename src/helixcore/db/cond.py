@@ -1,11 +1,28 @@
 import buildhelpers
 
+
 class NullLeaf(object):
     """
     Empty leaf condition
     """
     def glue(self):
         return ('', [])
+
+
+class Any(object):
+    """
+    lh = ANY (rh)
+    """
+    def __init__(self, lh, rh):
+        self.lh = lh
+        self.rh = rh
+
+    def glue(self):
+        return (
+            '%%s = ANY (%s)' % self.rh,
+            [self.lh]
+        )
+
 
 class Leaf(object):
     """
@@ -15,46 +32,53 @@ class Leaf(object):
         self.lh = lh
         self.oper = oper
         self.rh = rh
+
     def glue(self):
         return (
             '%s %s %%s' % (buildhelpers.quote(self.lh), self.oper),
             [self.rh]
         )
 
+
 class Eq(Leaf):
     """
     Alias for leaf equality condition
     """
     def __init__(self, lh, rh):
-        super(Eq, self).__init__(lh, '=', rh)
+        Leaf.__init__(self, lh, '=', rh)
+
 
 class MoreEq(Leaf):
     """
     lh >= rh
     """
     def __init__(self, lh, rh):
-        super(MoreEq, self).__init__(lh, '>=', rh)
+        Leaf.__init__(self, lh, '>=', rh)
+
 
 class LessEq(Leaf):
     """
     lh <= rh
     """
     def __init__(self, lh, rh):
-        super(LessEq, self).__init__(lh, '<=', rh)
+        Leaf.__init__(self, lh, '<=', rh)
+
 
 class Less(Leaf):
     """
     lh < rh
     """
     def __init__(self, lh, rh):
-        super(Less, self).__init__(lh, '<', rh)
+        Leaf.__init__(self, lh, '<', rh)
+
 
 class More(Leaf):
     """
     lh > rh
     """
     def __init__(self, lh, rh):
-        super(More, self).__init__(lh, '>', rh)
+        Leaf.__init__(self, lh, '>', rh)
+
 
 class Scoped(object):
     def __init__(self, cond):
@@ -63,11 +87,13 @@ class Scoped(object):
         cond, params = self.cond.glue()
         return ('(%s)' % cond, params)
 
+
 class Composite(object):
     def __init__(self, lh, oper, rh):
         self.lh = lh
         self.oper = oper
         self.rh = rh
+
     def glue(self):
         if isinstance(self.lh, NullLeaf):
             return self.rh.glue()
@@ -81,10 +107,12 @@ class Composite(object):
                 params_lh + params_rh
             )
 
+
 class And(Composite):
     def __init__(self, lh, rh):
-        super(And, self).__init__(lh, 'AND', rh)
+        Composite.__init__(self, lh, 'AND', rh)
+
 
 class Or(Composite):
     def __init__(self, lh, rh):
-        super(Or, self).__init__(lh, 'OR', rh)
+        Composite.__init__(self, lh, 'OR', rh)

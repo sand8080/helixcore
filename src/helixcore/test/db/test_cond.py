@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from helixcore.db.cond import Leaf, Eq, And, Or, Scoped, NullLeaf
+from helixcore.db.cond import Leaf, Eq, And, Or, Scoped, Any, NullLeaf
+
 
 class CondTestCase(unittest.TestCase):
     def test_cond(self):
@@ -76,6 +77,12 @@ class CondTestCase(unittest.TestCase):
         c, p = cond_or.glue()
         self.assertEqual('"e" = %s OR "c" = %s', c)
         self.assertEqual(['f', 'd'], p)
+
+    def test_any_cond(self):
+        cond_any = Any(15, 'ids')
+        c, p = cond_any.glue()
+        self.assertEqual(c, '%s = ANY (ids)')
+        self.assertEqual(p, [15])
 
 
 if __name__ == '__main__':
