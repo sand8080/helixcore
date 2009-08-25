@@ -45,7 +45,7 @@ class Eq(Leaf):
     Alias for leaf equality condition
     """
     def __init__(self, lh, rh):
-        Leaf.__init__(self, lh, '=', rh)
+        super(Eq, self).__init__(lh, '=', rh)
 
 
 class MoreEq(Leaf):
@@ -53,7 +53,7 @@ class MoreEq(Leaf):
     lh >= rh
     """
     def __init__(self, lh, rh):
-        Leaf.__init__(self, lh, '>=', rh)
+        super(MoreEq, self).__init__(lh, '>=', rh)
 
 
 class LessEq(Leaf):
@@ -61,7 +61,7 @@ class LessEq(Leaf):
     lh <= rh
     """
     def __init__(self, lh, rh):
-        Leaf.__init__(self, lh, '<=', rh)
+        super(LessEq, self).__init__(lh, '<=', rh)
 
 
 class Less(Leaf):
@@ -69,7 +69,7 @@ class Less(Leaf):
     lh < rh
     """
     def __init__(self, lh, rh):
-        Leaf.__init__(self, lh, '<', rh)
+        super(Less, self).__init__(lh, '<', rh)
 
 
 class More(Leaf):
@@ -77,7 +77,7 @@ class More(Leaf):
     lh > rh
     """
     def __init__(self, lh, rh):
-        Leaf.__init__(self, lh, '>', rh)
+        super(More, self).__init__(lh, '>', rh)
 
 
 class Scoped(object):
@@ -110,9 +110,9 @@ class Composite(object):
 
 class And(Composite):
     def __init__(self, lh, rh):
-        Composite.__init__(self, lh, 'AND', rh)
+        super(And, self).__init__(lh, 'AND', rh)
 
 
 class Or(Composite):
     def __init__(self, lh, rh):
-        Composite.__init__(self, lh, 'OR', rh)
+        super(Or, self).__init__(lh, 'OR', rh)
