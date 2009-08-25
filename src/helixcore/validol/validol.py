@@ -12,7 +12,7 @@
 #  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 
-__version__ = "0.2" # XXX Not always updated :\
+__version__ = "0.2" # XXX Not always updated :\ #IGNORE:W0511
 __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
 
 
@@ -43,6 +43,8 @@ class BaseValidator(object):
     ...
     NotImplementedError: Inherit this class and override this method.
     """
+    def __init__(self):
+        pass
 
     def validate(self, data):
         """
@@ -137,7 +139,7 @@ def validate_common(validator, data):
         try:
             if validator(data):
                 return True
-        except:
+        except Exception: #IGNORE:W0703
             return False
     elif kind == TYPE_REGEX:
         if validator.match(data):
@@ -289,6 +291,7 @@ class AnyOf(BaseValidator):
     False
     """
     def __init__(self, *validators):
+        BaseValidator.__init__()
         self.validators = validators
 
     def validate(self, data):
@@ -310,6 +313,7 @@ class Many(BaseValidator):
     True
     """
     def __init__(self, data):
+        BaseValidator.__init__()
         self.data = data
 
     def validate(self, data):
@@ -332,6 +336,7 @@ class Optional(BaseValidator):
     False
     """
     def __init__(self, data):
+        BaseValidator.__init__()
         self.data = data
 
     def validate(self, data):
@@ -346,7 +351,7 @@ class Text(BaseValidator):
     Passes on any textual data (be it str or unicode).
     """
     def __init__(self):
-        pass
+        BaseValidator.__init__()
 
     def validate(self, data):
         # I could do isinstance(data, basestring) but I remember it to be slow.
@@ -377,6 +382,7 @@ class Positive(BaseValidator):
     False
     """
     def __init__(self, validator):
+        BaseValidator.__init__()
         self.validator = validator
 
     def validate(self, data):
@@ -401,6 +407,7 @@ class NonNegative(BaseValidator):
     False
     """
     def __init__(self, validator):
+        BaseValidator.__init__()
         self.validator = validator
 
     def validate(self, data):
