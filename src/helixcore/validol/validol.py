@@ -291,7 +291,7 @@ class AnyOf(BaseValidator):
     False
     """
     def __init__(self, *validators):
-        BaseValidator.__init__()
+        BaseValidator.__init__(self)
         self.validators = validators
 
     def validate(self, data):
@@ -313,7 +313,7 @@ class Many(BaseValidator):
     True
     """
     def __init__(self, data):
-        BaseValidator.__init__()
+        BaseValidator.__init__(self)
         self.data = data
 
     def validate(self, data):
@@ -336,7 +336,7 @@ class Optional(BaseValidator):
     False
     """
     def __init__(self, data):
-        BaseValidator.__init__()
+        BaseValidator.__init__(self)
         self.data = data
 
     def validate(self, data):
@@ -351,7 +351,7 @@ class Text(BaseValidator):
     Passes on any textual data (be it str or unicode).
     """
     def __init__(self):
-        BaseValidator.__init__()
+        BaseValidator.__init__(self)
 
     def validate(self, data):
         # I could do isinstance(data, basestring) but I remember it to be slow.
@@ -382,7 +382,7 @@ class Positive(BaseValidator):
     False
     """
     def __init__(self, validator):
-        BaseValidator.__init__()
+        BaseValidator.__init__(self)
         self.validator = validator
 
     def validate(self, data):
@@ -407,7 +407,7 @@ class NonNegative(BaseValidator):
     False
     """
     def __init__(self, validator):
-        BaseValidator.__init__()
+        BaseValidator.__init__(self)
         self.validator = validator
 
     def validate(self, data):
