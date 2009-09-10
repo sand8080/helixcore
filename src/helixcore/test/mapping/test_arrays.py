@@ -1,6 +1,5 @@
 import unittest
 
-from helixcore.db.wrapper import transaction
 from helixcore.db.query_builder import insert
 from helixcore.db.cond import Eq, Any
 from helixcore.mapping.objects import Mapped
