@@ -75,3 +75,24 @@ class PatchProcessor(object):
             curs.execute(*query_builder.select(self.table, order_by=['-id'], limit=1))
             result = wrapper.fetchall_dicts(curs)
             return result[0]['name'] if len(result) else None
+
+
+def update(patch_processor):
+    patch_processor.apply(patch_processor.get_last_applied())
+
+def reinit(patch_processor):
+    patch_processor.revert_all()
+    patch_processor.apply_all()
+
+def revert(patch_processor):
+    patch_processor.revert_all()
+
+COMMANDS = {
+    'update': update,
+    'reinit': reinit,
+    'revert': revert,
+}
+
+def execute(cmd_name, get_connection_func, patch_table_name, patches_path):
+    patch_processor = PatchProcessor(get_connection_func, patch_table_name, patches_path)
+    COMMANDS[cmd_name](patch_processor)
