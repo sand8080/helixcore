@@ -3,8 +3,8 @@ import cjson
 
 from helixcore.test.root_test import RootTestCase
 
-from helixcore.server.api.api import Api, FormatError
-from helixcore.server.error.errors import RequestProcessingError
+from helixcore.server.api import Api, FormatError
+from helixcore.server.errors import RequestProcessingError
 
 
 class RequestHandlingTestCase(RootTestCase):

@@ -1,5 +1,5 @@
 import cjson, datetime, copy, pytz
-from helixcore.server.error.errors import RequestProcessingError
+from helixcore.server.errors import RequestProcessingError
 
 class FormatError(RequestProcessingError):
     def __init__(self, msg):

@@ -1,3 +1,4 @@
+
 class RequestProcessingError(Exception):
     class Categories(object):
         application = 'application'
