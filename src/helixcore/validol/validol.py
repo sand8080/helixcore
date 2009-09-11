@@ -33,7 +33,7 @@ TYPE_FUNCTION = 8
 class BaseValidator(object):
     """
     All other validators inherit this baseclass. You want to use this class
-    only if you write your own validator, otherwise you should not care
+    only if you write your own validate_func, otherwise you should not care
     about it.
 
     Call to validate method results in NotImplementedError exception.
@@ -190,7 +190,7 @@ def validate_list(validators, data):
     >>> validate_list([str, str], ['foo'])
     Traceback (most recent call last):
     ...
-    NotImplementedError: You cannot specify more than one validator for list at the moment.
+    NotImplementedError: You cannot specify more than one validate_func for list at the moment.
     """
     if type(data) is not list:
         return False
@@ -200,7 +200,7 @@ def validate_list(validators, data):
         validator = validators[0]
         return all(imap(lambda item: validate_common(validator, item), data))
     elif len(validators) > 1:
-        raise NotImplementedError("You cannot specify more than one validator for list at the moment.")
+        raise NotImplementedError("You cannot specify more than one validate_func for list at the moment.")
 
 def validate_hash(validator, data):
     if type(data) is not dict:
@@ -234,7 +234,7 @@ def validate_hash(validator, data):
     return ret_with_many and ret_with_optional
 
 def validate_hash_with_optional(validator, data):
-    validator = dict(validator) # copy validator because later we modify it (pop keys out)
+    validator = dict(validator) # copy validate_func because later we modify it (pop keys out)
     valid_data_keys = {}
     validator_count = len(validator)
     used_validators_count = 0
@@ -243,7 +243,7 @@ def validate_hash_with_optional(validator, data):
             if validate_common(validator_key, data_key):
                 if validate_common(validator_value, data_value):
                     valid_data_keys[data_key] = None
-                    validator.pop(validator_key) # we don't need this validator in future
+                    validator.pop(validator_key) # we don't need this validate_func in future
                     used_validators_count += 1
                     # exhausted all optional validators, good sign
                     if used_validators_count == validator_count:
@@ -295,7 +295,7 @@ class AnyOf(BaseValidator):
         self.validators = validators
 
     def validate(self, data):
-        """ returns True if data is valid for at least one validator. """
+        """ returns True if data is valid for at least one validate_func. """
         return any(imap(lambda validator: validate_common(validator, data), self.validators))
 
     def __repr__(self):
@@ -383,15 +383,15 @@ class Positive(BaseValidator):
     """
     def __init__(self, validator):
         super(Positive, self).__init__()
-        self.validator = validator
+        self.validate_func = validator
 
     def validate(self, data):
-        if not validate_common(self.validator, data):
+        if not validate_common(self.validate_func, data):
             return False
         return data > 0
 
     def __repr__(self):
-        return "<Positive: '%s'>" % str(self.validator)
+        return "<Positive: '%s'>" % str(self.validate_func)
 
 
 class NonNegative(BaseValidator):
@@ -408,15 +408,15 @@ class NonNegative(BaseValidator):
     """
     def __init__(self, validator):
         super(NonNegative, self).__init__()
-        self.validator = validator
+        self.validate_func = validator
 
     def validate(self, data):
-        if not validate_common(self.validator, data):
+        if not validate_common(self.validate_func, data):
             return False
         return data >= 0
 
     def __repr__(self):
-        return "<NonNegative: '%s'>" % str(self.validator)
+        return "<NonNegative: '%s'>" % str(self.validate_func)
 
 
 if __name__ == '__main__':
