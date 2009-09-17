@@ -26,7 +26,7 @@ class Api(object):
         if action_name is None:
             raise FormatError("'action' parameter is not found in request")
 
-        self.validate_func.validate(action_name, parsed_data)
+        self.validate_func(action_name, parsed_data)
 
         return (action_name, parsed_data)
 
