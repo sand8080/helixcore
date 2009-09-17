@@ -8,23 +8,17 @@ from helixcore.server.errors import RequestProcessingError
 
 
 class RequestHandlingTestCase(RootTestCase):
-    class PositiveValidatorMoc(object):
-        def validate(self, *args, **kwargs):
-            pass
+    def positive_validate(self, *args, **kwargs):
+        pass
 
-    class NegativeValidatorMoc(object):
-        def validate(self, *args, **kwargs):
-            raise RequestProcessingError('validation', 'Permanent validation error')
+    def negative_validate(self, *args, **kwargs):
+        raise RequestProcessingError('validation', 'Permanent validation error')
 
-    positive_api = Api(PositiveValidatorMoc())
-    negative_api = Api(NegativeValidatorMoc())
+    positive_api = Api(positive_validate)
+    negative_api = Api(negative_validate)
 
     def test_request_format_error(self):
-        raw_data = '''
-        {"hren" : 8986,
-        "aaa": "str", 789, -99
-        }
-        '''
+        raw_data = '{"hren" : 8986, "aaa": "str", 789, -99}'
         self.assertRaises(FormatError, self.negative_api.handle_request, raw_data)
 
     def test_request_validation_error(self):
@@ -45,8 +39,7 @@ class RequestHandlingTestCase(RootTestCase):
         }
 
         raw_data = cjson.encode(good_data)
-        api = Api(self.PositiveValidatorMoc())
-        action_name, data = api.handle_request(raw_data)
+        action_name, data = self.positive_api.handle_request(raw_data)
         self.assertEquals(action_name, good_data.pop('action'))
         self.assertEquals(data, good_data)
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from helixcore.db.cond import Leaf, Eq, And, Or, Scoped, Any, NullLeaf
+from helixcore.db.cond import Leaf, Eq, And, Or, Scoped, Any, NullLeaf, In
 
 
 class CondTestCase(unittest.TestCase):
@@ -84,6 +84,11 @@ class CondTestCase(unittest.TestCase):
         self.assertEqual(c, '%s = ANY (ids)')
         self.assertEqual(p, [15])
 
+    def test_in_cond(self):
+        cond_in = In('name', ['one', 2, 'three'])
+        c, p = cond_in.glue()
+        self.assertEqual(c, '"name" IN (%s,%s,%s)')
+        self.assertEqual(p, ['one', 2, 'three'])
 
 if __name__ == '__main__':
     unittest.main()

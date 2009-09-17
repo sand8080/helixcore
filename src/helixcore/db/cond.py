@@ -81,11 +81,29 @@ class More(Leaf):
 
 
 class Scoped(object):
+    """
+    (cond)
+    """
     def __init__(self, cond):
         self.cond = cond
+
     def glue(self):
         cond, params = self.cond.glue()
         return ('(%s)' % cond, params)
+
+
+class In(object):
+    """
+    IN (values)
+    """
+    def __init__(self, param, values):
+        self.param = param
+        self.values = values
+
+    def glue(self):
+        in_str = ','.join(['%s' for _ in self.values])
+        cond = '%s IN (%s)' % (buildhelpers.quote(self.param), in_str)
+        return cond, self.values
 
 
 class Composite(object):
