@@ -1,7 +1,10 @@
 import buildhelpers
 from utils import lists_from_dict
 
-class NullLeaf(object):
+class SqlNode(object):
+    pass
+
+class NullLeaf(SqlNode):
     """
     Empty leaf condition
     """
@@ -9,32 +12,37 @@ class NullLeaf(object):
         return ('', [])
 
 
-class Any(object):
+class Any(SqlNode):
     """
     lh = ANY (rh)
     """
     def __init__(self, lh, rh):
+        super(Any, self).__init__()
         self.lh = lh
         self.rh = rh
 
     def glue(self):
-        return (
-            '%%s = ANY (%s)' % self.rh,
-            [self.lh]
-        )
+        if isinstance(self.rh, SqlNode):
+            nested_cond, params = self.rh.glue()
+            cond = '%%s = ANY (%s)' % nested_cond
+        else:
+            cond = '%%s = ANY (%s)' % self.rh
+            params = [self.lh]
+        return cond, params
 
 
-class Leaf(object):
+class Leaf(SqlNode):
     """
     Leaf condition
     """
     def __init__(self, lh, oper, rh):
+        super(Leaf, self).__init__()
         self.lh = lh
         self.oper = oper
         self.rh = rh
 
     def glue(self):
-        if hasattr(self.rh, 'glue'):
+        if isinstance(self.rh, SqlNode):
             nested_cond, params = self.rh.glue()
             cond = '%s %s %s' % (buildhelpers.quote(self.lh), self.oper, nested_cond)
         else:
@@ -83,11 +91,12 @@ class More(Leaf):
         super(More, self).__init__(lh, '>', rh)
 
 
-class Scoped(object):
+class Scoped(SqlNode):
     """
     (cond)
     """
     def __init__(self, cond):
+        super(Scoped, self).__init__()
         self.cond = cond
 
     def glue(self):
@@ -95,22 +104,28 @@ class Scoped(object):
         return ('(%s)' % cond, params)
 
 
-class In(object):
+class In(SqlNode):
     """
     IN (values)
     """
     def __init__(self, param, values):
+        super(In, self).__init__()
         self.param = param
         self.values = values
 
     def glue(self):
-        in_str = ','.join(['%s' for _ in self.values])
+        if isinstance(self.values, SqlNode):
+            in_str, params = self.values.glue()
+        else:
+            in_str = ','.join(['%s' for _ in self.values])
+            params = self.values
         cond = '%s IN (%s)' % (buildhelpers.quote(self.param), in_str)
-        return cond, self.values
+        return cond, params
 
 
-class Composite(object):
+class Composite(SqlNode):
     def __init__(self, lh, oper, rh):
+        super(Composite, self).__init__()
         self.lh = lh
         self.oper = oper
         self.rh = rh
@@ -143,9 +158,10 @@ class Columns(object):
     COUNT_ALL = buildhelpers.Unquoted('COUNT(*)')
 
 
-class Select(object):
+class Select(SqlNode):
     def __init__(self, table, columns=None, cond=None, group_by=None, order_by=None,
         limit=None, offset=0, for_update=False):
+        super(Select, self).__init__()
         self.table = table
         self.columns = columns
         self.cond = cond
@@ -158,7 +174,7 @@ class Select(object):
     def glue(self):
         where_str, where_params = buildhelpers.where(self.cond)
         sql = 'SELECT %(target)s FROM %(table)s %(where)s %(group_by)s %(order_by)s %(limit)s %(offset)s %(locking)s' % {
-            'target': '*' if self.columns is None else buildhelpers.quote_list(self.columns),
+            'target': buildhelpers.columns(self.columns),
             'table': buildhelpers.quote(self.table),
             'where': where_str,
             'group_by': ''  if self.group_by is None else 'GROUP BY %s' % buildhelpers.quote_list(self.group_by),
@@ -170,8 +186,9 @@ class Select(object):
         return sql.strip(), where_params
 
 
-class Update(object):
+class Update(SqlNode):
     def __init__(self, table, updates, cond=None):
+        super(Update, self).__init__()
         self.table = table
         self.updates = updates
         self.cond = cond
@@ -187,8 +204,9 @@ class Update(object):
         return sql.strip(), update_params + where_params
 
 
-class Delete(object):
+class Delete(SqlNode):
     def __init__(self, table, cond=None):
+        super(Delete, self).__init__()
         self.table = table
         self.cond = cond
 
@@ -201,8 +219,9 @@ class Delete(object):
         return sql.strip(), where_params
 
 
-class Insert(object):
+class Insert(SqlNode):
     def __init__(self, table, inserts):
+        super(Insert, self).__init__()
         self.table = table
         self.inserts = inserts
 

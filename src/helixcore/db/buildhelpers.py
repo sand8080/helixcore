@@ -33,4 +33,9 @@ def order(order_by):
             orders.append('%s ASC' % quote(o))
     return 'ORDER BY %s' % ','.join(orders)
 
-
+def columns(c):
+    if c is None:
+        return '*'
+    if isinstance(c, str):
+        c = [c]
+    return quote_list(c)

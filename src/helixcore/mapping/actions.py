@@ -12,12 +12,12 @@ def get(curs, cls, cond, for_update=False):
     curs.execute(*query_builder.select(cls.table, cond=cond, for_update=for_update))
     return cls(**fetchone_dict(curs))
 
-def get_list(curs, cls, cond, order_by='id', limit=None, offset=0):
+def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=False):
     '''
     Selects list of objects, without lock
     @return: list of objects selected.
     '''
-    curs.execute(*query_builder.select(cls.table, cond=cond, for_update=False, order_by=order_by, limit=limit, offset=offset))
+    curs.execute(*query_builder.select(cls.table, cond=cond, for_update=for_update, order_by=order_by, limit=limit, offset=offset))
     dicts_list = fetchall_dicts(curs)
     return [cls(**d) for d in dicts_list]
 

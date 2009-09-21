@@ -90,7 +90,7 @@ class SqlTestCase(unittest.TestCase):
         self.assertEqual(c, '"name" IN (%s,%s,%s)')
         self.assertEqual(p, ['one', 2, 'three'])
 
-    def test_select_query(self):
+    def test_nested_select(self):
         nested = Select('service_set_descr', columns=['name'], cond=Eq('name', 'registration ru'))
         c, p = nested.glue()
         self.assertEqual(c, 'SELECT "name" FROM "service_set_descr" WHERE "name" = %s')
@@ -111,8 +111,27 @@ class SqlTestCase(unittest.TestCase):
         self.assertEqual(c, 'SELECT "service_type_id" FROM "service_set" WHERE "service_set_descr_id" = (SELECT "name" FROM "service_set_descr" WHERE "name" = %s)')
         self.assertEqual(p, ['registration ru'])
 
+        in_cond = In('id', nested)
+        c, p = in_cond.glue()
+        self.assertEqual(c, '''"id" IN (SELECT "service_type_id" FROM "service_set" WHERE "service_set_descr_id" = (SELECT "name" FROM "service_set_descr" WHERE "name" = %s))''')
+        self.assertEqual(p, ['registration ru'])
+
+        any_cond = Any('id', nested)
+        c, p = any_cond.glue()
+        self.assertEqual(c, '''%s = ANY (SELECT "service_type_id" FROM "service_set" WHERE "service_set_descr_id" = (SELECT "name" FROM "service_set_descr" WHERE "name" = %s))''')
+        self.assertEqual(p, ['registration ru'])
+
+
     def test_select(self):
         self.assertEqual('SELECT * FROM "billing"', Select('billing').glue()[0])
+        self.assertEqual(
+            'SELECT "id" FROM "billing"',
+            Select('billing', columns='id').glue()[0]
+        )
+        self.assertEqual(
+            'SELECT "id" FROM "billing"',
+            Select('billing', columns=['id']).glue()[0]
+        )
         self.assertEqual(
             'SELECT "id","billing"."amount" FROM "billing"',
             Select('billing', columns=['id', 'billing.amount']).glue()[0]
