@@ -3,7 +3,7 @@ import psycopg2
 from time import sleep
 from datetime import datetime
 
-from helixcore.db.cond import Eq
+from helixcore.db.sql import Eq
 from helixcore.db.query_builder import insert
 import helixcore.db.deadlock_detector as deadlock_detector
 

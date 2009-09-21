@@ -1,6 +1,6 @@
 from helixcore.db import query_builder
 from helixcore.db.wrapper import fetchone_dict, fetchall_dicts
-from helixcore.db.cond import Eq
+from helixcore.db.sql import Eq
 import helixcore.db.deadlock_detector as deadlock_detector
 
 class MappingError(Exception):

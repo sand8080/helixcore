@@ -3,7 +3,7 @@ import sys
 import imp
 from datetime import datetime
 
-from helixcore.db.cond import Eq, And
+from helixcore.db.sql import Eq, And
 from helixcore.db import query_builder, wrapper
 from helixcore.db.wrapper import transaction_with_dynamic_connection_getter as transaction
 

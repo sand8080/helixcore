@@ -1,5 +1,5 @@
 import buildhelpers
-
+from utils import lists_from_dict
 
 class NullLeaf(object):
     """
@@ -139,14 +139,13 @@ class Or(Composite):
         super(Or, self).__init__(lh, 'OR', rh)
 
 
-#class Query(object):
-#    pass
+class Columns(object):
+    COUNT_ALL = buildhelpers.Unquoted('COUNT(*)')
 
 
 class Select(object):
     def __init__(self, table, columns=None, cond=None, group_by=None, order_by=None,
         limit=None, offset=0, for_update=False):
-#        super(Select, self).__init__()
         self.table = table
         self.columns = columns
         self.cond = cond
@@ -169,3 +168,49 @@ class Select(object):
             'locking': ''  if not self.for_update else 'FOR UPDATE',
         }
         return sql.strip(), where_params
+
+
+class Update(object):
+    def __init__(self, table, updates, cond=None):
+        self.table = table
+        self.updates = updates
+        self.cond = cond
+
+    def glue(self):
+        update_columns, update_params = lists_from_dict(self.updates)
+        where_str, where_params = buildhelpers.where(self.cond)
+        sql = 'UPDATE %(table)s SET %(updates)s %(where)s' % {
+            'table': buildhelpers.quote(self.table),
+            'updates': ','.join('%s = %%s' % buildhelpers.quote(c) for c in update_columns),
+            'where': where_str,
+        }
+        return sql.strip(), update_params + where_params
+
+
+class Delete(object):
+    def __init__(self, table, cond=None):
+        self.table = table
+        self.cond = cond
+
+    def glue(self):
+        where_str, where_params = buildhelpers.where(self.cond)
+        sql = 'DELETE FROM %(table)s %(where)s' % {
+            'table': buildhelpers.quote(self.table),
+            'where': where_str,
+        }
+        return sql.strip(), where_params
+
+
+class Insert(object):
+    def __init__(self, table, inserts):
+        self.table = table
+        self.inserts = inserts
+
+    def glue(self):
+        insert_columns, insert_params = lists_from_dict(self.inserts)
+        sql = 'INSERT INTO %(table)s (%(columns)s) VALUES (%(values)s)' % {
+            'table': buildhelpers.quote(self.table),
+            'columns': ','.join(map(buildhelpers.quote, insert_columns)),
+            'values': ','.join('%s' for _ in insert_columns),
+        }
+        return sql.strip(), insert_params

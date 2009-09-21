@@ -5,7 +5,7 @@ from helixcore.test.test_environment import transaction
 
 from helixcore.db.wrapper import EmptyResultSetError
 from helixcore.db.query_builder import insert
-from helixcore.db.cond import Eq
+from helixcore.db.sql import Eq
 from helixcore.mapping.objects import Mapped
 from helixcore.mapping import actions
 

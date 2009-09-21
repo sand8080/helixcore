@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from helixcore.db.sql import Leaf, Eq, And, Or, Scoped, Any, NullLeaf, In, Select
+from helixcore.db.sql import Leaf, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete, Insert
 
 
 class SqlTestCase(unittest.TestCase):
@@ -110,6 +110,77 @@ class SqlTestCase(unittest.TestCase):
         c, p = nested.glue()
         self.assertEqual(c, 'SELECT "service_type_id" FROM "service_set" WHERE "service_set_descr_id" = (SELECT "name" FROM "service_set_descr" WHERE "name" = %s)')
         self.assertEqual(p, ['registration ru'])
+
+    def test_select(self):
+        self.assertEqual('SELECT * FROM "billing"', Select('billing').glue()[0])
+        self.assertEqual(
+            'SELECT "id","billing"."amount" FROM "billing"',
+            Select('billing', columns=['id', 'billing.amount']).glue()[0]
+        )
+        self.assertEqual(
+            'SELECT "id","billing"."amount" FROM "billing"  GROUP BY "id","billing"."currency"',
+            Select('billing', columns=['id', 'billing.amount'], group_by=['id', 'billing.currency']).glue()[0]
+        )
+        self.assertEqual(
+            'SELECT "id","billing"."amount" FROM "billing"   ORDER BY "id" ASC,"billing"."amount" DESC',
+            Select('billing', columns=['id', 'billing.amount'], order_by=['id', '-billing.amount']).glue()[0]
+        )
+        self.assertEqual(
+            'SELECT * FROM "billing"    LIMIT 4',
+            Select('billing', limit=4).glue()[0]
+        )
+        self.assertEqual(
+            'SELECT * FROM "billing"    LIMIT 0',
+            Select('billing', limit=0).glue()[0]
+        )
+        self.assertEqual(
+            'SELECT * FROM "billing"   ORDER BY "id" ASC,"ammount" ASC LIMIT 5 OFFSET 6',
+            Select('billing', order_by=['id', 'ammount'], limit=5, offset=6).glue()[0]
+        )
+
+        cond_and = And(
+            Leaf('billing.amount', '>', 10),
+            Leaf('billing.amount', '<', 100)
+        )
+        q_str, params = Select('billing', cond=cond_and).glue()
+        self.assertEqual(
+            'SELECT * FROM "billing" WHERE "billing"."amount" > %s AND "billing"."amount" < %s',
+            q_str
+        )
+        self.assertEqual([10, 100], params)
+
+        self.assertEqual(
+            'SELECT * FROM "billing" WHERE "id" = %s     FOR UPDATE',
+            Select('billing', cond=Eq('id', 5), for_update=True).glue()[0]
+        )
+
+    def test_update(self):
+        q_str, q_params = Update('balance', {'client_id': 4}, Eq('id', 1)).glue()
+        self.assertEqual(
+            'UPDATE "balance" SET "client_id" = %s WHERE "id" = %s',
+            q_str
+        )
+        self.assertEqual(q_params, [4, 1])
+
+    def test_delete(self):
+        q_str, q_params = Delete('balance_lock', Eq('balance_id', 7)).glue()
+        self.assertEqual(
+            'DELETE FROM "balance_lock" WHERE "balance_id" = %s',
+            q_str
+        )
+        self.assertEqual([7], q_params)
+
+        q_str, q_params = Delete('currency').glue()
+        self.assertEqual('DELETE FROM "currency"', q_str)
+        self.assertEqual([], q_params)
+
+    def test_insert(self):
+        q_str, q_params = Insert('balance', {'client_id': 42, 'amount': 0, 'currency': 'usd'}).glue()
+        self.assertEqual(
+            'INSERT INTO "balance" ("currency","amount","client_id") VALUES (%s,%s,%s)',
+            q_str
+        )
+        self.assertEqual(['usd', 0, 42], q_params)
 
 
 if __name__ == '__main__':

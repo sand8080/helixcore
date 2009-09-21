@@ -1,7 +1,7 @@
 import unittest
 
 from helixcore.db.query_builder import insert
-from helixcore.db.cond import Eq, Any
+from helixcore.db.sql import Eq, Any
 from helixcore.mapping.objects import Mapped
 from helixcore.mapping import actions
 
