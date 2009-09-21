@@ -3,7 +3,7 @@ import unittest
 from helixcore.test.validol.tests import AnyOfTestCase, BaseValidatorTestCase, DictTestCase, JobRelatedTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.validol.tests import ListTestCase, OptionalTestCase, SamplesTestCase, SchemeTestCase #IGNORE:W0611 @UnusedImport
 
-from helixcore.test.db.test_cond import CondTestCase #IGNORE:W0611 @UnusedImport
+from helixcore.test.db.test_sql import SqlTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_query_builder import QueryBuilderTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_wrapper import WrapperTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_deadlock_detector import DeadlockDetectorTestCase #IGNORE:W0611 @UnusedImport

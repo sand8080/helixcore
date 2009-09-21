@@ -1,13 +1,14 @@
 import unittest
 from datetime import datetime
 
-from helixcore.db.wrapper import transaction, EmptyResultSetError
+from helixcore.test.test_environment import transaction
+
+from helixcore.db.wrapper import EmptyResultSetError
 from helixcore.db.query_builder import insert
 from helixcore.db.cond import Eq
 from helixcore.mapping.objects import Mapped
 from helixcore.mapping import actions
 
-from helixcore.test.test_environment import transaction
 
 class ActionsTestCase(unittest.TestCase):
     class T(Mapped):
