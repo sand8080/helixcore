@@ -227,7 +227,7 @@ class Insert(SqlNode):
 
     def glue(self):
         insert_columns, insert_params = lists_from_dict(self.inserts)
-        sql = 'INSERT INTO %(table)s (%(columns)s) VALUES (%(values)s)' % {
+        sql = 'INSERT INTO %(table)s (%(columns)s) VALUES (%(values)s) RETURNING id' % {
             'table': buildhelpers.quote(self.table),
             'columns': ','.join(map(buildhelpers.quote, insert_columns)),
             'values': ','.join('%s' for _ in insert_columns),

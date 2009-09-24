@@ -70,7 +70,7 @@ class QueryBuilderTestCase(unittest.TestCase):
     def test_insert(self):
         q_str, q_params = insert('balance', {'client_id': 42, 'amount': 0, 'currency': 'usd'})
         self.assertEqual(
-            'INSERT INTO "balance" ("currency","amount","client_id") VALUES (%s,%s,%s)',
+            'INSERT INTO "balance" ("currency","amount","client_id") VALUES (%s,%s,%s) RETURNING id',
             q_str
         )
         self.assertEqual(['usd', 0, 42], q_params)

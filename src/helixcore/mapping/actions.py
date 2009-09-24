@@ -28,8 +28,9 @@ def insert(curs, obj):
     if hasattr(obj, 'id'):
         raise MappingError('Inserting %s with id %s' % (obj.__class__.__name__, obj.id))
     curs.execute(*query_builder.insert(obj.table, get_fields(obj)))
-    curs.execute("select currval('%s_id_seq')" % obj.table)
-    obj.id = fetchone_dict(curs)['currval']
+    obj.id = fetchone_dict(curs)['id']
+#    curs.execute("select currval('%s_id_seq')" % obj.table)
+#    obj.id = fetchone_dict(curs)['currval']
 
 def update(curs, obj):
     if not hasattr(obj, 'id'):
