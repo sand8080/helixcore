@@ -98,7 +98,7 @@ class WrapperTestCase(unittest.TestCase):
         self.assertEqual(num_records, len(fetchall_dicts(curs)))
 
     @transaction()
-    def slow_task(self, report, id, pause, curs=None):
+    def slow_task(self, report, id, pause, curs=None): #IGNORE:W0622
         q_sel, params = select(self.table, cond=Eq('id', id), for_update=True)
         curs.execute(q_sel, params)
         curs.execute(*update(self.table, updates={'name': 'substituted'}, cond=Eq('id', id)))
@@ -106,7 +106,7 @@ class WrapperTestCase(unittest.TestCase):
         report['slow_task'] = fetchone_dict(curs)
         sleep(pause)
 
-    def fast_task(self, report, id, pause, conn=None):
+    def fast_task(self, report, id, pause, conn=None): #IGNORE:W0622
         curs = conn.cursor()
         try:
             sleep(pause)
@@ -120,7 +120,7 @@ class WrapperTestCase(unittest.TestCase):
             raise
 
     @transaction()
-    def task_wait_before(self, report, id, pause, curs=None):
+    def task_wait_before(self, report, id, pause, curs=None): #IGNORE:W0622
         sleep(pause)
         curs.execute(*select(self.table, cond=Eq('id', id), for_update=True))
         report['task_wait_before'] = fetchone_dict(curs)
@@ -129,7 +129,7 @@ class WrapperTestCase(unittest.TestCase):
         self.fill_table()
         from threading import Thread
         report = {}
-        id = 1
+        id = 1 #IGNORE:W0622
         t_slow = Thread(target=self.slow_task, args=(report, id, 0.2))
         t_fast = Thread(target=self.fast_task, args=(report, id, 0.1, get_connection()))
         t_slow.start()
@@ -141,7 +141,7 @@ class WrapperTestCase(unittest.TestCase):
         self.fill_table()
         from threading import Thread
         report = {}
-        id = 1
+        id = 1 #IGNORE:W0622
         t_one = Thread(target=self.slow_task, args=(report, id, 0.2))
         t_two = Thread(target=self.task_wait_before, args=(report, id, 0.1))
         t_one.start()

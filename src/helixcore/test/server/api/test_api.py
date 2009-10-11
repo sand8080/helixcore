@@ -14,8 +14,8 @@ class RequestHandlingTestCase(RootTestCase):
     def negative_validate(self, *args, **kwargs):
         raise RequestProcessingError('validation', 'Permanent validation error')
 
-    positive_api = Api(positive_validate)
-    negative_api = Api(negative_validate)
+    positive_api = Api(positive_validate, positive_validate)
+    negative_api = Api(negative_validate, positive_validate)
 
     def test_request_format_error(self):
         raw_data = '{"hren" : 8986, "aaa": "str", 789, -99}'
@@ -44,7 +44,7 @@ class RequestHandlingTestCase(RootTestCase):
         self.assertEquals(data, good_data)
 
         good_response = {'status': 'ok'}
-        actual_response = cjson.decode(self.positive_api.handle_response(good_response))
+        actual_response = cjson.decode(self.positive_api.handle_response(action_name, good_response))
         self.assertEquals(good_response, actual_response)
 
 if __name__ == '__main__':

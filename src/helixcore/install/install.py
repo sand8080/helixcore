@@ -39,12 +39,12 @@ class PatchProcessor(object):
 
     def dynamic_patch_call(self, patches, executor_name, registrator):
         for p in patches:
-            (file, pathname, description) = imp.find_module(p)
+            (f, pathname, description) = imp.find_module(p)
             try:
-                m = imp.load_module(p, file, pathname, description)
+                m = imp.load_module(p, f, pathname, description)
                 self.process_patch(p, getattr(m, executor_name), registrator)
             finally:
-                file.close()
+                f.close()
 
     @transaction()
     def process_patch(self, name, executor, registrator, curs=None):

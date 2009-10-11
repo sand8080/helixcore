@@ -6,11 +6,7 @@ def response_ok(**kwargs):
     @return: success response dict
     @param **kwargs: optional data to be appended to response
     '''
-    response = {
-        'status': 'ok'
-    }
-    response.update(kwargs)
-    return response
+    return dict({'status': 'ok'}, **kwargs)
 
 def response_error(request_processing_error):
     '''
