@@ -296,7 +296,7 @@ class AnyOf(BaseValidator):
 
     def validate(self, data):
         """ returns True if data is valid for at least one validate_func. """
-        return any(imap(lambda validator: validate_common(validator, data), self.validators))
+        return any(validate_common(v, data) for v in self.validators)
 
     def __repr__(self):
         return "<AnyOf: '%s'>" % str(self.validators)
@@ -418,6 +418,3 @@ class NonNegative(BaseValidator):
     def __repr__(self):
         return "<NonNegative: '%s'>" % str(self.validate_func)
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()

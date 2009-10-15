@@ -1,15 +1,21 @@
-#@PydevCodeAnalysisIgnore
-import cProfile
+from validol import Scheme
+import unittest
+import docsgenerator
 
-if __name__ == "__main__":
-    import doctest
-    import validol
-    print 'testing...'
+class GenerateDocsTestCase(unittest.TestCase):
+    def test_ping(self):
+        scheme = Scheme({})
+        self.assertEquals(
+            docsgenerator.generate(scheme),
+            ''
+        )
+
+
+if __name__ == '__main__':
+    print '1) doctests'
+    import doctest, validol
     doctest.testmod(validol)
     print 'done'
-#
-#    for _ in range(3):
-#        cProfile.run("""
-#for _ in range(500000):
-#    validol.validate_list([str], ['foo'])
-#""")
+
+    print '2) unittests'
+    unittest.main()
