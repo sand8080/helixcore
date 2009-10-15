@@ -54,6 +54,7 @@ class BaseValidator(object):
         """
         raise NotImplementedError("Inherit this class and override this method.")
 
+atomic_types = set([str, unicode, int, bool, float])
 def kind_of(obj):
     """
     Finds out what kind of object we have on hands.
@@ -98,16 +99,16 @@ def kind_of(obj):
         return TYPE_LIST
     elif obj_type is tuple:
         return TYPE_TUPLE
-    elif obj in [str, unicode, int, bool, float]:
+    elif obj in atomic_types:
         return TYPE_TYPE
     elif obj is object:
         return TYPE_OBJECT
-    elif hasattr(obj, "__class__") and issubclass(obj.__class__, BaseValidator):
+    elif hasattr(obj, '__class__') and issubclass(obj.__class__, BaseValidator):
         return TYPE_VALIDATOR
     elif callable(obj):
         return TYPE_FUNCTION
     # this f##king SRE_Pattern, why can't I f##king kill it
-    elif hasattr(obj, "match") and hasattr(obj, "search"):
+    elif hasattr(obj, 'match') and hasattr(obj, 'search'):
         return TYPE_REGEX
     else:
         return TYPE_UNKNOWN
@@ -139,7 +140,7 @@ def validate_common(validator, data):
         try:
             if validator(data):
                 return True
-        except Exception: #IGNORE:W0703
+        except: #IGNORE:W0703
             return False
     elif kind == TYPE_REGEX:
         if validator.match(data):
@@ -173,9 +174,7 @@ def validate_tuple(validator, data):
         return False
     if len(validator) != len(data):
         return False
-    # all elements must be valid
-    return all(imap(lambda i: validate_common(i[0], i[1]),
-                    zip(validator, data)))
+    return all(imap(validate_common, validator, data))
 
 def validate_list(validators, data):
     """
@@ -194,12 +193,13 @@ def validate_list(validators, data):
     """
     if type(data) is not list:
         return False
-    if len(validators) == 0:
+    n_validators = len(validators)
+    if n_validators == 0:
         return len(data) == 0
-    elif len(validators) == 1:
+    elif n_validators == 1:
         validator = validators[0]
-        return all(imap(lambda item: validate_common(validator, item), data))
-    elif len(validators) > 1:
+        return all(validate_common(validator, item) for item in data)
+    elif n_validators > 1:
         raise NotImplementedError("You cannot specify more than one validate_func for list at the moment.")
 
 def validate_hash(validator, data):
@@ -371,13 +371,13 @@ class Scheme(AnyOf):
 
 class Positive(BaseValidator):
     """
-    Validates if data >= 0.
+    Validates if data > 0.
     If such comparison operator is not applicable to data uoy will get compile error
 
     >>> Positive(int).validate(1)
     True
     >>> Positive(int).validate(0)
-    True
+    False
     >>> Positive(int).validate(-9)
     False
     """
@@ -388,7 +388,7 @@ class Positive(BaseValidator):
     def validate(self, data):
         if not validate_common(self.validate_func, data):
             return False
-        return data >= 0
+        return data > 0
 
     def __repr__(self):
         return "<Positive: '%s'>" % str(self.validate_func)
@@ -417,7 +417,6 @@ class NonNegative(BaseValidator):
 
     def __repr__(self):
         return "<NonNegative: '%s'>" % str(self.validate_func)
-
 
 if __name__ == '__main__':
     import doctest
