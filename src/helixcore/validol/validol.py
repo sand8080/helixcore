@@ -102,12 +102,12 @@ def kind_of(obj):
         return TYPE_TYPE
     elif obj is object:
         return TYPE_OBJECT
-    elif getattr(obj, "__class__", False) and issubclass(obj.__class__, BaseValidator):
+    elif hasattr(obj, "__class__") and issubclass(obj.__class__, BaseValidator):
         return TYPE_VALIDATOR
     elif callable(obj):
         return TYPE_FUNCTION
     # this f##king SRE_Pattern, why can't I f##king kill it
-    elif getattr(obj, "match", False) and getattr(obj, "search", False):
+    elif hasattr(obj, "match") and hasattr(obj, "search"):
         return TYPE_REGEX
     else:
         return TYPE_UNKNOWN
@@ -371,7 +371,7 @@ class Scheme(AnyOf):
 
 class Positive(BaseValidator):
     """
-    Validates if data > 0.
+    Validates if data >= 0.
     If such comparison operator is not applicable to data uoy will get compile error
 
     >>> Positive(int).validate(1)
@@ -388,7 +388,7 @@ class Positive(BaseValidator):
     def validate(self, data):
         if not validate_common(self.validate_func, data):
             return False
-        return data > 0
+        return data >= 0
 
     def __repr__(self):
         return "<Positive: '%s'>" % str(self.validate_func)
