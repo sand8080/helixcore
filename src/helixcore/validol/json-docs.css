@@ -1,0 +1,181 @@
+body {
+    margin:2em 2em 2em 10%;
+}
+.json-docs * {
+    margin:0;
+    padding:0;
+}
+.json-docs .item {
+    margin:1em 0 2em 0;
+}
+.json-docs h1 {
+    font-size:1.6em;
+    font-family:sans-serif;
+}
+.json-docs h2 {
+    font-size:1.2em;
+    font-family:sans-serif;
+}
+.json-docs p {
+    margin:0 0 .5em 0;
+}
+.json-docs h3 {
+    font-size:1em;
+    font-family:sans-serif;
+}
+.json-docs {
+    /*font-family:monospace;*/
+}
+
+.json-docs .optional {
+    /*background:#ededed;
+    border:dotted 1px #dedede;*/
+}
+.json-docs .brace,
+.json-docs .property {
+    color:#222;
+    font-weight:bold;
+}
+.json-docs .indent {
+    margin-left:2em;
+}
+
+
+.json-docs .branching td {
+    padding-right:4em;
+    border-right:double 3px #ccc;
+}
+.json-docs .branching td:last-child {
+    border:0;
+}
+
+
+.json-docs .variable {
+    color:#22c;
+}
+.json-docs .string {
+    color:#292;
+}
+
+.json-docs .block {
+    border: solid 1px #ccc;
+    padding: .7em 1.2em;
+    margin: .5em 0;
+    position: relative;
+}
+
+.json-docs .io-input .block {
+    background: #FFFFEF;
+}
+
+.json-docs .io-output .block {
+    background: #EFFFF0;
+}
+
+.json-docs .comment {
+    color:#555;
+    font-style:italic;
+}
+
+/*
+.block .tag {
+    font-weight: bold;
+    color: green;
+    display: block;
+}
+
+.block .suffix {
+    font-weight: normal;
+    font-size: 80%;
+    color: #111;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: .1em .5em;
+    background: #eee;
+    background: #FFF9DF;
+    border-bottom: dotted 1px #ccc;
+    border-left: dotted 1px #ccc;
+}
+
+.optional_block {
+    border-style: dashed;
+}
+
+.multi_block {
+    border-style: dotted;
+}
+
+ol.xmls li {
+    margin: 0 0 1em 0;
+}
+
+ol.xmls li .io_input {
+    margin-bottom: 1em;
+}
+
+.io_input  .block .block {
+    background: #FFFFEF
+}
+
+.io_output .block .block {
+    background: #DFFAFF
+}
+
+.io_input  .block .block .block {
+    background: #EFFFF0
+}
+
+.io_output .block .block .block {
+    background: #FFEFCF
+}
+
+.io_input  .block .block .block .block {
+    background: #EDFAFF;
+}
+
+.io_output .block .block .block .block {
+    background: #FFF9EF;
+}
+
+.io_input  .block .block .block .block .block {
+    background: #EFF2FF;
+}
+
+.io_output .block .block .block .block .block {
+    background: #EFF2FF;
+}
+
+.block .const {
+    color: green;
+}
+
+.repeating {
+    border: dashed 2px #ddd;
+    padding: 2em 1em 1em 1em;
+    margin-bottom: 1em;
+    position: relative;
+}
+
+.repeating_suffix {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.repeating_suffix .suffix {
+    position: static;
+    font-size: 120%;
+    color: #333;
+}
+
+.formated_xml {
+    background: #FFFFEF
+}
+
+.tag {
+    font-weight: bold;
+    color: #008000
+}
+
+*/
