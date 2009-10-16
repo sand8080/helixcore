@@ -1,15 +1,21 @@
+from docsgenerator import format
 from validol import Scheme
 import unittest
-import docsgenerator
+
 
 class GenerateDocsTestCase(unittest.TestCase):
-    def test_ping(self):
+    def test_simple_request_doc(self):
         scheme = Scheme({})
         self.assertEquals(
-            docsgenerator.generate(scheme),
-            ''
+            format(scheme),
+            '<div class="block">'
+                '<div class="brace">{</div>'
+                '<div class="indent">'
+                    '<div class="comment">// empty</div>'
+                '</div>'
+                '<div class="brace">}</div>'
+            '</div>'
         )
-
 
 if __name__ == '__main__':
     print '1) doctests'
