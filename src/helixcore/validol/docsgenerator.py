@@ -51,10 +51,13 @@ def propname(s):
 def indent(*args):
     return '<div class="indent">%s</div>' % ''.join(args)
 
-def format_hash(data, is_nested=False):
+def format_hash(data, is_nested=False, add_line_if_not_exist=None):
     lines = []
-    is_last = lambda i, last_i=len(data) - 1: i == last_i
-    for i, (key, value) in enumerate(sorted(data.items(),
+    hash_items = data.items()
+    if add_line_if_not_exist:
+        hash_items.insert(0, add_line_if_not_exist)
+    is_last = lambda i, last_i=len(hash_items) - 1: i == last_i
+    for i, (key, value) in enumerate(sorted(hash_items,
         key=lambda (key, value): (
             isinstance(key, Optional),  # first non-optional
             not isinstance(value, basestring), # next just strings
@@ -64,20 +67,29 @@ def format_hash(data, is_nested=False):
 #        if comment:
 #            lines.append(block_comment(comment))
         if isinstance(key, Optional):
-            lines.append(optional_line('%s %s%s' % (propname(safe(key.data) + ':'), format(value, nested_hash=True), '' if is_last(i) else ',')))
+            lines.append(optional_line('%s %s%s' % (
+                propname(safe(key.data) + ':'),
+                format(value, nested_hash=True),
+                '' if is_last(i) else '<span class="comma">,</span>'
+            )))
         else:
-            lines.append(line('%s %s%s' % (propname(safe(key) + ':'), format(value, nested_hash=True), '' if is_last(i) else '<span class="comma">,</span>')))
+            lines.append(line('%s %s%s' % (
+                propname(safe(key) + ':'),
+                format(value, nested_hash=True),
+                '' if is_last(i) else '<span class="comma">,</span>'
+            )))
 
+    tail = indent(''.join(lines) or block_comment('empty')) + block_brace('}')
     if is_nested:
-        return inline_brace('{') + indent(''.join(lines) or block_comment('empty')) + block_brace('}')
+        return inline_brace('{') + tail
     else:
-        return block_brace('{') + indent(''.join(lines) or block_comment('empty')) + block_brace('}')
+        return block_brace('{') + tail
 
-def format(data, nested_hash=False):
+def format(data, nested_hash=False, add_line_if_not_exist=None):
     if isinstance(data, basestring):
         return string(data)
     if isinstance(data, AnyOf):
-        return OR(data.validators)
+        return OR(data.validators, add_line_if_not_exist)
     if isinstance(data, type):
         if data == bool:
             return choice_values(['true', 'false'])
@@ -94,16 +106,16 @@ def format(data, nested_hash=False):
         return atomic_type(safe('positive integer'))
     if isinstance(data, dict):
         #print 'data', data
-        return format_hash(data, nested_hash)
+        return format_hash(data, nested_hash, add_line_if_not_exist)
     return block_comment('%s not supported' % safe(type(data)))
     #raise NotImplementedError('%s not supported' % type(data))
 
 def safe(s):
     return str(s).replace('<', '&lt;').replace('>', '&gt;')
 
-def OR(lst):
+def OR(lst, add_line_if_not_exist=None):
     if len(lst) < 2:
-        return block(format(lst[0]))
+        return block(format(lst[0], add_line_if_not_exist=add_line_if_not_exist))
     else:
         return (
             '<table class="branching">'
@@ -136,6 +148,8 @@ class DocItem(object):
                 self.io_type = io_type
                 self.cleaned_name = cleaned_name
 
+#def mix_action_name():
+
 def generate_by_protocol(protocol, title='Untitled'):
     protocol = map(DocItem, protocol)
 
@@ -166,7 +180,8 @@ def generate_by_protocol(protocol, title='Untitled'):
             'common_description': req.description,
             'req_id': req_id,
             'resp_id': resp_id,
-            'req_scheme': format(req.scheme),
+            'req_scheme': format(req.scheme,
+                add_line_if_not_exist=('action', req.cleaned_name)),
             'resp_scheme': format(resp.scheme),
         })
 
