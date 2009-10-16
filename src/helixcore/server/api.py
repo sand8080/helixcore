@@ -12,11 +12,11 @@ class ApiCall(object):
 
 
 class Api(object):
-    def __init__(self, api_scheme):
+    def __init__(self, protocol):
         '''
-        @param api_scheme: list of ApiCall objects
+        @param protocol: list of ApiCall objects
         '''
-        self.scheme_dict = dict((c.name, c.scheme) for c in api_scheme)
+        self.scheme_dict = dict((c.name, c.scheme) for c in protocol)
 
     def handle_request(self, raw_data):
         '''

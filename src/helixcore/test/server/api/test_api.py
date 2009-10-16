@@ -30,11 +30,11 @@ class RequestHandlingTestCase(RootTestCase):
         }
 
         raw_data = cjson.encode(good_data)
-        api_scheme = [
+        protocol = [
             ApiCall('add_currency_request', {'name': Text(), 'designation': Text(), 'cent_factor': int}),
             ApiCall('add_currency_response', {'status': Text()}),
         ]
-        test_api = Api(api_scheme)
+        test_api = Api(protocol)
         action_name, data = test_api.handle_request(raw_data)
         self.assertEquals(action_name, good_data.pop('action'))
         self.assertEquals(data, good_data)

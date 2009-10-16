@@ -6,10 +6,10 @@ from helixcore.server.errors import RequestProcessingError
 
 
 class Application(object):
-    def __init__(self, action_handler, api_scheme, logger):
+    def __init__(self, action_handler, protocol, logger):
         self.action_handler = action_handler
         self.logger = logger
-        self.helix_api = HelixApi(api_scheme)
+        self.helix_api = HelixApi(protocol)
 
     def __call__(self, environ, start_response):
         raw_data = environ['eventlet.input'].read()
