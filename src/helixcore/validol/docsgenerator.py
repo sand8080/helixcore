@@ -14,6 +14,22 @@ def string(s):
 def atomic_type(s):
     return '<span class="variable">%s</span>' % s
 
+def list_type(s):
+    return '<span class="list">%s %s<span class="comma">,</span> %s<span class="comma">,<span/> <span class="hellip">...</span> %s</span>' % (
+        inline_brace('['),
+        atomic_type(s),
+        atomic_type(s),
+        inline_brace(']'),
+    )
+
+def choice_values(values):
+    return '<span class="choice">%s %s %s</span>' % (
+        inline_brace('('),
+        (' %s ' % inline_brace('|')).join(atomic_type(t) for t in values),
+        inline_brace(')'),
+    )
+
+
 def block(s):
     return '<div class="block">%s</div>' % s
 
@@ -21,7 +37,7 @@ def line(s):
     return '<div>%s</div>' % (s)
 
 def optional_line(s):
-    return '<div class="optional">%s %s</div>' % (s, line_comment('optional'))
+    return '<div class="optional">%s &nbsp; %s</div>' % (s, line_comment('optional'))
 
 def block_comment(s):
     return '<div class="comment">// %s</div>' % s
@@ -35,38 +51,50 @@ def propname(s):
 def indent(*args):
     return '<div class="indent">%s</div>' % ''.join(args)
 
-def format_hash(data):
+def format_hash(data, is_nested=False):
     lines = []
     is_last = lambda i, last_i=len(data) - 1: i == last_i
-    for i, (key, value) in enumerate(data.items()):
+    for i, (key, value) in enumerate(sorted(data.items(),
+        key=lambda (key, value): (
+            isinstance(key, Optional),  # first non-optional
+            not isinstance(value, basestring), # next just strings
+            key,  # next abc-sorting
+        )
+    )):
 #        if comment:
 #            lines.append(block_comment(comment))
         if isinstance(key, Optional):
-            lines.append(optional_line('%s %s%s' % (propname(safe(key.data) + ':'), format(value), '' if is_last(i) else ',')))
+            lines.append(optional_line('%s %s%s' % (propname(safe(key.data) + ':'), format(value, nested_hash=True), '' if is_last(i) else ',')))
         else:
-            lines.append(line('%s %s%s' % (propname(safe(key) + ':'), format(value), '' if is_last(i) else ',')))
-    return block_brace('{') + indent(''.join(lines) or block_comment('empty')) + block_brace('}')
+            lines.append(line('%s %s%s' % (propname(safe(key) + ':'), format(value, nested_hash=True), '' if is_last(i) else '<span class="comma">,</span>')))
 
-def format(data):
+    if is_nested:
+        return inline_brace('{') + indent(''.join(lines) or block_comment('empty')) + block_brace('}')
+    else:
+        return block_brace('{') + indent(''.join(lines) or block_comment('empty')) + block_brace('}')
+
+def format(data, nested_hash=False):
     if isinstance(data, basestring):
         return string(data)
     if isinstance(data, AnyOf):
         return OR(data.validators)
     if isinstance(data, type):
         if data == bool:
-            return atomic_type(safe('( true | false )'))
+            return choice_values(['true', 'false'])
+        if data == int:
+            return atomic_type(safe('integer'))
         else:
             return atomic_type(safe('!!!! type %s !!!' % data))
     if isinstance(data, list):
         assert len(data) == 1
-        return atomic_type('[%(t)s]' % {'t': format(data[0])})
+        return list_type(format(data[0]))
     if isinstance(data, Text):
         return atomic_type(safe('string'))
     if isinstance(data, Positive):
         return atomic_type(safe('positive integer'))
     if isinstance(data, dict):
         #print 'data', data
-        return format_hash(data)
+        return format_hash(data, nested_hash)
     return block_comment('%s not supported' % safe(type(data)))
     #raise NotImplementedError('%s not supported' % type(data))
 
@@ -89,15 +117,15 @@ def OR(lst):
             )
 
 root = os.path.dirname(__file__)
-def get_css():
-    return open(os.path.join(root, 'json-docs.css')).read()
+def get_file(fname):
+    return open(os.path.join(root, fname)).read()
 
 # Useful for documentation generation
 class DocItem(object):
-    def __init__(self, name, scheme, description='Not described at yet.'):
-        self.name = name
-        self.scheme = scheme
-        self.description = description
+    def __init__(self, api_call):
+        self.name = api_call.name
+        self.scheme = api_call.scheme
+        self.description = api_call.description
 
         self.io_type = ''
         self.cleaned_name = self.name
@@ -109,47 +137,62 @@ class DocItem(object):
                 self.cleaned_name = cleaned_name
 
 def generate_by_protocol(protocol, title='Untitled'):
+    protocol = map(DocItem, protocol)
+
     requests =  [c for c in protocol if c.io_type == 'request']
     responses = [c for c in protocol if c.io_type == 'response']
     other =     [c for c in protocol if not c.io_type]
 
     items = []
+    html_ids = []
     for req, resp in zip(requests, responses):
         assert req.cleaned_name == resp.cleaned_name
+        req_id = req.name
+        resp_id = resp.name
+        html_ids += [req_id, resp_id]
         items.append('<div class="item">'
-            '<h2>%s</h2>'
-            '<p>%s</p>'
-            '<h3>request</h3>'
-            '<div class="io-input">'
-                '%s'
+            '<h2>%(common_title)s</h2>'
+            '<p>%(common_description)s</p>'
+            '''<p><span class="pseudolink" onclick="showHide('%(req_id)s')">request</span></p>'''
+            '<div class="io-input" id="%(req_id)s" style="display:none">'
+                '%(req_scheme)s'
             '</div>'
-            '<h3>response</h3>'
-            '<div class="io-output">'
-                '%s'
+            '''<p><span class="pseudolink" onclick="showHide('%(resp_id)s')">response</span></p>'''
+            '<div class="io-output" id="%(resp_id)s" style="display:none">'
+                '%(resp_scheme)s'
             '</div>'
-        '</div>' % (
-            req.cleaned_name,
-            req.description,
-            format(req.scheme),
-            format(resp.scheme),
-        ))
-
+        '</div>' % {
+            'common_title': req.cleaned_name,
+            'common_description': req.description,
+            'req_id': req_id,
+            'resp_id': resp_id,
+            'req_scheme': format(req.scheme),
+            'resp_scheme': format(resp.scheme),
+        })
 
     for c in other:
+        id = c.name
+        html_ids += [id]
         items.append('<div class="item">'
-            '<h2>%s</h2>'
-            '<p>%s</p>'
-            '%s'
-        '</div>' % (
-            c.name,
-            c.description,
-            format(c.scheme)
-        ))
+            '<h2>%(title)s</h2>'
+            '<p>%(description)s</p>'
+            '''<p><span class="pseudolink" onclick="showHide('%(id)s')">show/hide</span></p>'''
+            '<div class="io-output" id="%(id)s" style="display:none">'
+                '%(scheme)s'
+            '</div>'
+        '</div>' % {
+            'title': c.name,
+            'description': c.description,
+            'scheme': format(c.scheme),
+            'id': id,
+        })
 
-    core = ''.join(items)
+    core = '<ol>%s</ol>' % ''.join('<li>%s</li>' % li for li in items)
 
     return (
+        '<!DOCTYPE html>'
         '<html>'
+            '<!-- generated -->'
             '<head>'
                 '<title>'
                     '%(title)s'
@@ -157,17 +200,24 @@ def generate_by_protocol(protocol, title='Untitled'):
                 '<style>'
                     '%(css)s'
                 '</style>'
+                '<script>'
+                    '%(js)s'
+                '</script>'
             '</head>'
         '<body>'
             '<div class="json-docs">'
                 '<h1>%(title)s</h1>'
+                '<p class="intro"><span class="pseudolink" onclick="showHideAll(%(ids)s)">Show/hide all</span></p>'
                 '%(core)s'
             '</div>'
+            '<script>showHideAll(%(ids)s);</script>'
         '</body>'
         '</html>' % {
             'title': title,
-            'css': get_css(),
             'core': core,
+            'css': get_file('json-docs.css'),
+            'js': '\n'.join([get_file('json-docs.js'), get_file('javascript-1.6.js')]),
+            'ids':  repr(html_ids),  # js arrays syntax = python list syntax
         }
     )
 
