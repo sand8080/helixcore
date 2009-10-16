@@ -1,14 +1,22 @@
 import cjson, datetime, copy, pytz
-from helixcore.server.errors import RequestProcessingError
+from helixcore.server.exceptions import ValidationError, FormatError
+from helixcore.validol.validol import validate
 
-class FormatError(RequestProcessingError):
-    def __init__(self, msg):
-        RequestProcessingError.__init__(self, RequestProcessingError.Categories.request_format, msg)
+
+# Useful for documentation generation
+class ApiCall(object):
+    def __init__(self, name, scheme, description='Not described at yet.'):
+        self.name = name
+        self.scheme = scheme
+        self.description = description
+
 
 class Api(object):
-    def __init__(self, validate_req_func, validate_resp_func):
-        self.validate_req_func = validate_req_func
-        self.validate_resp_func = validate_resp_func
+    def __init__(self, api_scheme):
+        '''
+        @param api_scheme: list of ApiCall objects
+        '''
+        self.scheme_dict = dict((c.name, c.scheme) for c in api_scheme)
 
     def handle_request(self, raw_data):
         '''
@@ -26,7 +34,7 @@ class Api(object):
         if action_name is None:
             raise FormatError("'action' parameter is not found in request")
 
-        self.validate_req_func(action_name, parsed_data)
+        self.validate_request(action_name, parsed_data)
 
         return (action_name, parsed_data)
 
@@ -46,7 +54,7 @@ class Api(object):
             return response
         return fun(response)
 
-    def handle_response(self, action_name, response_dict, validate=True):
+    def handle_response(self, action_name, response_dict, validation=True):
         '''
         Validates response scheme and encodes response dict.
         If action_name is none, validation is not perform.
@@ -60,7 +68,34 @@ class Api(object):
             self._postprocess_value
         )
 
-        if validate:
-            self.validate_resp_func(action_name, response)
+        if validation:
+            self.validate_response(action_name, response)
 
         return cjson.encode(response)
+
+    def _validate(self, call_name, data):
+        scheme = self.scheme_dict.get(call_name)
+        if scheme is None:
+            raise ValidationError('Scheme for %s not found' % call_name)
+
+        result = validate(scheme, data)
+        if not result:
+            raise ValidationError(
+                'Validation failed for action %s. Expected scheme: %s. Actual data: %s'
+                % (call_name, scheme, data)
+            )
+
+    def validate_request(self, action_name, data):
+        '''
+        Validates API request data by action name
+        @raise ValidationError: if validation failed for some reason
+        '''
+        return self._validate('%s_request' % action_name, data)
+
+
+    def validate_response(self, action_name, data):
+        '''
+        Validates API response data by action name
+        @raise ValidationError: if validation failed for some reason
+        '''
+        return self._validate('%s_response' % action_name, data)
