@@ -13,7 +13,7 @@ class Application(object):
 
     def __call__(self, environ, start_response):
         raw_data = environ['eventlet.input'].read()
-        remote_addr = environ['REMOTE_ADDR'] if 'REMOTE_ADDR' in environ else 'undefined'
+        remote_addr = environ.get('REMOTE_ADDR', 'undefined')
         self.logger.debug('Request from %s data %s' % (remote_addr, raw_data))
 
         data = None
