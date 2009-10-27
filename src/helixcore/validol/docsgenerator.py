@@ -39,13 +39,7 @@ class AbstractFormatter(object):
         if add_line_if_not_exist:
             hash_items.insert(0, add_line_if_not_exist)
         is_last = lambda i, last_i=len(hash_items) - 1: i == last_i
-        for i, (key, value) in enumerate(sorted(hash_items,
-            key=lambda (key, value): (
-                isinstance(key, Optional),  # first non-optional
-                not isinstance(value, basestring), # next just strings
-                key,  # next abc-sorting
-            )
-        )):
+        for i, (key, value) in enumerate(sorted_hash_items(hash_items)):
     #        if comment:
     #            lines.append(block_comment(comment))
             if isinstance(key, Optional):
@@ -230,6 +224,19 @@ class DocItem(object):
                 self.io_type = io_type
                 self.cleaned_name = cleaned_name
 
+
+def sorted_hash_items(items):
+    return sorted(items, key=lambda (key, value): (
+        # first non-optional
+        isinstance(key, Optional),
+        # next just strings
+        not isinstance(value, basestring),
+        # next specialcases
+        ('login' not in str(key)),
+        ('password' not in str(key)),
+        # next abc-sorting
+        key,
+    ))
 
 def generate_htmldoc_by_protocol(protocol, title='Untitled'):
     protocol = map(DocItem, protocol)
