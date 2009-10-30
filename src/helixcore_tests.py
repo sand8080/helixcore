@@ -16,5 +16,6 @@ from helixcore.test.install.test_filtering import FilteringTestCase #IGNORE:W061
 
 from helixcore.test.server.api.test_api import RequestHandlingTestCase #IGNORE:W0611 @UnusedImport
 
+
 if __name__ == '__main__':
     unittest.main()
