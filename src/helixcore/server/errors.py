@@ -2,6 +2,7 @@
 class RequestProcessingError(Exception):
     class Categories(object):
         application = 'application'
+        auth = 'auth'
         request_format = 'request_format'
         validation = 'validation'
         unknown_action = 'unknown_action'
