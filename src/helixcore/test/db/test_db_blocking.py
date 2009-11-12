@@ -1,34 +1,31 @@
 import unittest
-#from datetime import datetime
-#from eventlet import api, util, coros
 
-#from helixtariff.test.root_test import RootTestCase
-#from helixtariff.conf import settings
-#from helixtariff.test.wsgi.client import Client
-#from helixtariff.wsgi.server import Server
-#
-#util.wrap_socket_with_coroutine_socket()
-#
-#api.spawn(Server.run)
+from helixcore.test.test_environment import transaction
+import datetime
+from eventlet import util, coros
+
+util.wrap_socket_with_coroutine_socket()
 
 class DbBlockingTestCase(unittest.TestCase):
-    pass
-#    def setUp(self):
-#        super(PsycopgBlockingTestCase, self).setUp()
-#        self.cli = Client(settings.server_host, settings.server_port, '%s' % datetime.now(), 'qazwsx')
-#
-#    def db_sleep(self, num):
-#        print self.cli.db_sleep(num)
-#
-#    def test_blocking(self):
-#        self.cli.add_client()
-#        pool = coros.CoroutinePool(max_size=10)
-#
-#        waiters = []
-#        waiters.append(pool.execute_async(self.db_sleep, 3))
-#
-#        for waiter in waiters:
-#            waiter.wait()
+    @transaction()
+    def db_sleep(self, num, curs=None):
+        curs.execute('SELECT pg_sleep(%s)', [num])
+
+    def test_blocking(self):
+        pool = coros.CoroutinePool(max_size=10)
+
+        waiters = []
+        task_num, sleep_sec = 2, 1
+        for _ in xrange(task_num):
+            waiters.append(pool.execute_async(self.db_sleep, sleep_sec))
+
+        begin = datetime.datetime.now()
+        for waiter in waiters:
+            waiter.wait()
+        end = datetime.datetime.now()
+        td = end - begin
+        print 'Consistent execution time: %s sec' % task_num * sleep_sec
+        print 'Real execution time: %d.%d sec' % (td.seconds, td.microseconds)
 
 
 if __name__ == '__main__':
