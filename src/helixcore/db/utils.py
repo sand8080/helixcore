@@ -4,5 +4,6 @@ def lists_from_dict(d):
     """
     return map(list, zip(*d.items()))
 
+
 def dict_from_lists(names, values):
     return dict(zip(names, values))

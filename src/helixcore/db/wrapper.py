@@ -1,8 +1,10 @@
 from utils import dict_from_lists
 import deadlock_detector
 
+
 class EmptyResultSetError(Exception):
     pass
+
 
 def fetchall_dicts(curs):
     """
@@ -12,12 +14,14 @@ def fetchall_dicts(curs):
     columns = [info[0] for info in curs.description]
     return [dict_from_lists(columns, rec) for rec in records]
 
+
 def fetchone_dict(curs):
     columns = [info[0] for info in curs.description]
     values = curs.fetchone()
     if values is None:
         raise EmptyResultSetError('Nothing to be fetched')
     return dict_from_lists(columns, values)
+
 
 def transaction(get_conn):
     def decorator(fun):
@@ -37,6 +41,7 @@ def transaction(get_conn):
         return decorated
     return decorator
 
+
 def transaction_with_dynamic_connection_getter():
     def decorator(fun):
         def decorated(self, *args, **kwargs):
@@ -55,6 +60,7 @@ def transaction_with_dynamic_connection_getter():
                 raise
         return decorated
     return decorator
+
 
 def _end_trans(curs):
     curs.close()

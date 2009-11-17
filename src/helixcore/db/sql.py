@@ -1,8 +1,10 @@
 import buildhelpers
 from utils import lists_from_dict
 
+
 class SqlNode(object):
     pass
+
 
 class NullLeaf(SqlNode):
     """
