@@ -67,10 +67,7 @@ def get_obj_by_fields(curs, cls, fields, for_update):
             and_cond = eq_cond
         else:
             and_cond = And(and_cond, eq_cond)
-    try:
-        return get(curs, cls, and_cond, for_update)
-    except EmptyResultSetError:
-        raise DataIntegrityError('%s with %s not found in system' % (cls, fields))
+    return get(curs, cls, and_cond, for_update)
 
 def get_obj_by_field(curs, cls, field, value, for_update):
     return get_obj_by_fields(curs, cls, {field: value}, for_update)
