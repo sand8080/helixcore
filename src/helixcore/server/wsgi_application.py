@@ -20,7 +20,9 @@ class Application(object):
         action_name = None
         try:
             action_name, data = self.helix_api.handle_request(raw_data)
-            raw_response = self.action_handler(action_name, data)
+            # safe data by copying it
+            data_copy = dict(data)
+            raw_response = self.action_handler(action_name, data_copy)
             self.logger.log(logging.DEBUG, 'Response to %s: %s' % (remote_addr, raw_response))
             response = self.helix_api.handle_response(action_name, raw_response)
         except RequestProcessingError, e:

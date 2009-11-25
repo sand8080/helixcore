@@ -1,7 +1,6 @@
-from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, EmptyResultSetError
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
+from helixcore.db.wrapper import fetchone_dict, fetchall_dicts
 import helixcore.db.deadlock_detector as deadlock_detector
-from helixcore.server.exceptions import DataIntegrityError
 
 
 class MappingError(Exception):
