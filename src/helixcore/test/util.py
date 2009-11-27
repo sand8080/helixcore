@@ -1,3 +1,4 @@
+from eventlet import coros
 import datetime
 import cjson
 import urllib2
@@ -24,9 +25,11 @@ def profile(func):
     def decorated(self, *args, **kwargs):
         print '%s >>>>' % func.func_name
         repeats = kwargs['repeats']
+        pool = coros.CoroutinePool(max_size=repeats)
         start = datetime.datetime.now()
         for _ in xrange(repeats):
-            func(self, *args, **kwargs)
+            pool.execute_async(func, self, *args, **kwargs)
+        pool.wait_all()
         delta = datetime.datetime.now() - start
         if delta.seconds == 0:
             print 'repeats: %d, elapsed time %s' % (repeats, delta)
