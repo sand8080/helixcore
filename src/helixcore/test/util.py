@@ -40,13 +40,15 @@ def profile(func):
 
 
 class ClientApplication(object):
-    def __init__(self, host, port, login, password):
+    def __init__(self, host, port, login, password, protocol='http'):
+        self.protocol = protocol
         self.host = host
         self.port = port
         self.login = login
         self.password = password
 
     def request(self, data):
-        req = urllib2.Request(url='http://%s:%d' % (self.host, self.port), data=cjson.encode(data))
+        req = urllib2.Request(url='%s://%s:%d' % (self.protocol, self.host, self.port),
+            data=cjson.encode(data))
         f = urllib2.urlopen(req)
         return f.read()
