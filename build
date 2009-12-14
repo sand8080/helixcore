@@ -4,11 +4,11 @@ BASEDIR=`dirname $0`
 
 pushd $BASEDIR > /dev/null
 
-./create-changelog --package=python-helixcore
+/opt/helixutils/create-git-changelog --package=helixcore
 dpkg-buildpackage -uc -us -b -rfakeroot
 mkdir -p dist
-mv ../python-helixcore*.deb dist
-rm -f  ../python-helixcore*.changes
+mv ../helixcore*.deb dist
+rm -f  ../helixcore*.changes
 
 popd > /dev/null
 
