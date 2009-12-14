@@ -1,5 +1,5 @@
 Source: helixcore
-Section: non-free/python
+Section: non-free/libs
 Priority: extra
 Maintainer: Webdrive Developers <developers@webdrive.ru>
 Build-Depends-Indep: debhelper (>= 7), python2.5, python-psycopg2 (>= 2.0.5), dpkg-dev, helixutils
