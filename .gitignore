@@ -11,3 +11,5 @@ debian/*.debhelper
 debian/*.substvars
 debian/helixcore/
 dist/
+debian/changelog
+debian/LAST_VERSION
