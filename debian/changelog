@@ -1,3 +1,10 @@
+helixcore (1.0.66) unstable; urgency=low
+
+  * [Alexander Kislitsky] Ignoring files list changed.
+  * [Alexander Kislitsky] Build depends on helixutils. Package renamed.
+
+ -- Webdrive Developers <developers@webdrive.ru>  Mon, 14 Dec 2009 10:07:48 +0300
+
 helixcore (1.0.64) unstable; urgency=low
 
   * [Alexander Kislitsky] Https handled in client test application.
@@ -81,6 +88,7 @@ helixcore (1.0.6) unstable; urgency=low
   * [Alexander Kislitsky] Initial commit
 
  -- Webdrive Developers <developers@webdrive.ru>  Mon, 10 Aug 2009 10:00:48 +0400
+
 
 
 
