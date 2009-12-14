@@ -6,9 +6,8 @@
 build-stamp
 configure-stamp
 debian/files
-debian/python-helixcore.debhelper.log
-debian/python-helixcore.postinst.debhelper
-debian/python-helixcore.prerm.debhelper
-debian/python-helixcore.substvars
-debian/python-helixcore/
+debian/*.debhelper.log
+debian/*.debhelper
+debian/*.substvars
+debian/helixcore/
 dist/
