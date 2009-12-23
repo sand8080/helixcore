@@ -1,7 +1,13 @@
 import psycopg2
-from helixcore.db import wrapper
 from functools import partial
+from helixcore.db import wrapper
 
-DSN = 'dbname=helixtest host=localhost user=helixtest password=qazwsx'
-get_connection = partial(psycopg2.connect, DSN)
+DSN = {
+    'user': 'helixtest',
+    'database': 'helixtest',
+    'host': 'localhost',
+    'password': 'qazwsx'
+}
+
+get_connection = partial(psycopg2.connect, **DSN)
 transaction = partial(wrapper.transaction, get_connection)

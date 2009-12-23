@@ -8,8 +8,8 @@ from helixcore.db.query_builder import select, update, insert
 from helixcore.db.sql import Eq
 from helixcore.test.test_environment import transaction, get_connection
 
-class WrapperTestCase(unittest.TestCase):
 
+class WrapperTestCase(unittest.TestCase):
     table = 'test_wrapper'
 
     def setUp(self):

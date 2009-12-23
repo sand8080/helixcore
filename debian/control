@@ -1,16 +1,16 @@
-Source: python-helixcore
-Section: non-free/python
+Source: helixcore
+Section: non-free/libs
 Priority: extra
 Maintainer: Webdrive Developers <developers@webdrive.ru>
-Build-Depends-Indep: debhelper (>= 7), python (>= 2.5), python-psycopg2 (>= 2.0.5), dpkg-dev
+Build-Depends-Indep: debhelper (>= 7), python2.5, python-psycopg2 (>= 2.0.5), dpkg-dev, helixutils
 Standards-Version: 3.7.3
 Homepage: http://webdrive.ru
 XS-Python-Version: 2.5
 
-Package: python-helixcore
+Package: helixcore
 Provides: python2.5-helixcore
 Architecture: all
-Depends: python (>= 2.5), python-psycopg2 (>= 2.0.5)
+Depends: python2.5, python-psycopg2 (>= 2.0.5), helixutils
 XB-Python-Version: ${python:Versions}
 Description: Helix family core library
  Contains postgres db wrapper, sql requests builder

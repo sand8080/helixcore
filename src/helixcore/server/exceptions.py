@@ -29,3 +29,8 @@ class ValidationError(RequestProcessingError):
 class FormatError(RequestProcessingError):
     def __init__(self, msg):
         RequestProcessingError.__init__(self, RequestProcessingError.Categories.request_format, msg)
+
+
+class AuthError(RequestProcessingError):
+    def __init__(self, msg):
+        RequestProcessingError.__init__(self, RequestProcessingError.Categories.auth, msg)

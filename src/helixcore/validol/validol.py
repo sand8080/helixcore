@@ -1,4 +1,4 @@
-#            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#            DO WHAT YOU WANT TO PUBLIC LICENSE
 #                    Version 2, December 2004
 #
 # Copyright (C) 2008 Konstantin Merenkov <kmerenkov@gmail.com>
@@ -6,16 +6,16 @@
 # copies of this license document, and changing it is allowed as long
 # as the name is changed.
 #
-#            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#            DO WHAT YOU WANT TO PUBLIC LICENSE
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #
-#  0. You just DO WHAT THE FUCK YOU WANT TO.
+#  0. You just DO WHAT YOU WANT TO.
 
 
 __version__ = "0.2" # XXX Not always updated :\ #IGNORE:W0511
 __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
 
-
+import iso8601 #@UnresolvedImport
 from itertools import imap
 
 
@@ -140,7 +140,7 @@ def validate_common(validator, data):
         try:
             if validator(data):
                 return True
-        except: #IGNORE:W0703
+        except Exception: #IGNORE:W0703
             return False
     elif kind == TYPE_REGEX:
         if validator.match(data):
@@ -423,3 +423,19 @@ class NonNegative(BaseValidator):
     def __repr__(self):
         return "<NonNegative: '%s'>" % str(self.validate_func)
 
+class IsoDatetime(BaseValidator):
+    """
+    Validates if data is correct iso8601 datetime string.
+    """
+    def __init__(self):
+        super(IsoDatetime, self).__init__()
+
+    def validate(self, data):
+        try:
+            iso8601.parse_date(data)
+            return True
+        except Exception:
+            return False
+
+    def __repr__(self):
+        return '<IsoDatetime>'

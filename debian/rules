@@ -11,7 +11,7 @@
 
 
 
-export DESTDIR=$(CURDIR)/debian/python-helixcore/usr/share/python-support/python-helixcore
+export DESTDIR=$(CURDIR)/debian/helixcore/usr/share/python-support/helixcore
 
 configure: configure-stamp
 configure-stamp:

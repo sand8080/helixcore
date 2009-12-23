@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#            DO WHAT YOU WANT TO PUBLIC LICENSE
 #                    Version 2, December 2004
 #
 # Copyright (C) 2008 Konstantin Merenkov <kmerenkov@gmail.com>
@@ -8,10 +8,10 @@
 # copies of this license document, and changing it is allowed as long
 # as the name is changed.
 #
-#            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+#            DO WHAT YOU WANT TO PUBLIC LICENSE
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #
-#  0. You just DO WHAT THE FUCK YOU WANT TO.
+#  0. You just DO WHAT YOU WANT TO.
 
 
 __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
@@ -19,7 +19,9 @@ __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
 
 import unittest
 import re
-from helixcore.validol.validol import validate, AnyOf, Many, Optional, Scheme, BaseValidator, Text
+import datetime
+
+from helixcore.validol.validol import validate, AnyOf, Many, Optional, Scheme, BaseValidator, Text, IsoDatetime
 
 
 class BaseValidatorTestCase(unittest.TestCase):
@@ -367,6 +369,15 @@ class SamplesTestCase(unittest.TestCase):
         d = {'x': 10}
         scheme = {'x': lambda x: len(x) > 0}
         self.assertFalse(validate(scheme, d))
+
+
+class IsoDatetimeTestCase(unittest.TestCase):
+    def test_validator(self):
+        x = IsoDatetime()
+        self.assertTrue(validate(x, datetime.datetime.now().isoformat()))
+        self.assertFalse(validate(x, datetime.date.today().isoformat()))
+        self.assertFalse(validate(x, 7))
+        self.assertFalse(validate(x, 'some trash'))
 
 
 if __name__ == '__main__':
