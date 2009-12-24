@@ -1,5 +1,6 @@
 from validol import AnyOf, Text
-from helixcore.validol.validol import Optional, Positive
+from helixcore.validol.validol import Optional, Positive, NonNegative,\
+    IsoDatetime
 import os
 
 class AbstractFormatter(object):
@@ -7,8 +8,17 @@ class AbstractFormatter(object):
         if isinstance(data, basestring):
             return self.string(data)
 
+        if data is None:
+            return self.none()
+
+        if isinstance(data, int):
+            return self.number(data)
+
         if isinstance(data, AnyOf):
             return self.OR(data.validators, add_line_if_not_exist)
+
+        if isinstance(data, tuple):
+            return self.tuple(data)
 
         if isinstance(data, type):
             if data == bool:
@@ -28,10 +38,16 @@ class AbstractFormatter(object):
         if isinstance(data, Positive):
             return self.atomic_type(safe('positive integer'))
 
+        if isinstance(data, NonNegative):
+            return self.atomic_type(safe('non negative integer'))
+
+        if isinstance(data, IsoDatetime):
+            return self.atomic_type(safe('ISO datetime'))
+
         if isinstance(data, dict):
             return self.format_hash(data, nested_hash, add_line_if_not_exist)
 
-        return self.block_comment('%s not supported' % safe(type(data)))
+        return self.block('**%s is not supported**' % safe(data))
 
     def format_hash(self, data, is_nested=False, add_line_if_not_exist=None):
         lines = []
@@ -91,6 +107,15 @@ class DocstringFormatter(AbstractFormatter):
     def string(self, s):
         return '"%s"' % s
 
+    def number(self, s):
+        return '%s' % s
+
+    def none(self):
+        return 'None'
+
+    def tuple(self, seq):
+        return '[ %s ]' % ', '.join(map(self.format, seq)),
+
     def atomic_type(self, s):
         # hack
         if s.startswith('<') and s.endswith('>'):
@@ -135,6 +160,7 @@ class DocstringFormatter(AbstractFormatter):
     def indent(self, *args):
         return '\n' + ''.join('    %s\n' % line for line in '\n'.join(args).split('\n'))
 
+
 class HtmlFormatter(DocstringFormatter):
     def comma(self):
         return '<span class="comma">,</span>'
@@ -147,23 +173,52 @@ class HtmlFormatter(DocstringFormatter):
                 '</tr>'
             '</table>'
         ) % '<td class="branch_splitter"></td>'.join(
-            '<td class="branch">%s</td>' % self.format(item) for item in lst
+            ['<td class="branch">%s</td>' % self.format(item) for item in lst]
         )
 
     def block_brace(self, s):
-        return '<div class="brace">%s</div>' % s
+        if s in ('{', '}'):
+            return '<div class="brace hash_brace">%s</div>' % s
+        else:
+            return '<div class="brace">%s</div>' % s
 
     def inline_brace(self, s):
-        return '<span class="brace">%s</span>' % s
+        if s in ('{', '}'):
+            return '<span class="brace hash_brace">%s</span>' % s
+        else:
+            return '<span class="brace">%s</span>' % s
 
     def string(self, s):
         return '<span class="string">"%s"</span>' % s
+
+    def number(self, s):
+        return '<span class="number">%s</span>' % s
+
+    def none(self):
+        return '<span class="none">None</span>'
+
+    def tuple(self, seq):
+        return '%s %s %s' % (
+            self.inline_brace('['),
+            ', '.join(map(self.format, seq)),
+            self.inline_brace(']'),
+        )
 
     def atomic_type(self, s):
         return '<span class="variable">%s</span>' % s
 
     def list_type(self, s):
-        return '<span class="list">%s %s<span class="comma">,</span> %s<span class="comma">,<span/> <span class="hellip">...</span> %s</span>' % (
+        return (
+            '<span class="list">'
+                '%s '
+                '%s'
+                '<span class="comma">,</span> '
+                '%s'
+                '<span class="comma">,<span/> '
+                '<span class="hellip">...</span> '
+                '%s'
+            '</span>'
+        ) % (
             self.inline_brace('['),
             self.atomic_type(s),
             self.atomic_type(s),
@@ -184,7 +239,8 @@ class HtmlFormatter(DocstringFormatter):
         return '<div>%s</div>' % (s)
 
     def optional_line(self, s):
-        return '<div class="optional">%s &nbsp; %s</div>' % (s, self.line_comment('optional'))
+        #return '<div class="optional">%s &nbsp; %s</div>' % (s, self.line_comment('optional'))
+        return '<div class="optional"><span class="comment">/* optional */</span>&nbsp; %s</div>' % s
 
     def block_comment(self, s):
         return '<div class="comment">// %s</div>' % s
