@@ -4,7 +4,7 @@ BASEDIR=`dirname $0`
 
 pushd $BASEDIR > /dev/null
 
-/opt/helixutils/create-git-changelog --package=helixcore --dir=$BASEDIR
+/opt/helixutils/create-git-changelog --package=helixcore --dir=.
 dpkg-buildpackage -uc -us -b -rfakeroot
 mkdir -p dist
 mv ../helixcore*.deb dist
