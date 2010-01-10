@@ -39,6 +39,18 @@ def profile(func):
     return decorated
 
 
+def show_time(func):
+    def decorated(self, *args, **kwargs):
+        print '%s >>>>' % func.func_name
+        start = datetime.datetime.now()
+        result = func(self, *args, **kwargs)
+        delta = datetime.datetime.now() - start
+        print 'elapsed time %s' % delta
+        print '%s <<<<' % func.func_name
+        return result
+    return decorated
+
+
 class ClientApplication(object):
     def __init__(self, host, port, login, password, protocol='http'):
         self.protocol = protocol

@@ -237,6 +237,10 @@ class DictTestCase(unittest.TestCase):
         x = {'a': 'b', 'c': 'd', Optional('foo'): 'bar', Optional('zoo'): 'xar'}
         self.assertFalse(validate(x, {'a': 'b', 'c': 'd', 'zoo': 'bar'}))
 
+    def test_nested_dict_001(self):
+        x = {'a': 'b', 'c': {'d': 'e'}}
+        self.assertTrue(validate(x, {'a': 'b', 'c': {'d': 'e'}}))
+
 
 class TextTestCase(unittest.TestCase):
     def test_str_001(self):
