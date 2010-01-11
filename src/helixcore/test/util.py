@@ -1,8 +1,10 @@
+# coding=utf-8
 from eventlet import coros
 import datetime
 import cjson
 import urllib2
 import random
+import time
 
 
 def random_syllable(
@@ -23,19 +25,34 @@ def select_random(collection):
 
 def profile(func):
     def decorated(self, *args, **kwargs):
+        times = []
+        def time_calculator(*a, **kw):
+            start = time.time()
+            func(*a, **kw)
+            times.append(time.time() - start)
+
         print '%s >>>>' % func.func_name
         repeats = kwargs['repeats']
         pool = coros.CoroutinePool(max_size=repeats)
         start = datetime.datetime.now()
         for _ in xrange(repeats):
-            pool.execute_async(func, self, *args, **kwargs)
+            pool.execute_async(time_calculator, self, *args, **kwargs)
         pool.wait_all()
         delta = datetime.datetime.now() - start
         if delta.seconds == 0:
             print 'repeats: %d, elapsed time %s' % (repeats, delta)
         else:
             print 'repeats: %d, elapsed time %s ~ [%s per second]' % (repeats, delta, repeats / delta.seconds)
+
+        mid = sum(times) / repeats
+        sigma = (sum((x - mid) ** 2 for x in times) / repeats) ** 0.5
+        percent = sigma / mid
+        print ' * ',
+        print '%.0f ±%.0f msec,' % (mid * 1000, sigma * 1000),
+        print '%.0f ±%.0f requests per second' % (1.0 / mid, 1.0 / mid * percent),
+        print '(%.0f%%) ' % (percent * 100),
         print '%s <<<<' % func.func_name
+        print
     return decorated
 
 
