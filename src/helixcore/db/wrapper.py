@@ -2,8 +2,17 @@ from utils import dict_from_lists
 import deadlock_detector
 
 
-class EmptyResultSetError(Exception):
+class DbError(Exception):
     pass
+
+
+class EmptyResultSetError(DbError):
+    pass
+
+
+class SelectedMoreThanOneRow(DbError):
+    def __init__(self):
+        super(SelectedMoreThanOneRow, self).__init__('Selected more than one row.')
 
 
 def fetchall_dicts(curs):
@@ -16,10 +25,12 @@ def fetchall_dicts(curs):
 
 
 def fetchone_dict(curs):
+    if curs.rowcount > 1:
+        raise SelectedMoreThanOneRow()
+    if curs.rowcount == 0:
+        raise EmptyResultSetError('Nothing to be fetched')
     columns = [info[0] for info in curs.description]
     values = curs.fetchone()
-    if values is None:
-        raise EmptyResultSetError('Nothing to be fetched')
     return dict_from_lists(columns, values)
 
 

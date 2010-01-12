@@ -284,6 +284,17 @@ def validate_hash_with_many(validator, data):
     return unused_notmany_validator_count == declared_many_validator_count
 
 
+class Any(BaseValidator):
+    '''
+    Validates all.
+    '''
+    def validate(self, _):
+        return True
+
+    def __repr__(self):
+        return '<Any>'
+
+
 class AnyOf(BaseValidator):
     """
     Validates if data matches at least one of specified schemes.

@@ -1,11 +1,12 @@
 import unittest
 import psycopg2
-from time import sleep
 from datetime import datetime
+from time import sleep
 
-from helixcore.db.wrapper import fetchall_dicts, fetchone_dict, dict_from_lists, EmptyResultSetError
-from helixcore.db.query_builder import select, update, insert
-from helixcore.db.sql import Eq
+from helixcore.db.wrapper import fetchall_dicts, fetchone_dict, dict_from_lists, EmptyResultSetError,\
+    SelectedMoreThanOneRow
+from helixcore.db.query_builder import select, insert, update
+from helixcore.db.sql import Eq, In
 from helixcore.test.test_environment import transaction, get_connection
 
 
@@ -60,6 +61,12 @@ class WrapperTestCase(unittest.TestCase):
         self.fill_table(num_records=4)
         curs.execute(*select(self.table, cond=Eq('id', 1)))
         fetchone_dict(curs)
+
+    @transaction()
+    def test_fetchone_dict_error(self, curs=None):
+        self.fill_table(num_records=4)
+        curs.execute(*select(self.table, cond=In('id', [1, 2])))
+        self.assertRaises(SelectedMoreThanOneRow, fetchone_dict, curs)
 
     def test_fetchone_dict_raise(self):
         conn = get_connection()
@@ -149,6 +156,7 @@ class WrapperTestCase(unittest.TestCase):
         t_one.join()
         t_two.join()
         self.assertEqual(report['slow_task']['name'], report['task_wait_before']['name'])
+
 
 if __name__ == '__main__':
     unittest.main()

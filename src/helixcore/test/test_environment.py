@@ -4,7 +4,7 @@ from helixcore.db import wrapper
 
 DSN = {
     'user': 'helixtest',
-    'database': 'helixtest',
+    'database': 'test_helixcore',
     'host': 'localhost',
     'password': 'qazwsx'
 }
