@@ -21,7 +21,8 @@ import unittest
 import re
 import datetime
 
-from helixcore.validol.validol import validate, AnyOf, Many, Optional, Scheme, BaseValidator, Text, IsoDatetime
+from helixcore.validol.validol import validate, AnyOf, Many, Optional, Scheme, BaseValidator, Text, IsoDatetime,\
+    DecimalText
 
 
 class BaseValidatorTestCase(unittest.TestCase):
@@ -380,6 +381,16 @@ class IsoDatetimeTestCase(unittest.TestCase):
         x = IsoDatetime()
         self.assertTrue(validate(x, datetime.datetime.now().isoformat()))
         self.assertFalse(validate(x, datetime.date.today().isoformat()))
+        self.assertFalse(validate(x, 7))
+        self.assertFalse(validate(x, 'some trash'))
+
+
+class DecimalTextTestCase(unittest.TestCase):
+    def test_validator(self):
+        x = DecimalText()
+        self.assertTrue(validate(x, '08.0009'))
+        self.assertTrue(validate(x, '198.0105'))
+        self.assertFalse(validate(x, 'e2e4'))
         self.assertFalse(validate(x, 7))
         self.assertFalse(validate(x, 'some trash'))
 
