@@ -26,17 +26,17 @@ class Api(object):
         @raise ValidationError: if request validation fails
         '''
         try:
-            parsed_data = cjson.decode(raw_data)
+            decoded_data = cjson.decode(raw_data)
         except cjson.DecodeError, e:
             raise FormatError("Cannot parse request: %s" % e)
 
-        action_name = parsed_data.pop('action')
+        action_name = decoded_data.pop('action')
         if action_name is None:
             raise FormatError("'action' parameter is not found in request")
 
-        self.validate_request(action_name, parsed_data)
+        self.validate_request(action_name, decoded_data)
 
-        return (action_name, parsed_data)
+        return (action_name, decoded_data)
 
     def _postprocess_value(self, value):
         if isinstance(value, datetime.datetime):
