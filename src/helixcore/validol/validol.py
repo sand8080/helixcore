@@ -10,7 +10,7 @@
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #
 #  0. You just DO WHAT YOU WANT TO.
-from decimal import InvalidOperation, Decimal
+from decimal import Decimal
 
 
 __version__ = "0.2" # XXX Not always updated :\ #IGNORE:W0511
@@ -479,7 +479,6 @@ class DecimalText(Text):
                 Decimal(data)
                 return True
         except decimal.DecimalException:
-            pass
-        return False
+            return False
     def __repr__(self):
         return '<DecimalText>'
