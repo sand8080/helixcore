@@ -80,4 +80,4 @@ class ClientApplication(object):
         req = urllib2.Request(url='%s://%s:%d' % (self.protocol, self.host, self.port),
             data=cjson.encode(data))
         f = urllib2.urlopen(req)
-        return f.read()
+        return cjson.decode(f.read())
