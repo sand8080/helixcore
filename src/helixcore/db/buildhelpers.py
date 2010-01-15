@@ -14,11 +14,11 @@ def quote_list(lst, separator=','):
     return separator.join(map(quote, lst))
 
 def where(cond):
-    if cond is not None:
+    if cond is None:
+        return ('', [])
+    else:
         cond_str, params = cond.glue()
         return ('WHERE %s' % cond_str, params)
-    else:
-        return ('', [])
 
 def order(order_by):
     if order_by is None:
