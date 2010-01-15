@@ -89,6 +89,10 @@ class SqlTestCase(unittest.TestCase):
         c, p = cond_in.glue()
         self.assertEqual(c, '"name" IN (%s,%s,%s)')
         self.assertEqual(p, ['one', 2, 'three'])
+        cond_in = In('name', [])
+        c, p = cond_in.glue()
+        self.assertEqual(c, 'False')
+        self.assertEqual(p, [])
 
     def test_nested_select(self):
         nested = Select('service_set_descr', columns=['name'], cond=Eq('name', 'registration ru'))
@@ -167,11 +171,23 @@ class SqlTestCase(unittest.TestCase):
             q_str
         )
         self.assertEqual([10, 100], params)
-
         self.assertEqual(
             'SELECT * FROM "billing" WHERE "id" = %s     FOR UPDATE',
             Select('billing', cond=Eq('id', 5), for_update=True).glue()[0]
         )
+        q_str, params = Select('billing', cond=In('id', [1, 2])).glue()
+        self.assertEqual(
+            'SELECT * FROM "billing" WHERE "id" IN (%s,%s)',
+            q_str
+        )
+        self.assertEqual([1, 2], params)
+        q_str, params = Select('billing', cond=In('id', [])).glue()
+        self.assertEqual(
+            'SELECT * FROM "billing" WHERE False',
+            q_str
+        )
+        self.assertEqual([], params)
+
 
     def test_update(self):
         q_str, q_params = Update('balance', {'client_id': 4}, Eq('id', 1)).glue()
