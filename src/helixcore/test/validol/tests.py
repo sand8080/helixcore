@@ -22,7 +22,7 @@ import re
 import datetime
 
 from helixcore.validol.validol import validate, AnyOf, Many, Optional, Scheme, BaseValidator, Text, IsoDatetime,\
-    DecimalText
+    DecimalText, FlatDict
 
 
 class BaseValidatorTestCase(unittest.TestCase):
@@ -241,6 +241,14 @@ class DictTestCase(unittest.TestCase):
     def test_nested_dict_001(self):
         x = {'a': 'b', 'c': {'d': 'e'}}
         self.assertTrue(validate(x, {'a': 'b', 'c': {'d': 'e'}}))
+
+
+class FlatDictTestCase(unittest.TestCase):
+    def test_001(self):
+        x = {'a': FlatDict()}
+        self.assertTrue(validate(x, {'a': {}}))
+        self.assertTrue(validate(x, {'a': {'xx': 'yy'}}))
+        self.assertFalse(validate(x, {'a': []}))
 
 
 class TextTestCase(unittest.TestCase):

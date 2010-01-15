@@ -297,6 +297,17 @@ class Any(BaseValidator):
         return '<Any>'
 
 
+class FlatDict(BaseValidator):
+    '''
+    Validates all.
+    '''
+    def validate(self, value):
+        return type(value) is dict
+
+    def __repr__(self):
+        return '<FlatDict>'
+
+
 class AnyOf(BaseValidator):
     """
     Validates if data matches at least one of specified schemes.

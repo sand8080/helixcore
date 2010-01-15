@@ -1,4 +1,4 @@
-from docsgenerator import format
+#from docsgenerator import format
 from validol import Scheme
 import unittest
 
