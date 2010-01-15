@@ -10,12 +10,14 @@
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #
 #  0. You just DO WHAT YOU WANT TO.
+from decimal import InvalidOperation, Decimal
 
 
 __version__ = "0.2" # XXX Not always updated :\ #IGNORE:W0511
 __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
 
 import iso8601 #@UnresolvedImport
+import decimal
 from itertools import imap
 
 
@@ -434,6 +436,7 @@ class NonNegative(BaseValidator):
     def __repr__(self):
         return "<NonNegative: '%s'>" % str(self.validate_func)
 
+
 class IsoDatetime(BaseValidator):
     """
     Validates if data is correct iso8601 datetime string.
@@ -450,3 +453,22 @@ class IsoDatetime(BaseValidator):
 
     def __repr__(self):
         return '<IsoDatetime>'
+
+
+class DecimalText(Text):
+    """
+    Validates if data is correct string representation of decimal.
+    """
+    def __init__(self):
+        super(DecimalText, self).__init__()
+
+    def validate(self, data):
+        try:
+            if Text.validate(self, data):
+                Decimal(data)
+                return True
+        except decimal.DecimalException:
+            pass
+        return False
+    def __repr__(self):
+        return '<DecimalText>'
