@@ -1,6 +1,6 @@
 from validol import AnyOf, Text
 from helixcore.validol.validol import Optional, Positive, NonNegative,\
-    IsoDatetime
+    IsoDatetime, FlatDict
 import os
 
 class AbstractFormatter(object):
@@ -43,6 +43,9 @@ class AbstractFormatter(object):
 
         if isinstance(data, IsoDatetime):
             return self.atomic_type(safe('ISO datetime'))
+
+        if isinstance(data, FlatDict):
+            return self.atomic_type(safe('flat dictionary'))
 
         if isinstance(data, dict):
             return self.format_hash(data, nested_hash, add_line_if_not_exist)
@@ -123,12 +126,12 @@ class DocstringFormatter(AbstractFormatter):
         return '<%s>' % s
 
     def list_type(self, s):
-        return '%s %s, %s, ... %s' % (
-            self.inline_brace('['),
-            self.atomic_type(s),
-            self.atomic_type(s),
-            self.inline_brace(']'),
-        )
+        if '[' in s:
+            ex = s.rstrip()
+        else:
+            ex = self.atomic_type(s)
+        return '%s %s, %s, ... %s' % (self.inline_brace('['), ex, ex, self.inline_brace(']'))
+        #return '%s %s, ..., ... %s' % (self.inline_brace('['), ex, self.inline_brace(']'))
 
     def choice_values(self, values):
         return '%s %s %s\n' % (
