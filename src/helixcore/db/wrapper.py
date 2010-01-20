@@ -15,6 +15,10 @@ class SelectedMoreThanOneRow(DbError):
         super(SelectedMoreThanOneRow, self).__init__('Selected more than one row.')
 
 
+class ObjectAlreadyExists(DbError):
+    pass
+
+
 def fetchall_dicts(curs):
     """
     Fetches all results and makes list of dicts with column names as keys
