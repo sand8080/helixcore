@@ -32,10 +32,13 @@ class Application(object):
             self.logger.log(logging.ERROR, 'Request from %s: %s' % (remote_addr, self.secured_request(action_name, data)))
             self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, response, e.message))
         except Exception, e:
-            _, _, tb = sys.exc_info()
-            response = self.helix_api.handle_response(action_name, response_app_error(e.message), validation=False)
-            self.logger.log(logging.ERROR, 'Response to %s: %s. General error: %s. Traceback: %s' %
-                (remote_addr, response, e.message, traceback.extract_tb(tb)))
+            exc_type, value, tb = sys.exc_info()
+            exc_descr = 'Exception type: %s. value: %s. trace: %s' % (exc_type, value, traceback.extract_tb(tb))
+            del tb
+            response = self.helix_api.handle_response(action_name,
+                response_app_error(exc_descr), validation=False)
+            self.logger.log(logging.ERROR, 'Response to %s: %s. General error: %s' %
+                (remote_addr, response, exc_descr))
 
         start_response('200 OK', [('Content-type', 'text/plain')])
         return [response]

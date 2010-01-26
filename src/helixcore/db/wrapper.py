@@ -49,7 +49,7 @@ def transaction(get_conn):
                 _end_trans(curs)
                 conn.commit()
                 return result
-            except :
+            except:
                 _end_trans(curs)
                 conn.rollback()
                 raise
