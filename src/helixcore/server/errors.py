@@ -9,11 +9,7 @@ class RequestProcessingError(Exception):
         data_integrity = 'data_integrity'
         not_allowed = 'not_allowed'
 
-
-    def __init__(self, category, message):
+    def __init__(self, category, message, details=None):
         Exception.__init__(self, message)
-        self._category = category
-
-    @property
-    def category(self):
-        return self._category
+        self.category = category
+        self.details = [] if details is None else details

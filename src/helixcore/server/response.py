@@ -17,6 +17,7 @@ def response_error(request_processing_error):
         'status': 'error',
         'category': request_processing_error.category,
         'message': request_processing_error.message,
+        'details': request_processing_error.details,
     }
 
 def response_app_error(message):
@@ -28,5 +29,6 @@ def response_app_error(message):
         'status': 'error',
         'category': RequestProcessingError.Categories.application,
         'message': message,
+        'details': [],
     }
 
