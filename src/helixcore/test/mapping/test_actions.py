@@ -34,7 +34,7 @@ class ActionsTestCase(unittest.TestCase):
     @transaction()
     def test_insert_with_id(self, curs=None):
         obj = self.T(id=1, name='n', date=datetime.now())
-        self.assertRaises(actions.MappingError, actions.insert, curs, obj)
+        self.assertRaises(actions.ObjectAlreadyExists, actions.insert, curs, obj)
 
     @transaction()
     def test_insert(self, curs=None):
@@ -45,7 +45,7 @@ class ActionsTestCase(unittest.TestCase):
     def test_double_insert(self, curs=None):
         obj = self.T(name='n', date=datetime.now())
         actions.insert(curs, obj)
-        self.assertRaises(actions.MappingError, actions.insert, curs, obj)
+        self.assertRaises(actions.ObjectAlreadyExists, actions.insert, curs, obj)
 
     @transaction()
     def test_update_without_id(self, curs=None):

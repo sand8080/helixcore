@@ -1,11 +1,11 @@
 from psycopg2 import IntegrityError
 
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
-from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, ObjectAlreadyExists
+from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, ObjectAlreadyExists, DbError
 import helixcore.db.deadlock_detector as deadlock_detector
 
 
-class MappingError(Exception):
+class MappingError(DbError):
     pass
 
 
@@ -32,12 +32,12 @@ def get_fields(obj):
 
 def insert(curs, obj):
     if hasattr(obj, 'id'):
-        raise MappingError('Inserting %s with id %s' % (obj.__class__.__name__, obj.id))
+        raise ObjectAlreadyExists('Object %s id %s already exists' % (obj, obj.id))
     try:
         curs.execute(*Insert(obj.table, get_fields(obj)).glue())
         obj.id = fetchone_dict(curs)['id']
     except IntegrityError:
-        raise ObjectAlreadyExists()
+        raise ObjectAlreadyExists('Object %s already exists' % obj)
 
 
 def update(curs, obj):
