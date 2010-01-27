@@ -10,3 +10,9 @@ class Mapped(object):
 
     def update(self, data):
         for (attr, v) in data.iteritems(): setattr(self, attr, v)
+
+    def __repr__(self, except_attrs=()):
+        attrs = [(a, getattr(self, a, None)) for a in self.__slots__]
+        obj_info = ', '.join(['%s=%s' % (a, v) for (a, v) in attrs if a not in except_attrs])
+        return '%s(%s)' % (self.__class__.__name__, obj_info)
+
