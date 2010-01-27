@@ -33,7 +33,8 @@ class Application(object):
             self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, response, e.message))
         except Exception, e:
             exc_type, value, tb = sys.exc_info()
-            exc_descr = 'Exception type: %s. value: %s. trace: %s' % (exc_type, value, traceback.extract_tb(tb))
+            exc_descr = 'Exception type: %s. message: %s. trace: %s' % (
+                exc_type, value.message, traceback.extract_tb(tb))
             del tb
             response = self.helix_api.handle_response(action_name,
                 response_app_error(exc_descr), validation=False)
