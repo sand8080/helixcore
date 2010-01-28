@@ -1,11 +1,12 @@
 class RequestProcessingError(Exception):
-    application = 'application'
-    auth = 'auth'
-    request_format = 'request_format'
-    validation = 'validation'
-    unknown_action = 'unknown_action'
-    data_integrity = 'data_integrity'
-    not_allowed = 'not_allowed'
+    class Category(): #IGNORE:W0232
+        auth = 'auth'
+        validation = 'validation'
+        unknown_action = 'unknown_action'
+        data_integrity = 'data_integrity'
+        data_invalid = 'data_invalid'
+        not_allowed = 'not_allowed'
+        application = 'application'
 
     def __init__(self, category, message, details=None):
         Exception.__init__(self, message)
