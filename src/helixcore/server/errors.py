@@ -2,6 +2,7 @@ class RequestProcessingError(Exception):
     class Category(): #IGNORE:W0232
         auth = 'auth'
         validation = 'validation'
+        request_format = 'request_format'
         unknown_action = 'unknown_action'
         data_integrity = 'data_integrity'
         data_invalid = 'data_invalid'
