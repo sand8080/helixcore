@@ -27,7 +27,7 @@ def response_app_error(message):
     '''
     return {
         'status': 'error',
-        'category': RequestProcessingError.application,
+        'category': RequestProcessingError.Category.application,
         'message': message,
         'details': [],
     }

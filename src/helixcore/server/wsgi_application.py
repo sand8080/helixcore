@@ -1,3 +1,4 @@
+import cjson
 import logging
 import sys
 import traceback
@@ -8,23 +9,28 @@ from helixcore.server.errors import RequestProcessingError
 
 
 class Application(object):
-    def __init__(self, action_handler, protocol, logger):
+    def __init__(self, action_handler, protocol, logger, tracking_api_calls=()):
         self.action_handler = action_handler
         self.logger = logger
         self.helix_api = HelixApi(protocol)
+        self.tracking_api_calls = tracking_api_calls
+
+    def track_api_call(self, s_req, s_resp, authorized_data):
+        pass
 
     def __call__(self, environ, start_response):
         raw_data = environ['eventlet.input'].read()
         remote_addr = environ.get('REMOTE_ADDR', 'undefined')
         self.logger.debug('Request from %s' % remote_addr)
 
-        data = None
         action_name = None
+        data = {}
+        authorized_data = {}
         try:
             action_name, data = self.helix_api.handle_request(raw_data)
             self.logger.debug('Request from %s: %s' % (remote_addr, self.secured_request(action_name, data)))
-            data_copy = dict(data)
-            raw_response = self.action_handler(action_name, data_copy)
+            authorized_data = dict(data)
+            raw_response = self.action_handler(action_name, authorized_data)
             self.logger.log(logging.DEBUG, 'Response to %s: %s' % (remote_addr, raw_response))
             response = self.helix_api.handle_response(action_name, raw_response)
         except RequestProcessingError, e:
@@ -42,7 +48,12 @@ class Application(object):
                 (remote_addr, response, exc_descr))
 
         start_response('200 OK', [('Content-type', 'text/plain')])
+        if action_name in self.tracking_api_calls:
+            secured_authorized_data = self.secured_request(action_name, data)
+            request = cjson.encode(secured_authorized_data)
+            self.track_api_call(request, response, secured_authorized_data)
         return [response]
+
 
     def adapt(self, obj, req):
         'Convert obj to bytes'
