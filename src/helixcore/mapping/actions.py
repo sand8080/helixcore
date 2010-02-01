@@ -53,6 +53,11 @@ def delete(curs, obj):
     del obj.id
 
 
+def delete_objects(curs, objs):
+    for o in objs:
+        delete(curs, o)
+
+
 def reload(curs, obj, for_update=False): #IGNORE:W0622
     if not hasattr(obj, 'id'):
         raise MappingError('Reloading %s without id' % obj.__class__.__name__)
