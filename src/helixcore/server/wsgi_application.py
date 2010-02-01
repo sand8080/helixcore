@@ -49,8 +49,8 @@ class Application(object):
 
         start_response('200 OK', [('Content-type', 'text/plain')])
         if action_name in self.tracking_api_calls:
-            secured_authorized_data = self.secured_request(action_name, data)
-            request = cjson.encode(secured_authorized_data)
+            request = cjson.encode(self.secured_request(action_name, data))
+            secured_authorized_data = self.secured_request(action_name, authorized_data)
             self.track_api_call(request, response, secured_authorized_data)
         return [response]
 
