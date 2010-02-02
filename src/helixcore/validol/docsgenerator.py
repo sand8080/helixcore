@@ -4,6 +4,13 @@ from helixcore.validol.validol import Optional, Positive, NonNegative,\
 import os
 
 class AbstractFormatter(object):
+    def not_implemented(self):
+        raise NotImplemented
+
+    string = none = number = tuple = choice_values = atomic_type = list_type = \
+        block = optional_line = propname = comma = line = inline_brace = \
+        block_brace = indent = branching = not_implemented
+
     def format(self, data, nested_hash=False, add_line_if_not_exist=None):
         if isinstance(data, basestring):
             return self.string(data)
