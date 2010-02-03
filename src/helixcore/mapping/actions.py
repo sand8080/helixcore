@@ -3,6 +3,8 @@ from psycopg2 import IntegrityError
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
 from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, ObjectAlreadyExists, DbError
 import helixcore.db.deadlock_detector as deadlock_detector
+import psycopg2
+from helixcore.server.exceptions import DataIntegrityError
 
 
 class MappingError(DbError):
@@ -43,7 +45,10 @@ def insert(curs, obj):
 def update(curs, obj):
     if not hasattr(obj, 'id'):
         raise MappingError('Updating %s without id' % obj.__class__.__name__)
-    curs.execute(*Update(obj.table, get_fields(obj), cond=Eq('id', obj.id)).glue())
+    try:
+        curs.execute(*Update(obj.table, get_fields(obj), cond=Eq('id', obj.id)).glue())
+    except IntegrityError, e:
+        raise DataIntegrityError('Object %s updating error: %s' % (obj, e.message))
 
 
 def delete(curs, obj):
