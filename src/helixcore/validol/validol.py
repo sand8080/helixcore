@@ -459,7 +459,7 @@ class IsoDatetime(BaseValidator):
         try:
             iso8601.parse_date(data)
             return True
-        except iso8601.iso8601.ParseError:
+        except (iso8601.iso8601.ParseError, TypeError):
             return False
 
     def __repr__(self):

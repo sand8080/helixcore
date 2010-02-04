@@ -391,6 +391,7 @@ class IsoDatetimeTestCase(unittest.TestCase):
         self.assertFalse(validate(x, datetime.date.today().isoformat()))
         self.assertFalse(validate(x, 7))
         self.assertFalse(validate(x, 'some trash'))
+        self.assertFalse(validate(x, '2010'))
 
 
 class DecimalTextTestCase(unittest.TestCase):
