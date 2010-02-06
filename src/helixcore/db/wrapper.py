@@ -1,5 +1,5 @@
-from utils import dict_from_lists
-import deadlock_detector
+from helixcore.utils import dict_from_lists
+from helixcore.db import deadlock_detector
 
 
 class DbError(Exception):

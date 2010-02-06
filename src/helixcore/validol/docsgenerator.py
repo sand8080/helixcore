@@ -340,7 +340,7 @@ def generate_htmldoc_by_protocol(protocol, title='Untitled'):
         })
 
     for c in other:
-        id = c.name
+        id = c.name #IGNORE:W0622
         html_ids += [id]
         items.append('<div class="item">'
             '<h2>%(title)s</h2>'

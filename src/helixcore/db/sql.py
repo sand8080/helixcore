@@ -1,5 +1,5 @@
-import buildhelpers
-from utils import lists_from_dict
+from helixcore.utils import lists_from_dict
+from helixcore.db import buildhelpers
 
 
 class SqlNode(object):

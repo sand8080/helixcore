@@ -1,5 +1,5 @@
-def apply(curs):
+def apply(_): #IGNORE:W0622
     print 'apply 1-1'
 
-def revert(curs):
+def revert(_):
     print 'revert 1-1'

@@ -3,7 +3,6 @@ from psycopg2 import IntegrityError
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
 from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, ObjectAlreadyExists, DbError
 import helixcore.db.deadlock_detector as deadlock_detector
-import psycopg2
 from helixcore.server.exceptions import DataIntegrityError
 
 

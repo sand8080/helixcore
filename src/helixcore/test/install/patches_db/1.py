@@ -1,7 +1,8 @@
 from helixcore.test.install.test_install import PatchProcessorTestCase
 table = PatchProcessorTestCase.table
 
-def apply(curs):
+
+def apply(curs): #IGNORE:W0622
     print 'Creating table %s' % table
     curs.execute(
         'CREATE TABLE %s ('
@@ -11,6 +12,7 @@ def apply(curs):
         'date timestamp'
         ')' % table
     )
+
 
 def revert(curs):
     print 'Dropping table %s' % table

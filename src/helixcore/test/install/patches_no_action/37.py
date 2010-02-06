@@ -1,4 +1,4 @@
-def apply(_):
+def apply(_): #IGNORE:W0622
     print 'apply 37'
 
 
