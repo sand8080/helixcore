@@ -58,7 +58,10 @@ class Eq(Leaf):
     Alias for leaf equality condition
     """
     def __init__(self, lh, rh):
-        super(Eq, self).__init__(lh, '=', rh)
+        if rh is None:
+            super(Eq, self).__init__(lh, 'IS', rh)
+        else:
+            super(Eq, self).__init__(lh, '=', rh)
 
 
 class MoreEq(Leaf):

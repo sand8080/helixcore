@@ -2,6 +2,7 @@ import unittest
 
 from helixcore import utils
 
+
 class UtilTestCase(unittest.TestCase):
     def test_filter_dict(self):
         self.assertEqual({'b': 4}, utils.filter_dict(('a', 'b'), {'b': 4, 'c': 5}))

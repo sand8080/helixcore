@@ -20,7 +20,12 @@ class SqlTestCase(unittest.TestCase):
         cond_end = Eq('billing.id', 0)
         (cond, params) = cond_end.glue()
         self.assertEqual('"billing"."id" = %s', cond)
-        self.assertEqual(params, [0])
+        self.assertEqual([0], params)
+
+        cond_end = Eq('order_type', None)
+        (cond, params) = cond_end.glue()
+        self.assertEqual('"order_type" IS %s', cond)
+        self.assertEqual([None], params)
 
     def test_and_cond(self):
         cond_lh = Leaf('billing.id', '=', 0)
