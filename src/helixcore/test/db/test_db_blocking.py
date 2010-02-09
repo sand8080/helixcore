@@ -1,4 +1,4 @@
-from eventlet import coros
+from eventlet import GreenPool
 from helixcore.test.test_environment import transaction
 import datetime
 import unittest
@@ -11,11 +11,11 @@ class DbBlockingTestCase(unittest.TestCase):
 
     def test_blocking(self):
         task_num, sleep_sec = 1, 1
-        pool = coros.CoroutinePool(max_size=10)
+        pool = GreenPool(size=10)
         begin = datetime.datetime.now()
         for _ in xrange(task_num):
-            pool.execute_async(self.db_sleep, sleep_sec)
-        pool.wait_all()
+            pool.spawn(self.db_sleep, sleep_sec)
+        pool.waitall()
         end = datetime.datetime.now()
         td = end - begin
         print 'Consistent execution time: %s sec' % task_num * sleep_sec

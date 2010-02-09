@@ -1,10 +1,12 @@
 # coding=utf-8
-from eventlet import coros
+from eventlet import GreenPool
 import datetime
 import cjson
-import urllib2
 import random
 import time
+
+from eventlet import patcher
+urllib2 = patcher.import_patched('urllib2')
 
 
 def random_syllable(
@@ -33,11 +35,11 @@ def profile(func):
 
         print '%s >>>>' % func.func_name
         repeats = kwargs['repeats']
-        pool = coros.CoroutinePool(max_size=repeats)
+        pool = GreenPool(size=repeats)
         start = datetime.datetime.now()
         for _ in xrange(repeats):
-            pool.execute_async(time_calculator, self, *args, **kwargs)
-        pool.wait_all()
+            pool.spawn(time_calculator, self, *args, **kwargs)
+        pool.waitall()
         delta = datetime.datetime.now() - start
         if delta.seconds == 0:
             print 'repeats: %d, elapsed time %s' % (repeats, delta)
