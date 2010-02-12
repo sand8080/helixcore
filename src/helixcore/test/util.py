@@ -4,6 +4,7 @@ import datetime
 import cjson
 import random
 import time
+from StringIO import StringIO
 
 from eventlet import patcher
 urllib2 = patcher.import_patched('urllib2')
@@ -71,15 +72,17 @@ def show_time(func):
 
 
 class ClientApplication(object):
-    def __init__(self, host, port, login, password, protocol='http'):
-        self.protocol = protocol
-        self.host = host
-        self.port = port
+    def __init__(self, app, login, password):
+        self.app = app
         self.login = login
         self.password = password
 
     def request(self, data):
-        req = urllib2.Request(url='%s://%s:%d' % (self.protocol, self.host, self.port),
-            data=cjson.encode(data))
-        f = urllib2.urlopen(req)
-        return cjson.decode(f.read())
+        data_copy = dict(data)
+        data_copy['login'] = self.login
+        data_copy['password'] = self.password
+        environ = {'eventlet.input': StringIO(cjson.encode(data_copy))}
+        def start_response(_, __):
+            pass
+        response = self.app(environ, start_response)[0]
+        return cjson.decode(response)
