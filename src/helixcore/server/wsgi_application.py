@@ -15,7 +15,7 @@ class Application(object):
         self.helix_api = HelixApi(protocol)
         self.tracking_api_calls = tracking_api_calls
 
-    def track_api_call(self, s_req, s_resp, authorized_data):
+    def track_api_call(self, s_req, s_resp, remote_addr, authorized_data):
         pass
 
     def __call__(self, environ, start_response):
@@ -52,7 +52,7 @@ class Application(object):
             request = cjson.encode(self.secured_request(action_name, data))
             authorized_data.update(data)
             secured_authorized_data = self.secured_request(action_name, authorized_data)
-            self.track_api_call(request, response, secured_authorized_data)
+            self.track_api_call(remote_addr, request, response, secured_authorized_data)
         return [response]
 
 
