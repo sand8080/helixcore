@@ -79,8 +79,10 @@ class ClientApplication(object):
 
     def request(self, data):
         data_copy = dict(data)
-        data_copy['login'] = self.login
-        data_copy['password'] = self.password
+        if 'login' not in data_copy:
+            data_copy['login'] = self.login
+        if 'password' not in data_copy:
+            data_copy['password'] = self.password
         environ = {'eventlet.input': StringIO(cjson.encode(data_copy))}
         def start_response(_, __):
             pass
