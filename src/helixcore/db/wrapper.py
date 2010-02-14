@@ -15,7 +15,7 @@ class SelectedMoreThanOneRow(DbError):
         super(SelectedMoreThanOneRow, self).__init__('Selected more than one row.')
 
 
-class ObjectAlreadyExists(DbError):
+class ObjectCreationError(DbError):
     pass
 
 

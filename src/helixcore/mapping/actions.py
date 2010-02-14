@@ -1,7 +1,8 @@
 from psycopg2 import IntegrityError
 
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
-from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, ObjectAlreadyExists, DbError
+from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, ObjectCreationError, DbError,\
+    ObjectCreationError
 import helixcore.db.deadlock_detector as deadlock_detector
 from helixcore.server.exceptions import DataIntegrityError
 
@@ -33,12 +34,12 @@ def get_fields(obj):
 
 def insert(curs, obj):
     if hasattr(obj, 'id'):
-        raise ObjectAlreadyExists('Object %s id %s already exists' % (obj, obj.id))
+        raise ObjectCreationError('Object %s id %s already exists' % (obj, obj.id))
     try:
         curs.execute(*Insert(obj.table, get_fields(obj)).glue())
         obj.id = fetchone_dict(curs)['id']
-    except IntegrityError:
-        raise ObjectAlreadyExists('Object %s already exists' % obj)
+    except IntegrityError, e:
+        raise ObjectCreationError("Object can't be created: %s" % e.message)
 
 
 def update(curs, obj):
