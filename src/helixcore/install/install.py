@@ -10,8 +10,9 @@ from helixcore.db.wrapper import transaction_with_dynamic_connection_getter as t
 import filtering
 
 class PatchProcessor(object):
-    def __init__(self, get_connection, table, path, patch_like='[1-9\-]*.py'):
+    def __init__(self, get_connection, put_connection, table, path, patch_like='[1-9\-]*.py'):
         self.get_connection = get_connection
+        self.put_connection = put_connection
         self.table = table
         self.path = path
         self.patch_like = patch_like
@@ -93,6 +94,6 @@ COMMANDS = {
     'revert': revert,
 }
 
-def execute(cmd_name, get_connection_func, patch_table_name, patches_path):
-    patch_processor = PatchProcessor(get_connection_func, patch_table_name, patches_path)
+def execute(cmd_name, get_connection_func, put_connection_func, patch_table_name, patches_path):
+    patch_processor = PatchProcessor(get_connection_func, put_connection_func, patch_table_name, patches_path)
     COMMANDS[cmd_name](patch_processor)

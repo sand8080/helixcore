@@ -10,4 +10,5 @@ DSN = {
 }
 
 get_connection = partial(psycopg2.connect, **DSN)
-transaction = partial(wrapper.transaction, get_connection)
+put_connection = lambda x: None
+transaction = partial(wrapper.transaction, get_connection, put_connection)

@@ -2,7 +2,7 @@ import unittest
 import os
 
 from helixcore.install.install import PatchProcessor
-from helixcore.test.test_environment import get_connection, transaction
+from helixcore.test.test_environment import get_connection, put_connection, transaction
 from helixcore.db import query_builder, wrapper
 
 class PatchProcessorTestCase(unittest.TestCase):
@@ -14,7 +14,7 @@ class PatchProcessorTestCase(unittest.TestCase):
     table = 'test_patch'
 
     def setUp(self):
-        self.processor = PatchProcessor(get_connection, self.table, self.path)
+        self.processor = PatchProcessor(get_connection, put_connection, self.table, self.path)
 
     @transaction()
     def get_patches_list(self, curs=None):
@@ -31,12 +31,12 @@ class PatchProcessorTestCase(unittest.TestCase):
 
     @transaction()
     def test_table_not_exist(self, curs=None):
-        self.processor = PatchProcessor(get_connection, 'fake_table', self.path)
+        self.processor = PatchProcessor(get_connection, put_connection, 'fake_table', self.path)
         self.assertFalse(self.processor.is_table_exist(curs))
 
     @transaction()
     def test_table_exist(self, curs=None):
-        self.processor = PatchProcessor(get_connection, 'fake_test_table', self.path)
+        self.processor = PatchProcessor(get_connection, put_connection, 'fake_test_table', self.path)
         try:
             curs.execute('CREATE TABLE %s (id int)' % self.processor.table)
             self.assertTrue(self.processor.is_table_exist(curs))
@@ -57,7 +57,7 @@ class PatchProcessorTestCase(unittest.TestCase):
             os.path.realpath(os.path.dirname(__file__)),
             'patches_no_action'
         )
-        processor = PatchProcessor(get_connection, '___', patches_path)
+        processor = PatchProcessor(get_connection, put_connection, '___', patches_path)
         processor.revert_all()
         processor.apply_all()
         processor.revert_all()

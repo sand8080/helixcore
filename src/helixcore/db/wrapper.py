@@ -38,21 +38,23 @@ def fetchone_dict(curs):
     return dict_from_lists(columns, values)
 
 
-def transaction(get_conn):
+def transaction(get_conn, put_conn):
     def decorator(fun):
         def decorated(*args, **kwargs):
             conn = get_conn()
-            curs = conn.cursor()
-            kwargs['curs'] = curs
             try:
+                curs = conn.cursor()
+                kwargs['curs'] = curs
                 result = fun(*args, **kwargs)
                 _end_trans(curs)
                 conn.commit()
                 return result
-            except:
+            except Exception, e:
                 _end_trans(curs)
                 conn.rollback()
-                raise
+                raise e
+            finally:
+                put_conn(conn)
         return decorated
     return decorator
 
@@ -62,17 +64,19 @@ def transaction_with_dynamic_connection_getter():
         def decorated(self, *args, **kwargs):
             assert hasattr(self, 'get_connection')
             conn = self.get_connection()
-            curs = conn.cursor()
-            kwargs['curs'] = curs
             try:
+                curs = conn.cursor()
+                kwargs['curs'] = curs
                 result = fun(self, *args, **kwargs)
                 _end_trans(curs)
                 conn.commit()
                 return result
-            except :
+            except Exception, e:
                 _end_trans(curs)
                 conn.rollback()
-                raise
+                raise e
+            finally:
+                self.put_connection(conn)
         return decorated
     return decorator
 
