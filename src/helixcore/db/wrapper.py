@@ -10,6 +10,10 @@ class EmptyResultSetError(DbError):
     pass
 
 
+class ObjectNotFound(DbError):
+    pass
+
+
 class SelectedMoreThanOneRow(DbError):
     def __init__(self):
         super(SelectedMoreThanOneRow, self).__init__('Selected more than one row.')
