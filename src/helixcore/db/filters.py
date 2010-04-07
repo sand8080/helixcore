@@ -1,6 +1,6 @@
 from helixcore.db.sql import And, Any, NullLeaf, Select, Columns
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
-import helixcore.mapping.actions as mapping
+from helixcore import mapping
 
 
 class ObjectsFilter(object):
