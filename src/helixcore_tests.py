@@ -10,7 +10,7 @@ from helixcore.test.db.test_deadlock_detector import DeadlockDetectorTestCase #I
 from helixcore.test.db.test_buildhelpers import BuildhelpersTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_db_blocking import DbBlockingTestCase #IGNORE:W0611 @UnusedImport
 
-from helixcore.test.mapping.test_actions import ActionsTestCase #IGNORE:W0611 @UnusedImport
+from helixcore.test.mapping.test_mapping import MappingTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.mapping.test_arrays import ArraysTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.install.test_install import PatchProcessorTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.install.test_filtering import FilteringTestCase #IGNORE:W0611 @UnusedImport
