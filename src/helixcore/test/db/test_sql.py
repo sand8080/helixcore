@@ -192,6 +192,12 @@ class SqlTestCase(unittest.TestCase):
             q_str
         )
         self.assertEqual([], params)
+        q_str, params = Select('billing', cond=NullLeaf()).glue()
+        self.assertEqual(
+            'SELECT * FROM "billing"',
+            q_str
+        )
+        self.assertEqual([], params)
 
 
     def test_update(self):
