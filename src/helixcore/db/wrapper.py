@@ -54,6 +54,8 @@ def transaction(get_conn, put_conn):
                 conn.commit()
                 return result
             except Exception, e:
+#                import sys, traceback
+#                traceback.print_exc(file=sys.stderr)
                 _end_trans(curs)
                 conn.rollback()
                 raise e

@@ -2,7 +2,7 @@ Source: helixcore
 Section: non-free/libs
 Priority: extra
 Maintainer: Webdrive Developers <developers@webdrive.ru>
-Build-Depends-Indep: debhelper (>= 7), python2.5, python-psycopg2 (>= 2.0.5), dpkg-dev, helixutils
+Build-Depends-Indep: debhelper (>= 7), python2.5, python-psycopg2 (>= 2.0.5), dpkg-dev, helixutils, python-cjson
 Standards-Version: 3.7.3
 Homepage: http://webdrive.ru
 XS-Python-Version: 2.5

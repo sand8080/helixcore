@@ -4,6 +4,8 @@ from helixcore import mapping
 
 
 class ObjectsFilter(object):
+    '''[(p_name, db_f_name, operation_class), ...]
+    '''
     cond_map = []
 
     def __init__(self, filter_params, paging_params, ordering_params, obj_class):

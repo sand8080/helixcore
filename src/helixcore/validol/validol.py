@@ -11,12 +11,14 @@
 #
 #  0. You just DO WHAT YOU WANT TO.
 from decimal import Decimal
+import re
 
 
 __version__ = "0.2" # XXX Not always updated :\ #IGNORE:W0511
 __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
 
 import iso8601 #@UnresolvedImport
+import datetime
 import decimal
 from itertools import imap
 
@@ -464,6 +466,27 @@ class IsoDatetime(BaseValidator):
 
     def __repr__(self):
         return '<IsoDatetime>'
+
+class IsoDate(BaseValidator):
+    """
+    Special case of IsoDatetime. Accepts date only in format
+    Validates if data is correct date string in format 'yyyy-mm-dd'.
+    """
+    date_pattern = re.compile('^(?P<year>[0-9]{4})-(?P<month>[0-9]{1,2})-(?P<day>[0-9]{1,2})(?P<timezone>Z|([+-][0-9]{2}(.[0-9]{2})?))?$')
+    
+    def __init__(self):
+        super(IsoDate, self).__init__()
+        self.wrapped = IsoDatetime()
+
+    def validate(self, data):
+        m = self.date_pattern.match(data)
+        if not m:
+            print 'IsoDate invalid: %s' % data
+            return False
+        return True
+
+    def __repr__(self):
+        return '<IsoDate>'
 
 
 class DecimalText(Text):

@@ -20,7 +20,7 @@ class Api(object):
 
     def handle_request(self, raw_data):
         '''
-        Parses raw JSON request to structure, validates it and calls appropriate method on handler_object
+        Parses raw JSON request to structure, validates it and returns action name and valid data
         @param raw_data: raw JSON data.
         @return: tuple(action_name, data_dict)
         @raise ValidationError: if request validation fails

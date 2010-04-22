@@ -53,6 +53,18 @@ class Leaf(SqlNode):
         return cond, params
 
 
+class Like(Leaf):
+    """
+    Alias for LIKE SQL condition.
+    @param rh: pattern with wildcards, ex. '*dffdf*'
+    """
+    def __init__(self, lh, rh, case_sensitive=False):
+        if rh is None:
+            super(Like, self).__init__(lh, 'IS', rh)
+        else:
+            rh = rh.replace('%', '\%').replace('*', '%');
+            super(Eq, self).__init__(lh, case_sensitive and 'LIKE' or 'ILIKE', rh)
+
 class Eq(Leaf):
     """
     Alias for leaf equality condition
