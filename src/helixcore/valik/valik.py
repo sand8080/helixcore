@@ -2,9 +2,9 @@
 Created on Apr 22, 2010
 
 It is a drop-in replacement for validol by Konstantin Merenkov.
-The main advantage of this module is its clean design and readable implementation, 
+The main advantage of this module is its clean design and readable implementation,
 extensive error reporting on validation failures with path to failed element.
-May be, it's a little slower though... 
+May be, it's a little slower though...
 
 @author: andrew
 '''
@@ -27,13 +27,13 @@ class ValidationError(Exception):
         super(ValidationError, self).__init__('Validation failed: %s. Path to failed element: %s' % (comment, path))
         self.path = list(path)
         self.comment = comment
-    
-    def get_path(self): 
+
+    def get_path(self):
         return self.path
-    
-    def get_comment(self): 
+
+    def get_comment(self):
         return self.comment
-        
+
 ### key modifiers for dict schemas ###
 
 class Key(object):
@@ -42,10 +42,11 @@ class Key(object):
     '''
     def __init__(self, name):
         self.name = name
-    
+
     def __str__(self):
         return self.name
-    
+
+    @property
     def allows_absent(self):
         '''
         @return: bool. if this modifier allows absent element in data dict
@@ -57,22 +58,14 @@ class Optional(Key):
     '''
     Key modifier for optional element in dict
     '''
-    def __init__(self, name):
-        super(Optional, self).__init__(name)
-    
-    def allows_absent(self): 
-        return True
+    allows_absent = True
 
 
 class Mandatory(Key):
     '''
     Key modifier for mandatory element in dict. Default.
     '''
-    def __init__(self, name):
-        super(Mandatory, self).__init__(name)
-    
-    def allows_absent(self): 
-        return False
+    allows_absent = False
 
 ### validators ###
 
@@ -89,6 +82,7 @@ class ValueValidator(object):
         '''
         raise NotImplementedError
 
+
 class Any(ValueValidator):
     '''
     Validates all.
@@ -96,13 +90,14 @@ class Any(ValueValidator):
     def validate(self, data, path):
         pass
 
+
 class NoData(ValueValidator):
     '''
     Fails validation. Data just must not be present, this validator must not be called
     '''
     def validate(self, data, path):
         raise ValidationError('No data must be present at this location', path)
-    
+
 
 class ArbitraryDict(ValueValidator):
     '''
@@ -114,25 +109,26 @@ class ArbitraryDict(ValueValidator):
 
 
 class DictWrapperValidator(ValueValidator):
-    
+
     def __init__(self, scheme_dict):
         '''
         @param scheme_dict: initial dict of key_name -> validator. Data will be validated against scheme dict
         @ivar scheme_list: list of tuples [(KeyModifier, ValueValidator), ...]
         '''
         self.scheme_list = [
-            (self._create_key_modifier(raw_key), create_validator(raw_validator)) 
+            (self._create_key_modifier(raw_key), create_validator(raw_validator))
             for raw_key, raw_validator in scheme_dict.iteritems()
         ]
-    
+
     def _create_key_modifier(self, key):
         '''
         @return: Key object built from possibly bare (string) key
         '''
-        if hasattr(key, '__class__') and issubclass(key.__class__, Key):
+        klass = getattr(key, '__class__', None)
+        if klass and issubclass(klass, Key):
             return key
         return Mandatory(key)
-    
+
     def validate(self, data, path):
         '''
         @param data: dict of key -> value to validate against this validator
@@ -144,23 +140,23 @@ class DictWrapperValidator(ValueValidator):
         for (key_mod, validator) in self.scheme_list:
             key_str = str(key_mod)
             path.append(key_str)
-            
+
             if key_str in data:
                 validator.validate(data[key_str], path)
                 handled_keys.add(key_str)
             else:
-                if not key_mod.allows_absent():
+                if not key_mod.allows_absent:
                     raise ValidationError('Element %s must be present in dict' % key_str, path)
-            
+
             path.pop()
-            
-        not_handled_keys = set(data.keys()).difference(handled_keys)
+
+        not_handled_keys = set(data).difference(handled_keys)
         if len(not_handled_keys) > 0:
             raise ValidationError('%d dict elements does not match schema. These element names are: %s' % (len(not_handled_keys), not_handled_keys), path)
-            
-        
+
+
 class ListWrapperValidator(ValueValidator):
-    
+
     def __init__(self, scheme_list):
         '''
         @param scheme_list: initial list, containing at most one validator. (If none given, NoData() validator will be used - list must be empty).
@@ -170,29 +166,29 @@ class ListWrapperValidator(ValueValidator):
             scheme_list = [NoData()]
         if len(scheme_list) != 1:
             raise NotImplementedError('Can configure list validator against only one member validator')
-        self.member_validator = create_validator(scheme_list[0]) 
-        
+        self.member_validator = create_validator(scheme_list[0])
+
     def validate(self, data, path):
         '''
         @param data: list of values to validate against this member validator
         '''
         if type(data) is not list:
             raise ValidationError('Data must be a list', path)
-        
-        for i in range(len(data)):
-            
+
+        for i, item in enumerate(data):
             path.append(str(i))
-            self.member_validator.validate(data[i], path)
+            self.member_validator.validate(item, path)
             path.pop()
 
+
 class TupleWrapperValidator(ValueValidator):
-    
+
     def __init__(self, scheme_tuple):
         '''
         @param scheme_tuple: initial tuple, containing validators. Each data members will be validated against the corresponding member validator.
         '''
-        self.member_validators = [create_validator(v) for v in scheme_tuple] 
-        
+        self.member_validators = map(create_validator, scheme_tuple)
+
     def validate(self, data, path):
         '''
         @param data: list of values to validate against this member validator
@@ -201,22 +197,21 @@ class TupleWrapperValidator(ValueValidator):
             raise ValidationError('Data must be a tuple', path)
         if len(self.member_validators) != len(data):
             raise ValidationError('Data must contain exactly %d elements' % len(self.member_validators), path)
-        
-        for i in range(len(data)):
-            
+
+        for i, (item, validator) in enumerate(zip(data, self.member_validators)):
             path.append(str(i))
-            self.member_validators[i].validate(data[i], path)
+            validator.validate(item, path)
             path.pop()
 
 
 class AtomicTypeWrapperValidator(ValueValidator):
-    
+
     def __init__(self, scheme_type):
         '''
         @param scheme_type: atomic type name. Data must be of this type.
         '''
-        self.scheme_type = scheme_type 
-        
+        self.scheme_type = scheme_type
+
     def validate(self, data, path):
         '''
         @param data: value of atomic type self.scheme_type
@@ -226,13 +221,13 @@ class AtomicTypeWrapperValidator(ValueValidator):
 
 
 class EqualityValidator(ValueValidator):
-    
+
     def __init__(self, target_value):
         '''
         @param target_value: some target value. Data must be equal to this value (data == value).
         '''
-        self.target_value = target_value 
-        
+        self.target_value = target_value
+
     def validate(self, data, path):
         '''
         @param data: value to validate
@@ -242,13 +237,13 @@ class EqualityValidator(ValueValidator):
 
 
 class UserPredicateValidator(ValueValidator):
-    
+
     def __init__(self, pred):
         '''
         @param pred: Unary callable returning bool. Will be called on data.
         '''
-        self.pred = pred 
-        
+        self.pred = pred
+
     def validate(self, data, path):
         '''
         @param data: value satisfying self.pred
@@ -258,32 +253,31 @@ class UserPredicateValidator(ValueValidator):
             res = self.pred(data)
         except Exception, e:
             raise ValidationError('Value must satisfy given predicate %s, but check failed: %s' % (self.pred, e), path)
-            
+
         if not res:
             raise ValidationError('Value must satisfy given predicate %s' % self.pred, path)
 
 
 class AnyOf(ValueValidator):
-    
+
     def __init__(self, *validators):
         '''
         @param validators: validators data will be validated against.
         '''
-        self.validators = [create_validator(v) for v in validators] 
-    
+        self.validators = map(create_validator, validators)
+
     def validate(self, data, path):
         '''
         @param data: must be valid against at least one of self.validators
         '''
         thrown_excs = []
         for v in self.validators:
-            path_copy = list(path)
             try:
-                v.validate(data, path_copy)
+                v.validate(data, list(path))
             except ValidationError, e:
                 #print 'AnyOf: not validated by %s: %s' % (v, data)
                 thrown_excs.append(e)
-        
+
         if len(thrown_excs) == len(self.validators):
             failures = '; '.join([ '%s (path: %s)' % (e.get_comment(), e.get_path()) for e in thrown_excs ])
             comment = 'Data must satisfy to any of validators, all of them failed: %s' % failures
@@ -291,37 +285,36 @@ class AnyOf(ValueValidator):
 
 
 class RegexpValidator(ValueValidator):
-    
-    def __init__(self, pattern, flags=None):
+
+    def __init__(self, pattern, flags=0):
         '''
         @param pattern: pattern like in re.compile() function
         @param flags: flags like in re.compile() function
         '''
-        self.match_obj = flags is None and re.compile(pattern) or re.compile(pattern, flags)
-        self.pattern = pattern
-        
+        self.match_obj = re.compile(pattern, flags)
+
     def validate(self, data, path):
         '''
         @param data: value matching self.pattern
         '''
         if not self.match_obj.match(data):
-            raise ValidationError('Value must match given regular expression %s' % self.pattern, path)
+            raise ValidationError('Value must match given regular expression %s' % self.match_obj.pattern, path)
 
 
 class RegexpCompiledValidator(ValueValidator):
-    
+
     def __init__(self, match_obj):
         '''
         @param regexp: instance of re.match object
         '''
-        self.match_obj = match_obj 
-        
+        self.match_obj = match_obj
+
     def validate(self, data, path):
         '''
         @param data: value matching self.match_obj
         '''
         if not self.match_obj.match(data):
-            raise ValidationError('Value must match given regular expression', path)
+            raise ValidationError('Value must match given regular expression %s' % self.match_obj.pattern, path)
 
 
 class IsoDatetime(ValueValidator):
@@ -340,15 +333,21 @@ class IsoDate(ValueValidator):
     Special case of IsoDatetime. Accepts date only in ISO 8601 format
     Validates if data is correct date string in format 'yyyy-mm-dd'.
     '''
-    date_pattern = re.compile('^(?P<year>[0-9]{4})-(?P<month>[0-9]{1,2})-(?P<day>[0-9]{1,2})(?P<timezone>Z|([+-][0-9]{2}(.[0-9]{2})?))?$')
-    
+    date_pattern = re.compile(
+        '^'
+        '(?P<year>[0-9]{4})'
+        '-'
+        '(?P<month>[0-9]{1,2})'
+        '-'
+        '(?P<day>[0-9]{1,2})'
+        '(?P<timezone>Z|([+-][0-9]{2}(.[0-9]{2})?))?'
+        '$'
+    )
+
     def validate(self, data, path):
         m = self.date_pattern.match(data)
         if not m:
             raise ValidationError('Value %s must be a correct ISO 8601 date string' % data, path)
-
-    def __repr__(self):
-        return '<IsoDate>'
 
 
 class Text(ValueValidator):
@@ -400,7 +399,7 @@ class SimpleWrappingValidator(ValueValidator):
         @ivar validator: wrapped ValueValidator object
         '''
         self.validator = create_validator(validator)
-        
+
     def validate(self, data, path):
         '''
         Just delegate validation to self.validator
@@ -445,9 +444,9 @@ def create_validator(obj):
     '''
     if hasattr(obj, '__class__') and issubclass(obj.__class__, ValueValidator):
         return obj
-    
+
     obj_type = type(obj)
-    
+
     if obj_type is dict:
         return DictWrapperValidator(obj)
     if obj_type is list:
@@ -463,7 +462,7 @@ def create_validator(obj):
     # this f##king SRE_Pattern, why can't I f##king kill it
     if hasattr(obj, 'match') and hasattr(obj, 'search'):
         return RegexpCompiledValidator(obj)
-    
+
     return EqualityValidator(obj)
 
 ### main function ###
