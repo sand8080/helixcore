@@ -1,6 +1,6 @@
 import unittest
 
-from helixcore.db.sql import Leaf, Eq, And
+from helixcore.db.sql import BinaryOperator, Eq, And
 from helixcore.db.query_builder import select, update, delete, insert
 
 class QueryBuilderTestCase(unittest.TestCase):
@@ -32,8 +32,8 @@ class QueryBuilderTestCase(unittest.TestCase):
         )
 
         cond_and = And(
-            Leaf('billing.amount', '>', 10),
-            Leaf('billing.amount', '<', 100)
+            BinaryOperator('billing.amount', '>', 10),
+            BinaryOperator('billing.amount', '<', 100)
         )
         q_str, params = select('billing', cond=cond_and)
         self.assertEqual(

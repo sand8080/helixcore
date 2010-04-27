@@ -12,7 +12,10 @@ class Mapped(object):
         for (attr, v) in data.iteritems(): setattr(self, attr, v)
 
     def __repr__(self, except_attrs=()):
-        attrs = [(a, getattr(self, a, None)) for a in self.__slots__]
-        obj_info = ', '.join(['%s=%s' % (a, v) for (a, v) in attrs if a not in except_attrs])
+        h = self.to_dict(except_attrs)
+        obj_info = ', '.join(['%s=%s' % (a, h[a]) for a in h])
         return '%s(%s)' % (self.__class__.__name__, obj_info)
-
+    
+    def to_dict(self, except_attrs=()):
+        attrs = [(a, getattr(self, a, None)) for a in self.__slots__ if a not in except_attrs]
+        return dict(attrs)

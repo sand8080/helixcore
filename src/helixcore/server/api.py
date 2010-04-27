@@ -1,6 +1,6 @@
-import cjson, datetime, copy, pytz
+import cjson, datetime, copy, pytz, sys
 from helixcore.server.exceptions import ValidationError, FormatError
-from helixcore.validol.validol import validate
+from helixcore.valik.valik import validate, ValidationError as ValidationErrorNative
 
 
 # Useful for documentation generation
@@ -78,12 +78,11 @@ class Api(object):
         if scheme is None:
             raise ValidationError('Scheme for %s not found' % call_name)
 
-        result = validate(scheme, data)
-        if not result:
-            raise ValidationError(
-                'Validation failed for action %s. Expected scheme: %s. Actual data: %s'
-                % (call_name, scheme, data)
-            )
+        try:
+            validate(scheme, data)
+        except ValidationErrorNative, e:
+            raise ValidationError(str(e)), None, sys.exc_info()[2]
+        
 
     def validate_request(self, action_name, data):
         '''

@@ -18,7 +18,7 @@ __version__ = "0.2" # XXX Not always updated :\ #IGNORE:W0511
 __author__  = "Konstantin Merenkov <kmerenkov@gmail.com>"
 
 import iso8601 #@UnresolvedImport
-import datetime
+#import datetime
 import decimal
 from itertools import imap
 

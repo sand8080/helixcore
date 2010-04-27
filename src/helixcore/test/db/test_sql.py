@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from helixcore.db.sql import Leaf, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete, Insert
+from helixcore.db.sql import quote, BinaryOperator, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete, Insert
 
 
 class SqlTestCase(unittest.TestCase):
     def test_cond(self):
-        c, p = Leaf('billing.id', '<', 0).glue()
+        c, p = BinaryOperator('billing.id', '<', 0).glue()
         self.assertEqual('"billing"."id" < %s', c)
         self.assertEqual(1, len(p))
         self.assertEqual([0], p)
 
         test_str = 'хитрый cat'
-        c, p = Leaf('balance.name', '!=', test_str).glue()
+        c, p = BinaryOperator('balance.name', '!=', test_str).glue()
         self.assertEqual('"balance"."name" != %s', c)
         self.assertEqual([test_str], p)
 
@@ -24,12 +24,12 @@ class SqlTestCase(unittest.TestCase):
 
         cond_end = Eq('order_type', None)
         (cond, params) = cond_end.glue()
-        self.assertEqual('"order_type" IS %s', cond)
-        self.assertEqual([None], params)
+        self.assertEqual('"order_type" IS NULL', cond)
+        self.assertEqual([], params)
 
     def test_and_cond(self):
-        cond_lh = Leaf('billing.id', '=', 0)
-        cond_rh = Leaf('billing.id', '!=', 42)
+        cond_lh = BinaryOperator('billing.id', '=', 0)
+        cond_rh = BinaryOperator('billing.id', '!=', 42)
         cond_end = And(cond_lh, cond_rh)
         (cond, params) = cond_end.glue()
         self.assertEqual(
@@ -39,8 +39,8 @@ class SqlTestCase(unittest.TestCase):
         self.assertEqual([0, 42], params)
 
     def test_or_cond(self):
-        cond_lh = Leaf('billing.id', '=', 0)
-        cond_rh = Leaf('billing.cd', '!=', 101)
+        cond_lh = BinaryOperator('billing.id', '=', 0)
+        cond_rh = BinaryOperator('billing.cd', '!=', 101)
         cond_end = Or(cond_lh, cond_rh)
         (cond, params) = cond_end.glue()
         self.assertEqual(
@@ -50,8 +50,8 @@ class SqlTestCase(unittest.TestCase):
         self.assertEqual([0, 101], params)
 
     def test_scoped_cond(self):
-        cond_lh = Leaf('billing.id', '=', 'a')
-        cond_rh = Leaf('billing.cd', '!=', 'b')
+        cond_lh = BinaryOperator('billing.id', '=', 'a')
+        cond_rh = BinaryOperator('billing.cd', '!=', 'b')
         cond_and = And(cond_lh, cond_rh)
         cond_end = Scoped(cond_and)
         (cond, params) = cond_end.glue()
@@ -86,7 +86,7 @@ class SqlTestCase(unittest.TestCase):
     def test_any_cond(self):
         cond_any = Any(15, 'ids')
         c, p = cond_any.glue()
-        self.assertEqual(c, '%s = ANY (ids)')
+        self.assertEqual(c, '%s = ANY ("ids")')
         self.assertEqual(p, [15])
 
     def test_in_cond(self):
@@ -128,7 +128,7 @@ class SqlTestCase(unittest.TestCase):
         any_cond = Any('id', nested)
         c, p = any_cond.glue()
         self.assertEqual(c, '''%s = ANY (SELECT "service_type_id" FROM "service_set" WHERE "service_set_descr_id" = (SELECT "name" FROM "service_set_descr" WHERE "name" = %s))''')
-        self.assertEqual(p, ['registration ru'])
+        self.assertEqual(p, ['id', 'registration ru'])
 
 
     def test_select(self):
@@ -167,8 +167,8 @@ class SqlTestCase(unittest.TestCase):
         )
 
         cond_and = And(
-            Leaf('billing.amount', '>', 10),
-            Leaf('billing.amount', '<', 100)
+            BinaryOperator('billing.amount', '>', 10),
+            BinaryOperator('billing.amount', '<', 100)
         )
         q_str, params = Select('billing', cond=cond_and).glue()
         self.assertEqual(
@@ -227,6 +227,16 @@ class SqlTestCase(unittest.TestCase):
             q_str
         )
         self.assertEqual(['usd', 0, 42], q_params)
+
+    def test_quote(self):
+        self.assertEqual('"id"', quote('id'))
+        self.assertEqual('"id"', quote('"id"'))
+        self.assertEqual('""id"', quote('"id'))
+        self.assertEqual('"id""', quote('id"'))
+        self.assertEqual('"billing"."id"', quote('billing.id'))
+        self.assertEqual('"billing"."id"', quote('"billing"."id"'))
+        self.assertEqual('""billing"."id""', quote('"billing.id"'))
+        self.assertEqual('"billing"."id"."cd"', quote('billing.id.cd'))
 
 
 if __name__ == '__main__':
