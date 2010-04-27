@@ -7,7 +7,6 @@ from helixcore.test.db.test_sql import SqlTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_query_builder import QueryBuilderTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_wrapper import WrapperTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_deadlock_detector import DeadlockDetectorTestCase #IGNORE:W0611 @UnusedImport
-from helixcore.test.db.test_buildhelpers import BuildhelpersTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_db_blocking import DbBlockingTestCase #IGNORE:W0611 @UnusedImport
 
 from helixcore.test.mapping.test_mapping import MappingTestCase #IGNORE:W0611 @UnusedImport
