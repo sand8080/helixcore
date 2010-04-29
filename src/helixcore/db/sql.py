@@ -258,14 +258,14 @@ class Function(SqlNode):
         return ('%s(%s)' % (self.fn_name, sql)), params
 
 
-class Count(SqlNode):
+class Count(Function):
     def __init__(self, expr):
         super(Count, self).__init__('COUNT', expr)
 
 
-class Length(SqlNode):
+class Length(Function):
     def __init__(self, expr):
-        super(Count, self).__init__('length', expr)
+        super(Length, self).__init__('length', expr)
 
 
 class Columns(object):
