@@ -13,6 +13,7 @@ import iso8601 #@UnresolvedImport
 from decimal import Decimal
 import decimal
 
+
 ### errors ###
 
 class ValidationError(Exception):
@@ -34,7 +35,13 @@ class ValidationError(Exception):
     def get_comment(self):
         return self.comment
 
+
 ### key modifiers for dict schemas ###
+
+@property
+def undefined_property(_):
+    raise NotImplementedError
+
 
 class Key(object):
     '''
@@ -46,12 +53,8 @@ class Key(object):
     def __str__(self):
         return self.name
 
-    @property
-    def allows_absent(self):
-        '''
-        @return: bool. if this modifier allows absent element in data dict
-        '''
-        raise NotImplementedError
+    # bool. if this modifier allows absent element in data dict
+    allows_absent = undefined_property
 
 
 class Optional(Key):
@@ -66,6 +69,7 @@ class Mandatory(Key):
     Key modifier for mandatory element in dict. Default.
     '''
     allows_absent = False
+
 
 ### validators ###
 
@@ -109,12 +113,12 @@ class ArbitraryDict(ValueValidator):
 
 
 class DictWrapperValidator(ValueValidator):
-
     def __init__(self, scheme_dict):
         '''
         @param scheme_dict: initial dict of key_name -> validator. Data will be validated against scheme dict
         @ivar scheme_list: list of tuples [(KeyModifier, ValueValidator), ...]
         '''
+        super(DictWrapperValidator, self).__init__()
         self.scheme_list = [
             (self._create_key_modifier(raw_key), create_validator(raw_validator))
             for raw_key, raw_validator in scheme_dict.iteritems()
@@ -156,12 +160,12 @@ class DictWrapperValidator(ValueValidator):
 
 
 class ListWrapperValidator(ValueValidator):
-
     def __init__(self, scheme_list):
         '''
         @param scheme_list: initial list, containing at most one validator. (If none given, NoData() validator will be used - list must be empty).
         @ivar member_validator: Data members will be validated against this validator.
         '''
+        super(ListWrapperValidator, self).__init__()
         if len(scheme_list) == 0:
             scheme_list = [NoData()]
         if len(scheme_list) != 1:
@@ -182,11 +186,11 @@ class ListWrapperValidator(ValueValidator):
 
 
 class TupleWrapperValidator(ValueValidator):
-
     def __init__(self, scheme_tuple):
         '''
         @param scheme_tuple: initial tuple, containing validators. Each data members will be validated against the corresponding member validator.
         '''
+        super(TupleWrapperValidator, self).__init__()
         self.member_validators = map(create_validator, scheme_tuple)
 
     def validate(self, data, path):
@@ -205,11 +209,11 @@ class TupleWrapperValidator(ValueValidator):
 
 
 class AtomicTypeWrapperValidator(ValueValidator):
-
     def __init__(self, scheme_type):
         '''
         @param scheme_type: atomic type name. Data must be of this type.
         '''
+        super(AtomicTypeWrapperValidator, self).__init__()
         self.scheme_type = scheme_type
 
     def validate(self, data, path):
@@ -221,11 +225,11 @@ class AtomicTypeWrapperValidator(ValueValidator):
 
 
 class EqualityValidator(ValueValidator):
-
     def __init__(self, target_value):
         '''
         @param target_value: some target value. Data must be equal to this value (data == value).
         '''
+        super(EqualityValidator, self).__init__()
         self.target_value = target_value
 
     def validate(self, data, path):
@@ -237,11 +241,11 @@ class EqualityValidator(ValueValidator):
 
 
 class UserPredicateValidator(ValueValidator):
-
     def __init__(self, pred):
         '''
         @param pred: Unary callable returning bool. Will be called on data.
         '''
+        super(UserPredicateValidator, self).__init__()
         self.pred = pred
 
     def validate(self, data, path):
@@ -259,11 +263,11 @@ class UserPredicateValidator(ValueValidator):
 
 
 class AnyOf(ValueValidator):
-
     def __init__(self, *validators):
         '''
         @param validators: validators data will be validated against.
         '''
+        super(AnyOf, self).__init__()
         self.validators = map(create_validator, validators)
 
     def validate(self, data, path):
@@ -285,12 +289,12 @@ class AnyOf(ValueValidator):
 
 
 class RegexpValidator(ValueValidator):
-
     def __init__(self, pattern, flags=0):
         '''
         @param pattern: pattern like in re.compile() function
         @param flags: flags like in re.compile() function
         '''
+        super(RegexpValidator, self).__init__()
         self.match_obj = re.compile(pattern, flags)
 
     def validate(self, data, path):
@@ -302,11 +306,11 @@ class RegexpValidator(ValueValidator):
 
 
 class RegexpCompiledValidator(ValueValidator):
-
     def __init__(self, match_obj):
         '''
         @param regexp: instance of re.match object
         '''
+        super(RegexpCompiledValidator, self).__init__()
         self.match_obj = match_obj
 
     def validate(self, data, path):
@@ -398,6 +402,7 @@ class SimpleWrappingValidator(ValueValidator):
         '''
         @ivar validator: wrapped ValueValidator object
         '''
+        super(SimpleWrappingValidator, self).__init__()
         self.validator = create_validator(validator)
 
     def validate(self, data, path):
@@ -412,6 +417,7 @@ class Scheme(SimpleWrappingValidator):
     For backward compatibility with validol. Just wraps single validator object.
     '''
     pass
+
 
 class Positive(SimpleWrappingValidator):
     """
@@ -433,6 +439,7 @@ class NonNegative(SimpleWrappingValidator):
         super(NonNegative, self).validate(data, path)
         if not data >= 0:
             raise ValidationError('Value %s must be positive' % data, path)
+
 
 ### factory ###
 

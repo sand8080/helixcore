@@ -1,6 +1,4 @@
-
 import unittest
-import re
 import datetime
 
 from helixcore.valik.valik import validate, AnyOf, Optional, Scheme, ValueValidator, Text, IsoDatetime,\
@@ -19,6 +17,7 @@ class ValueValidatorTestCase(unittest.TestCase):
         for v in [AnyOf, Scheme, Text, IsoDatetime, DecimalText, ArbitraryDict]:
             result = issubclass(v, ValueValidator)
             self.assertTrue(result)
+
 
 class SchemeTestCase(unittest.TestCase):
     def test_good_001(self):
@@ -67,6 +66,7 @@ class AnyOfTestCase(unittest.TestCase):
         x = AnyOf(int)
         self.assertRaises(ValidationError, x.validate, "foo", [])
 
+
 class ListTestCase(unittest.TestCase):
     def test_good_001(self):
         x = [object]
@@ -113,60 +113,31 @@ class ListTestCase(unittest.TestCase):
         self.assertRaises(ValidationError, validate, x, [])
 
 
-
 class DictTestCase(unittest.TestCase):
-#    def test_good_001(self):
-#        x = {object: object}
-#        validate(x, {'foo': 'bar'})
-
     def test_good_002(self):
         x = {'foo': int}
         validate(x, {'foo': 10})
-
-#    def test_good_003(self):
-#        x = {re.compile('\d+'): str}
-#        validate(x, {'10': 'bar'})
 
     def test_good_005(self):
         x = {}
         validate(x, {})
 
-#    def test_good_006(self):
-#        x = {str: {str: str}}
-#        validate(x, {'foo': {'bar': 'zar'}})
-
     def test_bad_001(self):
         x = {}
         self.assertRaises(ValidationError, validate, x, [])
-
-#    def test_bad_002(self):
-#        x = {str: int}
-#        self.assertRaises(ValidationError, validate, x, {'foo': 'bar'})
 
     def test_bad_004(self):
         x = {}
         self.assertRaises(ValidationError, validate, x, {'a':'b'})
 
-#    def test_bad_005(self):
-#        x = {str: str}
-#        self.assertRaises(ValidationError, validate, x, {})
-
     def test_bad_006(self):
         x = {"foo": int, "bar": int}
         self.assertRaises(ValidationError, validate, x, {"bar": 10})
-
-#    def test_bad_007(self):
-#        x = {str: {str: str}}
-#        self.assertRaises(ValidationError, validate, x, {'foo': {'bar': 10}})
 
     def test_optional_good_001(self):
         x = {Optional('foo'): 10}
         validate(x, {'foo': 10})
         validate(x, {})
-
-#    def test_optional_bad_001(self):
-#        x = {str: Optional(10)}
-#        validate(x, {'foo': None})
 
     def test_optional_good_002(self):
         x = {Optional('foo'): int}

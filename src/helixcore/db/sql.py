@@ -22,6 +22,7 @@ class SqlNode(object):
 
 class Column(SqlNode):
     def __init__(self, name):
+        super(Column, self).__init__()
         self.name = name
 
     def glue(self):
@@ -30,6 +31,7 @@ class Column(SqlNode):
 
 class Parameter(SqlNode):
     def __init__(self, param):
+        super(Parameter, self).__init__()
         self.param = param
 
     def glue(self):
@@ -38,6 +40,7 @@ class Parameter(SqlNode):
 
 class Terminal(SqlNode):
     def __init__(self, term):
+        super(Terminal, self).__init__()
         self.term = term
 
     def glue(self):
@@ -51,12 +54,10 @@ def glue_col(obj):
     @param obj: object (either SqlNode or column name) to glue
     @return tuple (sql, params) - sql representation of object
     '''
+    if obj is None:
+        return 'NULL', []
     if isinstance(obj, SqlNode):
         return obj.glue()
-
-    if obj is None:
-        return 'NULL', [];
-
     return Column(obj).glue()
 
 
@@ -67,12 +68,10 @@ def glue_param(obj):
     @param obj: object (either SqlNode or string terminal) to glue
     @return tuple (sql, params) - sql representation of object
     '''
+    if obj is None:
+        return 'NULL', []
     if isinstance(obj, SqlNode):
         return obj.glue()
-
-    if obj is None:
-        return 'NULL', [];
-
     return Parameter(obj).glue()
 
 
@@ -83,7 +82,8 @@ class NullLeaf(SqlNode):
     def glue(self):
         return '', []
 
-class BinaryExpr(SqlNode):
+
+class BinaryExpr(SqlNode): #IGNORE:W0223
     def __init__(self, lh, rh):
         super(BinaryExpr, self).__init__()
         self.lh = lh
@@ -97,13 +97,16 @@ class BinaryExpr(SqlNode):
         nested_cond_r, nested_params_r = glue_param(self.rh)
         return nested_cond_l, nested_cond_r, nested_params_l + nested_params_r
 
+
 class Any(SqlNode):
     """
     val = ANY (col)
     """
     def __init__(self, val, col):
+        super(Any, self).__init__()
         self.val = val
         self.col = col
+
     def glue(self):
         nested_cond_val, nested_params_val = glue_param(self.val)
         nested_cond_col, nested_params_col = glue_col(self.col)
@@ -134,7 +137,7 @@ class Like(BinaryOperator):
         if rh is None:
             super(Like, self).__init__(lh, 'IS', rh)
         else:
-            rh = rh.replace('%', '\%').replace('*', '%');
+            rh = rh.replace('%', '\%').replace('*', '%')
             super(Like, self).__init__(lh, case_sensitive and 'LIKE' or 'ILIKE', rh)
 
 class Eq(BinaryOperator):
@@ -251,8 +254,10 @@ class Or(Composite):
 
 class Function(SqlNode):
     def __init__(self, fn_name, expr):
+        super(Function, self).__init__()
         self.fn_name = fn_name
         self.expr = expr
+
     def glue(self):
         sql, params = glue_col(self.expr)
         return ('%s(%s)' % (self.fn_name, sql)), params
@@ -274,6 +279,7 @@ class Columns(object):
 
 class ColumnsList(SqlNode):
     def __init__(self, c):
+        super(ColumnsList, self).__init__()
         if c is None:
             self.columns_list = [Terminal('*')]
             return
@@ -289,7 +295,9 @@ class ColumnsList(SqlNode):
 
 class Where(SqlNode):
     def __init__(self, cond):
+        super(Where, self).__init__()
         self.cond = cond
+
     def glue(self):
         if self.cond is None:
             return '', []
@@ -301,29 +309,33 @@ class Where(SqlNode):
 
 class OrderBy(SqlNode):
     def __init__(self, columns):
+        super(OrderBy, self).__init__()
         self.columns = columns
         if isinstance(self.columns, str):
             self.columns = [self.columns]
+
     def glue(self):
         if self.columns is None:
             return '', []
         orders = []
         for o in self.columns:
             col = o
-            dir = 'ASC'
+            direction = 'ASC'
             if o.startswith('-'):
                 col = o[1:]
-                dir = 'DESC'
+                direction = 'DESC'
             sql, _ = glue_col(col)
-            orders.append('%s %s' % (sql, dir))
+            orders.append('%s %s' % (sql, direction))
         return 'ORDER BY %s' % ','.join(orders), []
 
 
 class GroupBy(SqlNode):
     def __init__(self, columns):
+        super(GroupBy, self).__init__()
         self.columns = columns
         if isinstance(self.columns, str):
             self.columns = [self.columns]
+
     def glue(self):
         if self.columns is None:
             return '', []
