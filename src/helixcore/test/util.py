@@ -71,9 +71,21 @@ def show_time(func):
     return decorated
 
 
-class ClientApplication(object):
-    def __init__(self, app, login, password):
+class ClientSimpleApplication(object):
+    def __init__(self, app):
         self.app = app
+
+    def request(self, data):
+        environ = {'eventlet.input': StringIO(cjson.encode(data))}
+        def start_response(_, __):
+            pass
+        response = self.app(environ, start_response)[0]
+        return cjson.decode(response)
+
+
+class ClientApplication(ClientSimpleApplication):
+    def __init__(self, app, login, password):
+        super(ClientApplication, self).__init__(app)
         self.login = login
         self.password = password
 
@@ -83,8 +95,4 @@ class ClientApplication(object):
             data_copy['login'] = self.login
         if 'password' not in data_copy:
             data_copy['password'] = self.password
-        environ = {'eventlet.input': StringIO(cjson.encode(data_copy))}
-        def start_response(_, __):
-            pass
-        response = self.app(environ, start_response)[0]
-        return cjson.decode(response)
+        return super(ClientApplication, self).request(data_copy)
