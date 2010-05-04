@@ -3,14 +3,13 @@ import psycopg2
 from time import sleep
 from datetime import datetime
 
-from helixcore.db.sql import Eq
-from helixcore.db.query_builder import insert
+from helixcore.db.sql import Eq, Insert
 import helixcore.db.deadlock_detector as deadlock_detector
 
 from helixcore.test.test_environment import transaction
 
-class DeadlockDetectorTestCase(unittest.TestCase):
 
+class DeadlockDetectorTestCase(unittest.TestCase):
     table1 = 'test_deadlock_detector_1'
     table2 = 'test_deadlock_detector_2'
     table3 = 'test_deadlock_detector_3'
@@ -99,7 +98,8 @@ class DeadlockDetectorTestCase(unittest.TestCase):
 
     def fill_table(self, table, num_records=5, curs=None):
         for i in xrange(num_records):
-            curs.execute(*insert(table, {'name': i, 'date': datetime.now()}))
+            q = Insert(table, {'name': i, 'date': datetime.now()})
+            curs.execute(*q.glue())
 
 if __name__ == '__main__':
     unittest.main()

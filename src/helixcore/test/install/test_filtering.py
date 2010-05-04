@@ -2,6 +2,7 @@ import unittest
 
 from helixcore.install.filtering import in_diapasone, filter_patches, filter_backward
 
+
 class FilteringTestCase(unittest.TestCase):
     def test_in_diapasone(self):
         self.assertTrue(in_diapasone('1', '5', '4-6-7'))

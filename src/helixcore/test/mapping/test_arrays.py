@@ -1,7 +1,6 @@
 import unittest
 
-from helixcore.db.query_builder import insert
-from helixcore.db.sql import Eq, Any
+from helixcore.db.sql import Eq, Any, Insert
 from helixcore.mapping.objects import Mapped
 from helixcore import mapping
 
@@ -19,7 +18,8 @@ class ArraysTestCase(unittest.TestCase):
         curs.execute('CREATE TABLE %s (id serial, PRIMARY KEY (id), name varchar, client_ids integer[])' % self.T.table)
         for i in xrange(10):
             values = [j for j in xrange(i, i + 3)]
-            curs.execute(*insert(self.T.table, {'name': '%d' % i, 'client_ids': values}))
+            q = Insert(self.T.table, {'name': '%d' % i, 'client_ids': values})
+            curs.execute(*q.glue())
 
     def setUp(self):
         self.do_setUp()

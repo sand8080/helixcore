@@ -5,8 +5,7 @@ from time import sleep
 
 from helixcore.db.wrapper import fetchall_dicts, fetchone_dict, dict_from_lists, EmptyResultSetError,\
     SelectedMoreThanOneRow
-from helixcore.db.query_builder import select, insert, update
-from helixcore.db.sql import Eq, In
+from helixcore.db.sql import Eq, In, Select, Insert, Update
 from helixcore.test.test_environment import transaction, get_connection
 
 
@@ -42,7 +41,7 @@ class WrapperTestCase(unittest.TestCase):
     def test_fetchall_dicts(self, curs=None):
         num_records = 4
         self.fill_table(num_records=num_records)
-        curs.execute(*select(self.table))
+        curs.execute(*Select(self.table).glue())
         result = fetchall_dicts(curs)
         self.assertEqual(num_records, len(result))
         data = result[0]
@@ -53,26 +52,26 @@ class WrapperTestCase(unittest.TestCase):
 
     @transaction()
     def test_fetchall_dicts_not_found(self, curs=None):
-        curs.execute(*select(self.table))
+        curs.execute(*Select(self.table).glue())
         self.assertEqual(0, len(fetchall_dicts(curs)))
 
     @transaction()
     def test_fetchone_dict(self, curs=None):
         self.fill_table(num_records=4)
-        curs.execute(*select(self.table, cond=Eq('id', 1)))
+        curs.execute(*Select(self.table, cond=Eq('id', 1)).glue())
         fetchone_dict(curs)
 
     @transaction()
     def test_fetchone_dict_error(self, curs=None):
         self.fill_table(num_records=4)
-        curs.execute(*select(self.table, cond=In('id', [1, 2])))
+        curs.execute(*Select(self.table, cond=In('id', [1, 2])).glue())
         self.assertRaises(SelectedMoreThanOneRow, fetchone_dict, curs)
 
     def test_fetchone_dict_raise(self):
         conn = get_connection()
         curs = conn.cursor()
         try:
-            curs.execute(*select(self.table, cond=Eq('id', 1)))
+            curs.execute(*Select(self.table, cond=Eq('id', 1)).glue())
             self.assertRaises(EmptyResultSetError, fetchone_dict, curs)
             curs.close()
             conn.commit()
@@ -95,20 +94,21 @@ class WrapperTestCase(unittest.TestCase):
     @transaction()
     def fill_table(self, num_records=5, curs=None):
         for i in xrange(num_records):
-            curs.execute(*insert(self.table, {'name': i, 'date': datetime.now()}))
+            q = Insert(self.table, {'name': i, 'date': datetime.now()})
+            curs.execute(*q.glue())
 
     @transaction()
     def test_dict_from_list(self, curs=None):
         num_records = 7
         self.fill_table(num_records)
-        curs.execute(*select(self.table))
+        curs.execute(*Select(self.table).glue())
         self.assertEqual(num_records, len(fetchall_dicts(curs)))
 
     @transaction()
     def slow_task(self, report, id, pause, curs=None): #IGNORE:W0622
-        q_sel, params = select(self.table, cond=Eq('id', id), for_update=True)
+        q_sel, params = Select(self.table, cond=Eq('id', id), for_update=True).glue()
         curs.execute(q_sel, params)
-        curs.execute(*update(self.table, updates={'name': 'substituted'}, cond=Eq('id', id)))
+        curs.execute(*Update(self.table, updates={'name': 'substituted'}, cond=Eq('id', id)).glue())
         curs.execute(q_sel, params)
         report['slow_task'] = fetchone_dict(curs)
         sleep(pause)
@@ -117,7 +117,7 @@ class WrapperTestCase(unittest.TestCase):
         curs = conn.cursor()
         try:
             sleep(pause)
-            curs.execute(*select(self.table, cond=Eq('id', id)))
+            curs.execute(*Select(self.table, cond=Eq('id', id)).glue())
             report['fast_task'] = fetchone_dict(curs)
             curs.close()
             conn.commit()
@@ -129,7 +129,7 @@ class WrapperTestCase(unittest.TestCase):
     @transaction()
     def task_wait_before(self, report, id, pause, curs=None): #IGNORE:W0622
         sleep(pause)
-        curs.execute(*select(self.table, cond=Eq('id', id), for_update=True))
+        curs.execute(*Select(self.table, cond=Eq('id', id), for_update=True).glue())
         report['task_wait_before'] = fetchone_dict(curs)
 
     def test_data_isolation(self):

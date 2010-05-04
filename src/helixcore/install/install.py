@@ -3,11 +3,12 @@ import sys
 import imp
 from datetime import datetime
 
-from helixcore.db.sql import Eq, And
-from helixcore.db import query_builder, wrapper
+from helixcore.db.sql import Eq, And, Insert, Select, Delete
+from helixcore.db import wrapper
 from helixcore.db.wrapper import transaction_with_dynamic_connection_getter as transaction
 
 import filtering
+
 
 class PatchProcessor(object):
     def __init__(self, get_connection, put_connection, table, path, patch_like='[1-9\-]*.py'):
@@ -54,18 +55,21 @@ class PatchProcessor(object):
             registrator(curs, name)
 
     def register_patch(self, curs, name):
-        curs.execute(*query_builder.insert(self.table, {'name': name, 'path': self.path, 'date': datetime.now()}))
+        q = Insert(self.table, {'name': name, 'path': self.path, 'date': datetime.now()})
+        curs.execute(*q.glue())
 
     def unregister_patch(self, curs, name):
         cond = And(Eq('name', name), Eq('path', self.path))
-        curs.execute(*query_builder.delete(self.table, cond=cond))
+        q = Delete(self.table, cond=cond)
+        curs.execute(*q.glue())
 
     @transaction()
     def is_revert_will_processed(self, curs=None):
         return self.is_table_exist(curs)
 
     def is_table_exist(self, curs):
-        curs.execute(*query_builder.select('pg_tables', cond=Eq('tablename', self.table)))
+        q = Select('pg_tables', cond=Eq('tablename', self.table))
+        curs.execute(*q.glue())
         return len(curs.fetchall()) > 0
 
     @transaction()
@@ -73,7 +77,8 @@ class PatchProcessor(object):
         if not self.is_table_exist(curs):
             return None
         else:
-            curs.execute(*query_builder.select(self.table, order_by=['-id'], limit=1))
+            q = Select(self.table, order_by=['-id'], limit=1)
+            curs.execute(*q.glue())
             result = wrapper.fetchall_dicts(curs)
             return result[0]['name'] if len(result) else None
 

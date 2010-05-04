@@ -4,8 +4,7 @@ from datetime import datetime
 from helixcore.test.test_environment import transaction
 
 from helixcore.db.wrapper import EmptyResultSetError
-from helixcore.db.query_builder import insert
-from helixcore.db.sql import Eq
+from helixcore.db.sql import Eq, Insert
 from helixcore.mapping.objects import Mapped
 from helixcore import mapping
 
@@ -20,7 +19,8 @@ class MappingTestCase(unittest.TestCase):
         curs.execute('DROP TABLE IF EXISTS %s' % self.T.table)
         curs.execute('CREATE TABLE %s (id serial, PRIMARY KEY (id), name varchar, date timestamp)' % self.T.table)
         for i in range(10):
-            curs.execute(*insert(self.T.table, {'name': '%d' % i, 'date': datetime.now()}))
+            q = Insert(self.T.table, {'name': '%d' % i, 'date': datetime.now()})
+            curs.execute(*q.glue())
 
     def setUp(self):
         self.do_setUp()
