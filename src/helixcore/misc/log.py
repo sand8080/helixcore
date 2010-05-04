@@ -1,13 +1,12 @@
 import logging
 from logging.handlers import RotatingFileHandler
-#from settings import log_filename, log_level, log_console, log_format,\
-#    log_max_bytes, log_backup_count
 
-def init_logger(log_name, log_filename, log_level, 
-    log_console=False, 
-    log_format="%(asctime)s [%(levelname)s] - %(message)s", 
+
+def init_logger(log_name, log_filename, log_level,
+    log_console=False,
+    log_format="%(asctime)s [%(levelname)s] - %(message)s",
     log_max_bytes=2048000, log_backup_count=20):
-    
+
     l = logging.getLogger(log_name)
     l.setLevel(log_level)
 

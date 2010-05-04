@@ -1,13 +1,11 @@
-'''
-Created on Apr 16, 2010
-
-@author: andrew
-'''
 from helixcore import mapping
 from helixcore.server.errors import RequestProcessingError
 
+
 def detalize_error(err_cls, category, f_name):
-    '''Tries to execute function f_name, catches exception of class err_cls and converts it to RequestProcessingError of given category
+    '''
+    Tries to execute function f_name, catches exception of class err_cls
+    and converts it to RequestProcessingError of given category
     '''
     def decorator(func):
         def decorated(*args, **kwargs):
@@ -19,8 +17,8 @@ def detalize_error(err_cls, category, f_name):
         return decorated
     return decorator
 
-class AbstractHandler(object):
 
+class AbstractHandler(object):
     def get_fields_for_update(self, data, prefix_of_new='new_'):
         '''
         If data contains fields with prefix == prefix_of_new,
