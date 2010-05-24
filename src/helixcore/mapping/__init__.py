@@ -1,7 +1,7 @@
 from psycopg2 import IntegrityError
 
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
-from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, DbError, ObjectCreationError
+from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, fetch_dict, DbError, ObjectCreationError
 import helixcore.db.deadlock_detector as deadlock_detector
 from helixcore.server.exceptions import DataIntegrityError
 
@@ -19,12 +19,32 @@ def get(curs, cls, cond, for_update=False):
 
 def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=False):
     '''
-    Selects list of objects, without lock
+    Selects list of objects
     @return: list of objects selected.
     '''
+    if for_update:
+        deadlock_detector.handle_lock(cls.table)
+        deadlock_detector.handle_lock(cls.table)
     curs.execute(*Select(cls.table, cond=cond, for_update=for_update, order_by=order_by, limit=limit, offset=offset).glue())
     dicts_list = fetchall_dicts(curs)
     return [cls(**d) for d in dicts_list]
+
+
+def exec_for_each(curs, func, cls, cond, order_by='id', limit=None, offset=0):
+    '''
+    Executes callback unary function for each selected object.
+    practically, not applicable for for-update queries, cause we cannot use cursor between fetches
+    (i.e. to save objects)
+    '''
+    curs.execute(*Select(cls.table, cond=cond, for_update=False, order_by=order_by, limit=limit, offset=offset).glue())
+    if curs.rowcount < 1:
+        return
+
+    while True:
+        d = fetch_dict(curs)
+        if d is None:
+            break;
+        func(cls(**d))
 
 
 def get_fields(obj):
@@ -48,6 +68,13 @@ def update(curs, obj):
         curs.execute(*Update(obj.table, get_fields(obj), cond=Eq('id', obj.id)).glue())
     except IntegrityError, e:
         raise DataIntegrityError('Object %s updating error: %s' % (obj, e.message))
+
+
+def save(curs, obj):
+    if hasattr(obj, 'id'):
+        update(curs, obj)
+    else:
+        insert(curs, obj)
 
 
 def delete(curs, obj):

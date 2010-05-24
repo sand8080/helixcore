@@ -97,6 +97,44 @@ class BinaryExpr(SqlNode): #IGNORE:W0223
         nested_cond_r, nested_params_r = glue_param(self.rh)
         return nested_cond_l, nested_cond_r, nested_params_l + nested_params_r
 
+class Interval(SqlNode):
+    """
+    Datetime interval. SQL: interval '1 day'
+    """
+    DAYS='days'
+    HOURS='hours'
+    def __init__(self, number, unit):
+        self.number = number
+        self.unit = unit
+
+    def glue(self):
+        placeholder, params = glue_param(self.number)
+        cond = "interval '%s %s'" % (placeholder, self.unit)
+        return cond, params
+
+class IsNull(SqlNode):
+    """
+    col IS NULL
+    """
+    def __init__(self, col):
+        self.col = col
+
+    def glue(self):
+        col, params = glue_col(self.col)
+        cond = "%s IS NULL" % col
+        return cond, params
+
+class IsNotNull(SqlNode):
+    """
+    col IS NOT NULL
+    """
+    def __init__(self, col):
+        self.col = col
+
+    def glue(self):
+        col, params = glue_col(self.col)
+        cond = "%s IS NOT NULL" % col
+        return cond, params
 
 class Any(SqlNode):
     """
@@ -149,6 +187,20 @@ class Eq(BinaryOperator):
             super(Eq, self).__init__(lh, 'IS', rh)
         else:
             super(Eq, self).__init__(lh, '=', rh)
+
+class Plus(BinaryOperator):
+    """
+    lh + rh
+    """
+    def __init__(self, lh, rh):
+        super(Plus, self).__init__(lh, '+', rh)
+
+class Minus(BinaryOperator):
+    """
+    lh - rh
+    """
+    def __init__(self, lh, rh):
+        super(Plus, self).__init__(lh, '-', rh)
 
 
 class MoreEq(BinaryOperator):
@@ -261,6 +313,16 @@ class Function(SqlNode):
     def glue(self):
         sql, params = glue_col(self.expr)
         return ('%s(%s)' % (self.fn_name, sql)), params
+
+class Now(SqlNode):
+    '''
+    sql now()
+    '''
+    def __init__(self):
+        super(Now, self).__init__()
+
+    def glue(self):
+        return 'now()', []
 
 
 class Count(Function):

@@ -33,6 +33,21 @@ def fetchall_dicts(curs):
 
 
 def fetchone_dict(curs):
+    '''
+    @return: Single rowset as dict.
+    @raise SelectedMoreThanOneRow: if curs contains more than one row
+    @raise EmptyResultSetError: if curs contains no rows
+    '''
+    if curs.rowcount > 1:
+        raise SelectedMoreThanOneRow()
+    if curs.rowcount == 0:
+        raise EmptyResultSetError('Nothing to be fetched')
+    return fetch_dict(curs)
+
+
+def fetch_dict(curs):
+    '''@return: next rowset as dict. None if no rowsets in cursor
+    '''
     if curs.rowcount > 1:
         raise SelectedMoreThanOneRow()
     if curs.rowcount == 0:
