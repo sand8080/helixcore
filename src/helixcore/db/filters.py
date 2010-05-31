@@ -25,7 +25,7 @@ class ObjectsFilter(object):
         return cond
 
     def _get_paging_params(self):
-        return self.paging_params.get('limit'), self.paging_params.get('offset', 0)
+        return self.paging_params.get('limit', None), self.paging_params.get('offset', 0)
 
     def filter_objs(self, curs, for_update=False):
         cond = self._cond_by_filter_params()

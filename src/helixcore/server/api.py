@@ -82,7 +82,7 @@ class Api(object):
             validate(scheme, data)
         except ValidationErrorNative, e:
             raise ValidationError(str(e)), None, sys.exc_info()[2]
-        
+
 
     def validate_request(self, action_name, data):
         '''

@@ -24,9 +24,13 @@ def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=Fa
     '''
     if for_update:
         deadlock_detector.handle_lock(cls.table)
-        deadlock_detector.handle_lock(cls.table)
+
     curs.execute(*Select(cls.table, cond=cond, for_update=for_update, order_by=order_by, limit=limit, offset=offset).glue())
     dicts_list = fetchall_dicts(curs)
+
+    if for_update and len(dicts_list) > 1:
+        deadlock_detector.handle_lock(cls.table)
+
     return [cls(**d) for d in dicts_list]
 
 
