@@ -59,9 +59,18 @@ class PatchProcessorTestCase(unittest.TestCase):
             'patches_no_action'
         )
         processor = PatchProcessor(get_connection, put_connection, '___', patches_path)
-        processor.revert_all()
-        processor.apply_all()
-        processor.revert_all()
+        try:
+            processor.revert_all()
+            processor.apply_all()
+        finally:
+            processor.revert_all()
+            self._drop_patches()
+
+    @transaction()
+    def _drop_patches(self, curs=None):
+        if self.processor.is_table_exist(curs):
+            curs.execute('DROP TABLE %s' % self.table)
+
 
 if __name__ == '__main__':
     unittest.main()

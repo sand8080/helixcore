@@ -31,6 +31,8 @@ class PatchProcessor(object):
         self.apply(None)
 
     def revert(self, last_applied):
+#        print 'will revert: last applied is %s' % last_applied
+
         if not self.is_revert_will_processed() or last_applied is None:
             return
         patches = filtering.filter_backward(None, last_applied, self.get_patches())
