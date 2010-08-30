@@ -84,15 +84,17 @@ class ClientSimpleApplication(object):
 
 
 class ClientApplication(ClientSimpleApplication):
-    def __init__(self, app, login, password):
+    def __init__(self, app, login, password, unauthorized_commands=()):
         super(ClientApplication, self).__init__(app)
         self.login = login
         self.password = password
+        self.unauthorized_commands = unauthorized_commands
 
     def request(self, data):
         data_copy = dict(data)
-        if 'login' not in data_copy:
-            data_copy['login'] = self.login
-        if 'password' not in data_copy:
-            data_copy['password'] = self.password
+        if data_copy['action'] not in self.unauthorized_commands:
+            if 'login' not in data_copy:
+                data_copy['login'] = self.login
+            if 'password' not in data_copy:
+                data_copy['password'] = self.password
         return super(ClientApplication, self).request(data_copy)

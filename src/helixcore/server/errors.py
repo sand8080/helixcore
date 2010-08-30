@@ -13,3 +13,8 @@ class RequestProcessingError(Exception):
         Exception.__init__(self, message)
         self.category = category
         self.details = [] if details is None else details
+
+    def _get_message(self):
+        return '; '.join(self.args)
+
+    message = property(_get_message, None)

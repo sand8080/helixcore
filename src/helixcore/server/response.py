@@ -1,5 +1,5 @@
-
 from helixcore.server.errors import RequestProcessingError
+
 
 def response_ok(**kwargs):
     '''
