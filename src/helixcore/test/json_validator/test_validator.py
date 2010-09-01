@@ -1,8 +1,8 @@
 import unittest
 import datetime
 
-from helixcore.valik.valik import validate, AnyOf, Optional, Scheme, ValueValidator, Text, IsoDatetime,\
-    DecimalText, ArbitraryDict, ValidationError
+from helixcore.json_validator import (validate, AnyOf, Optional, Scheme, ValueValidator,
+    Text, IsoDatetime, DecimalText, ArbitraryDict, ValidationError)
 
 
 class ValueValidatorTestCase(unittest.TestCase):

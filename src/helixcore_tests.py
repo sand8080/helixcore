@@ -1,8 +1,8 @@
 import unittest
 
-from helixcore.test.valik.tests import (AnyOfTestCase, ArbitraryDictTestCase, DecimalTextTestCase, #IGNORE:W0611 @UnusedImport
-    DictTestCase, IsoDatetimeTestCase, JobRelatedTestCase, ListTestCase, SamplesTestCase, #IGNORE:W0611 @UnusedImport
-    SchemeTestCase, TextTestCase, ValueValidatorTestCase) #IGNORE:W0611 @UnusedImport
+from helixcore.test.json_validator.test_validator import (AnyOfTestCase, ArbitraryDictTestCase, #IGNORE:W0611 @UnusedImport
+    DecimalTextTestCase, DictTestCase, IsoDatetimeTestCase, JobRelatedTestCase, ListTestCase, #IGNORE:W0611 @UnusedImport
+    SamplesTestCase, SchemeTestCase, TextTestCase, ValueValidatorTestCase) #IGNORE:W0611 @UnusedImport
 
 from helixcore.test.db.test_sql import SqlTestCase #IGNORE:W0611 @UnusedImport
 from helixcore.test.db.test_wrapper import WrapperTestCase #IGNORE:W0611 @UnusedImport

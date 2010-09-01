@@ -1,6 +1,6 @@
 import cjson, datetime, copy, pytz, sys
 from helixcore.server.exceptions import ValidationError, FormatError
-from helixcore.valik.valik import validate, ValidationError as ValidationErrorNative
+from helixcore import json_validator
 
 
 # Useful for documentation generation
@@ -79,8 +79,8 @@ class Api(object):
             raise ValidationError('Scheme for %s not found' % call_name)
 
         try:
-            validate(scheme, data)
-        except ValidationErrorNative, e:
+            json_validator.validate(scheme, data)
+        except json_validator.ValidationError, e:
             raise ValidationError(str(e)), None, sys.exc_info()[2]
 
 

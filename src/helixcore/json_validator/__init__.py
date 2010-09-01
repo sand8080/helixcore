@@ -43,10 +43,11 @@ def undefined_property(_):
     raise NotImplementedError
 
 
-class Key(object):
+class _Key(object):
     '''
     Abstract class for dict key modifier.
     '''
+
     def __init__(self, name):
         self.name = name
 
@@ -57,17 +58,19 @@ class Key(object):
     allows_absent = undefined_property
 
 
-class Optional(Key):
+class Optional(_Key):
     '''
     Key modifier for optional element in dict
     '''
+
     allows_absent = True
 
 
-class Mandatory(Key):
+class Mandatory(_Key):
     '''
     Key modifier for mandatory element in dict. Default.
     '''
+
     allows_absent = False
 
 
@@ -126,10 +129,10 @@ class DictWrapperValidator(ValueValidator):
 
     def _create_key_modifier(self, key):
         '''
-        @return: Key object built from possibly bare (string) key
+        @return: _Key object built from possibly bare (string) key
         '''
         klass = getattr(key, '__class__', None)
-        if klass and issubclass(klass, Key):
+        if klass and issubclass(klass, _Key):
             return key
         return Mandatory(key)
 
@@ -411,6 +414,8 @@ class SimpleWrappingValidator(ValueValidator):
         '''
         self.validator.validate(data, path)
 
+    def __repr__(self):
+        return 'scheme %s' % self.validator
 
 class Scheme(SimpleWrappingValidator):
     '''

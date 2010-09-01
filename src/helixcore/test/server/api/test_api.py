@@ -2,7 +2,7 @@ import unittest
 import cjson
 
 from helixcore.test.root_test import RootTestCase
-from helixcore.valik.valik import Text
+from helixcore.json_validator import Text
 from helixcore.server.api import Api, ApiCall, FormatError
 from helixcore.server.errors import RequestProcessingError
 
