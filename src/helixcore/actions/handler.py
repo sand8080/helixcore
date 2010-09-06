@@ -12,8 +12,8 @@ def detalize_error(err_cls, category, f_name):
             try:
                 return func(*args, **kwargs)
             except err_cls, e:
-                raise RequestProcessingError(category, e.message,
-                    details=[{'field': f_name, 'message': e.message}])
+                raise RequestProcessingError(category, '; '.join(e.args),
+                    details=[{'field': f_name, 'message': '; '.join(e.args)}])
         return decorated
     return decorator
 

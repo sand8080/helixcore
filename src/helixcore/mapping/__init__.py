@@ -62,7 +62,7 @@ def insert(curs, obj):
         curs.execute(*Insert(obj.table, get_fields(obj)).glue())
         obj.id = fetchone_dict(curs)['id']
     except IntegrityError, e:
-        raise ObjectCreationError("Object can't be created: %s" % e.message)
+        raise ObjectCreationError("Object can't be created: %s" % '; '.join(e.args))
 
 
 def update(curs, obj):
