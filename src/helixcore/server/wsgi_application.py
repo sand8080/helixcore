@@ -65,7 +65,7 @@ class Application(object):
         d = {'action': action_name}
         if data is not None:
             d.update(data)
-        for f in ('password', 'new_password'):
+        for f in ('password', 'new_password', 'su_password'):
             if d.has_key(f):
                 d[f] = '******'
         return d
