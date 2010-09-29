@@ -35,7 +35,7 @@ def profile(func):
             times.append(time.time() - start)
 
         print '%s >>>>' % func.func_name
-        repeats = kwargs['repeats']
+        repeats = kwargs.get('repeats', 1)
         pool = GreenPool(size=repeats)
         start = datetime.datetime.now()
         for _ in xrange(repeats):
