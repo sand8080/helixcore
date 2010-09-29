@@ -15,6 +15,7 @@ from helixcore.test.install.test_install import PatchProcessorTestCase #IGNORE:W
 from helixcore.test.install.test_filtering import FilteringTestCase #IGNORE:W0611 @UnusedImport
 
 from helixcore.test.server.api.test_api import RequestHandlingTestCase #IGNORE:W0611 @UnusedImport
+from helixcore.test.security.test_security import SecurityTestCase #IGNORE:W0611 @UnusedImport
 
 from helixcore.test.misc.domain import DomainNameTestCase #IGNORE:W0611 @UnusedImport
 
