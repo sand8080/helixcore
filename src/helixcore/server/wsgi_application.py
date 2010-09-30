@@ -6,7 +6,7 @@ import traceback
 from helixcore import security
 from helixcore.server.api import Api as HelixApi
 from helixcore.server.response import response_error, response_app_error
-from helixcore.server.errors import RequestProcessingError
+from helixcore.server.errors import RequestProcessingError, ValidationError
 
 
 class Application(object):
@@ -41,6 +41,15 @@ class Application(object):
             self.logger.log(logging.DEBUG, 'Response to %s: %s' % (remote_addr, secured_response))
 
             response = self.helix_api.handle_response(action_name, raw_response)
+        except ValidationError, e:
+            action_name, action_data = self.helix_api.handle_request(raw_data, validation=False)
+            secured_request = self._secured_request(action_name, action_data)
+
+            raw_response = response_error(e)
+            response = self.helix_api.handle_response(action_name, raw_response, validation=False)
+            self.logger.log(logging.ERROR, 'Request from %s: %s' % (remote_addr, secured_request))
+            secured_response = security.sanitize_credentials(raw_response)
+            self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, secured_response, e.message))
         except RequestProcessingError, e:
             raw_response = response_error(e)
             response = self.helix_api.handle_response(action_name, raw_response, validation=False)
@@ -77,7 +86,7 @@ class Application(object):
         except Exception, e:
             self.logger.log(logging.ERROR, 'Action logging failed: %s' % e)
 
-    def _secured_request(self, action_name, data):
-        d = security.sanitize_credentials(data)
+    def _secured_request(self, action_name, action_data):
+        d = security.sanitize_credentials(action_data)
         d['action'] = action_name
         return d

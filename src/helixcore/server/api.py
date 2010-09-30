@@ -18,7 +18,7 @@ class Api(object):
         '''
         self.scheme_dict = dict((c.name, c.scheme) for c in protocol)
 
-    def handle_request(self, raw_data):
+    def handle_request(self, raw_data, validation=True):
         '''
         Parses raw JSON request to structure, validates it and returns action name and valid data
         @param raw_data: raw JSON data.
@@ -34,7 +34,8 @@ class Api(object):
         if action_name is None:
             raise FormatError("'action' parameter is not found in request")
 
-        self.validate_request(action_name, decoded_data)
+        if validation:
+            self.validate_request(action_name, decoded_data)
 
         return (action_name, decoded_data)
 
