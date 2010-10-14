@@ -1,5 +1,6 @@
 from helixcore import mapping
 from helixcore.server.errors import RequestProcessingError
+from functools import wraps
 
 
 def detalize_error(err_cls, category, f_name):
@@ -8,6 +9,7 @@ def detalize_error(err_cls, category, f_name):
     and converts it to RequestProcessingError of given category
     '''
     def decorator(func):
+        @wraps(func)
         def decorated(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
