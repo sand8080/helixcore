@@ -26,7 +26,7 @@ class TransitionNotAllowedError(Exception):
         self.locks = context.locks
 
     def __str__(self):
-        msg = self.message + "\n\tLocks chain: %s\n" % ', '.join([lock.table for lock in self.locks])
+        msg = ';'.join(self.args) + "\n\tLocks chain: %s\n" % ', '.join([lock.table for lock in self.locks])
         for lock in self.locks:
             msg += self._format_lock(lock)
         return msg
