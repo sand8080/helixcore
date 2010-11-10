@@ -14,7 +14,12 @@ def detalize_error(err_cls, category, f_name):
             try:
                 return func(*args, **kwargs)
             except err_cls, e:
+                if hasattr(e, 'code'):
+                    code = e.code
+                else:
+                    code = 'HELIXAUTH_ERROR'
                 raise RequestProcessingError(category, '; '.join(e.args),
+                    code = code,
                     details=[{'field': f_name, 'message': '; '.join(e.args)}])
         return decorated
     return decorator

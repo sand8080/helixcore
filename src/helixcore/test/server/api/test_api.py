@@ -4,7 +4,7 @@ import cjson
 from helixcore.test.root_test import RootTestCase
 from helixcore.json_validator import Text
 from helixcore.server.api import Api, ApiCall, FormatError
-from helixcore.server.errors import RequestProcessingError
+from helixcore.server.error import RequestProcessingError
 
 
 class RequestHandlingTestCase(RootTestCase):

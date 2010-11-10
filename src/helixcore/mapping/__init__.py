@@ -3,7 +3,7 @@ from psycopg2 import IntegrityError
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
 from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, fetch_dict, DbError, ObjectCreationError
 import helixcore.db.deadlock_detector as deadlock_detector
-from helixcore.server.errors import DataIntegrityError
+from helixcore.server.error import DataIntegrityError
 
 
 class MappingError(DbError):
@@ -71,7 +71,7 @@ def update(curs, obj):
     try:
         curs.execute(*Update(obj.table, get_fields(obj), cond=Eq('id', obj.id)).glue())
     except IntegrityError, e:
-        raise DataIntegrityError('Object %s updating error: %s' % (obj, e.message))
+        raise DataIntegrityError('Object %s updating error: %s' % (obj, ';'.join(e.args)))
 
 
 def save(curs, obj):
