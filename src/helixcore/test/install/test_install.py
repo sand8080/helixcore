@@ -6,6 +6,7 @@ from helixcore.test.test_environment import get_connection, put_connection, tran
 from helixcore.db import wrapper
 from helixcore.db.sql import Select
 
+
 class PatchProcessorTestCase(unittest.TestCase):
     path = os.path.join(
         os.path.realpath(os.path.dirname(__file__)),
