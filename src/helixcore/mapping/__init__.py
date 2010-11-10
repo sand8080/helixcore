@@ -3,7 +3,7 @@ from psycopg2 import IntegrityError
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
 from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, fetch_dict, DbError, ObjectCreationError
 import helixcore.db.deadlock_detector as deadlock_detector
-from helixcore.server.error import DataIntegrityError
+from helixcore.error import DataIntegrityError
 
 
 class MappingError(DbError):

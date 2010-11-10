@@ -1,9 +1,9 @@
 from helixcore import mapping
-from helixcore.server.errors import RequestProcessingError
+from helixcore.error import RequestProcessingError
 from functools import wraps
 
 
-def detalize_error(err_cls, category, f_name):
+def detalize_error(err_cls, f_name):
     '''
     Tries to execute function f_name, catches exception of class err_cls
     and converts it to RequestProcessingError of given category
@@ -18,9 +18,10 @@ def detalize_error(err_cls, category, f_name):
                     code = e.code
                 else:
                     code = 'HELIXAUTH_ERROR'
-                raise RequestProcessingError(category, '; '.join(e.args),
-                    code = code,
-                    details=[{'field': f_name, 'message': '; '.join(e.args)}])
+                raise RequestProcessingError('; '.join(e.args),
+                    code = code
+#                    details=[{'field': f_name, 'message': '; '.join(e.args)}]
+                )
         return decorated
     return decorator
 

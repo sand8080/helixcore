@@ -1,5 +1,5 @@
 import cjson, datetime, copy, pytz, sys
-from helixcore.server.error import ValidationError, FormatError
+from helixcore.error import ValidationError, FormatError
 from helixcore import json_validator
 
 

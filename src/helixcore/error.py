@@ -1,4 +1,4 @@
-from helixcore.server import error_code
+from helixcore import error_code
 
 
 class RequestProcessingError(Exception):

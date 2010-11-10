@@ -1,4 +1,4 @@
-from helixcore.server.errors import RequestProcessingError
+from helixcore.error import RequestProcessingError
 
 
 HELIX_APPLICATION_ERROR = 'HELIX_APPLICATION_ERROR'
