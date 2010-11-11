@@ -1,7 +1,4 @@
-from helixcore.error import RequestProcessingError
-
-
-HELIX_APPLICATION_ERROR = 'HELIX_APPLICATION_ERROR'
+from helixcore import error_code
 
 
 def response_ok(**kwargs):
@@ -15,10 +12,10 @@ def response_ok(**kwargs):
 def response_error(e):
     '''
     @return: error response based on given RequestProcessingError
-    @param request_processing_error: instance of RequestProcessingError (holds category, message)
+    @param request_processing_error: instance of RequestProcessingError
     '''
-    return {'status': 'error', 'code': e.code, 'category': e.category,
-        'message': e.message, 'details': e.details,}
+    return {'status': 'error', 'code': e.code, 'message': e.message,
+        'fields': e.fields}
 
 
 def response_app_error(message):
@@ -26,11 +23,6 @@ def response_app_error(message):
     @return: error response with application category
     @param message: error message
     '''
-    return {
-        'status': 'error',
-        'code': HELIX_APPLICATION_ERROR,
-        'category': RequestProcessingError.Category.application,
-        'message': message,
-        'details': [],
-    }
+    return {'status': 'error', 'code': error_code.HELIX_APPLICATION_ERROR,
+        'message': message, 'fields': []}
 

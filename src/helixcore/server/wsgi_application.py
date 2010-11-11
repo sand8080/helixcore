@@ -6,7 +6,7 @@ import traceback
 from helixcore import security
 from helixcore.server.api import Api as HelixApi
 from helixcore.server.response import response_error, response_app_error
-from helixcore.server.errors import RequestProcessingError, ValidationError
+from helixcore.error import RequestProcessingError, ValidationError
 
 
 class Application(object):

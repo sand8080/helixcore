@@ -3,9 +3,9 @@ from helixcore.error import RequestProcessingError
 from functools import wraps
 
 
-def detalize_error(err_cls, f_name):
+def detalize_error(err_cls, fields):
     '''
-    Tries to execute function f_name, catches exception of class err_cls
+    Tries to execute function fields, catches exception of class err_cls
     and converts it to RequestProcessingError of given category
     '''
     def decorator(func):
@@ -14,14 +14,10 @@ def detalize_error(err_cls, f_name):
             try:
                 return func(*args, **kwargs)
             except err_cls, e:
-                if hasattr(e, 'code'):
-                    code = e.code
-                else:
-                    code = 'HELIXAUTH_ERROR'
+                code = getattr(e, 'code', 'HELIXAUTH_ERROR')
+                f = fields if isinstance(fields, list) else [fields]
                 raise RequestProcessingError('; '.join(e.args),
-                    code = code
-#                    details=[{'field': f_name, 'message': '; '.join(e.args)}]
-                )
+                    code=code, fields=f)
         return decorated
     return decorator
 

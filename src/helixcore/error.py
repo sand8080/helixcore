@@ -2,13 +2,13 @@ from helixcore import error_code
 
 
 class RequestProcessingError(Exception):
-    def __init__(self, message, code=None, details=None):
+    def __init__(self, message, code=None, fields=None):
         Exception.__init__(self, message)
         if code is None:
             self.code = error_code.HELIX_REQUEST_PROCESSING_ERROR
         else:
             self.code = code
-        self.details = [] if details is None else details
+        self.fields = [] if fields is None else fields
 
 
 class UnknownActionError(RequestProcessingError):
