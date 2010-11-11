@@ -49,13 +49,15 @@ class Application(object):
             response = self.helix_api.handle_response(action_name, raw_response, validation=False)
             self.logger.log(logging.ERROR, 'Request from %s: %s' % (remote_addr, secured_request))
             secured_response = security.sanitize_credentials(raw_response)
-            self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, secured_response, e.message))
+            self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, secured_response,
+                ';'.join(e.args)))
         except RequestProcessingError, e:
             raw_response = response_error(e)
             response = self.helix_api.handle_response(action_name, raw_response, validation=False)
             self.logger.log(logging.ERROR, 'Request from %s: %s' % (remote_addr, secured_request))
             secured_response = security.sanitize_credentials(raw_response)
-            self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, secured_response, e.message))
+            self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, secured_response,
+                ';'.join(e.args)))
         except Exception, e:
             exc_type, value, tb = sys.exc_info()
             exc_descr = 'Exception type: %s. message: %s. trace: %s' % (

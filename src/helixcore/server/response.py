@@ -14,7 +14,7 @@ def response_error(e):
     @return: error response based on given RequestProcessingError
     @param request_processing_error: instance of RequestProcessingError
     '''
-    return {'status': 'error', 'code': e.code, 'message': e.message,
+    return {'status': 'error', 'code': e.code, 'message': ';'.join(e.args),
         'fields': e.fields}
 
 
