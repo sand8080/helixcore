@@ -82,7 +82,7 @@ class Api(object):
         try:
             json_validator.validate(scheme, data)
         except json_validator.ValidationError, e:
-            raise ValidationError(str(e)), None, sys.exc_info()[2]
+            raise ValidationError(str(e), fields=e.path)
 
 
     def validate_request(self, action_name, data):

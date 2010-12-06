@@ -36,9 +36,9 @@ class ApplicationError(RequestProcessingError):
 
 
 class ValidationError(RequestProcessingError):
-    def __init__(self, msg):
+    def __init__(self, msg, fields=None):
         RequestProcessingError.__init__(self,
-            msg, code=error_code.HELIX_VALIDATION_ERROR)
+            msg, code=error_code.HELIX_VALIDATION_ERROR, fields=fields)
 
 
 class FormatError(RequestProcessingError):
