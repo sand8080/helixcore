@@ -1,4 +1,4 @@
-import cjson, datetime, copy, pytz, sys
+import cjson, datetime, copy, pytz
 from helixcore.error import ValidationError, FormatError
 from helixcore import json_validator
 
