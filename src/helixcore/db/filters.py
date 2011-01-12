@@ -1,4 +1,4 @@
-from helixcore.db.sql import And, Any, NullLeaf, Select, Columns
+from helixcore.db.sql import And, Any, NullLeaf, Select, Columns, AnyOf
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore import mapping
 
@@ -18,7 +18,7 @@ class ObjectsFilter(object):
         cond = NullLeaf()
         for p_name, db_f_name, c in self.cond_map:
             if p_name in self.filter_params:
-                if c == Any:
+                if c in (Any, AnyOf):
                     cond = And(cond, c(self.filter_params[p_name], db_f_name))
                 else:
                     cond = And(cond, c(db_f_name, self.filter_params[p_name]))
