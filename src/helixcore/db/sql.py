@@ -152,6 +152,24 @@ class Any(SqlNode):
         return cond, nested_params_val + nested_params_col
 
 
+class AnyOf(SqlNode):
+    """
+    values is list
+    (v0 = ANY (col) OR v1 = ANY (col))
+    """
+    def __init__(self, values, col):
+        super(AnyOf, self).__init__()
+        self.values = values
+        self.col = col
+
+    def glue(self):
+        cond = NullLeaf()
+        for val in self.values:
+            cond = Or(cond, Any(val, self.col))
+        cond = Scoped(cond)
+        return cond.glue()
+
+
 class BinaryOperator(BinaryExpr):
     """
     Binary operator: lh operator rh
@@ -245,7 +263,11 @@ class Scoped(SqlNode):
 
     def glue(self):
         cond, params = self.cond.glue()
-        return ('(%s)' % cond, params)
+        # correct scoped NullLeaf
+        if cond:
+            return ('(%s)' % cond, params)
+        else:
+            return NullLeaf().glue()
 
 
 class In(SqlNode):

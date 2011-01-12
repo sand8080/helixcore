@@ -1,5 +1,6 @@
 FIELDS_FOR_ENCRYPTION = ('password', 'new_password', 'su_password')
-FIELDS_FOR_SANITATION = FIELDS_FOR_ENCRYPTION + ('session_id',)
+#FIELDS_FOR_SANITATION = FIELDS_FOR_ENCRYPTION + ('session_id',)
+FIELDS_FOR_SANITATION = FIELDS_FOR_ENCRYPTION
 
 def _data_transfromer(d, fields, func):
     result = dict(d)

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from helixcore.db.sql import quote, BinaryOperator, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete, Insert
+from helixcore.db.sql import quote, BinaryOperator, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete, Insert,\
+    AnyOf
 
 
 class SqlTestCase(unittest.TestCase):
@@ -54,12 +55,15 @@ class SqlTestCase(unittest.TestCase):
         cond_rh = BinaryOperator('billing.cd', '!=', 'b')
         cond_and = And(cond_lh, cond_rh)
         cond_end = Scoped(cond_and)
-        (cond, params) = cond_end.glue()
+        cond, params = cond_end.glue()
         self.assertEqual(
             '("billing"."id" = %s AND "billing"."cd" != %s)',
             cond
         )
         self.assertEqual(['a', 'b'], params)
+        cond, params = Scoped(NullLeaf()).glue()
+        self.assertEqual('', cond)
+        self.assertEqual([], params)
 
     def test_null_leaf(self):
         cond_and = And(NullLeaf(), Eq('a', 'b'))
@@ -88,6 +92,25 @@ class SqlTestCase(unittest.TestCase):
         c, p = cond_any.glue()
         self.assertEqual(c, '%s = ANY ("ids")')
         self.assertEqual(p, [15])
+
+    def test_anyof_cond(self):
+        values = [1]
+        cond = AnyOf(values, 'ids')
+        c, p = cond.glue()
+        self.assertEqual(c, '(%s = ANY ("ids"))')
+        self.assertEqual(p, [1])
+
+        values = [1, 2]
+        cond = AnyOf(values, 'ids')
+        c, p = cond.glue()
+        self.assertEqual(c, '(%s = ANY ("ids") OR %s = ANY ("ids"))')
+        self.assertEqual(p, [1, 2])
+
+        values = []
+        cond = AnyOf(values, 'ids')
+        c, p = cond.glue()
+        self.assertEqual(c, '')
+        self.assertEqual(p, [])
 
     def test_in_cond(self):
         cond_in = In('name', ['one', 2, 'three'])
