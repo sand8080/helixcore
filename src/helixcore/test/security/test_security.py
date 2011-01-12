@@ -12,7 +12,7 @@ class SecurityTestCase(RootTestCase):
         actual = sanitize_credentials(d)
         expected = {'login': 'l', 'password': '******',
             'new_password': '******', 'su_password': '******',
-            'session_id': '******'}
+            'session_id': 'sid'}
         self.assertEqual(expected, actual)
 
     def test_encrypt_passwords(self):
