@@ -1,5 +1,5 @@
-from helixcore.db.sql import And, Any, NullLeaf, Select, Columns, AnyOf, Or,\
-    Scoped
+from helixcore.db.sql import (And, Any, NullLeaf, Select, Columns, AnyOf, Or,
+    Scoped)
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore import mapping
 
@@ -34,7 +34,7 @@ class ObjectsFilter(object):
                     for p_value_el, db_f_name_el, c_el in zip(p_value, db_f_name, c):
                         cond_el = self._compose_cond(cond_el, p_value_el,
                             db_f_name_el, c_el, Or)
-                    cond = Scoped(cond_el)
+                    cond = And(cond, Scoped(cond_el))
                 else:
                     cond = self._compose_cond(cond, self.filter_params[p_name],
                         db_f_name, c, And)
