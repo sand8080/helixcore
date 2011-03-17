@@ -35,13 +35,18 @@ class AbstractHandler(object):
                 result[f[len(prefix_of_new):]] = f
         return result
 
-    def update_obj(self, curs, data, load_obj_func):
+    def update_objs(self, curs, data, load_obj_func):
         to_update = self.get_fields_for_update(data)
         if len(to_update):
-            obj = load_obj_func()
-            for f, new_f in to_update.items():
-                setattr(obj, f, data[new_f])
-            mapping.update(curs, obj)
+            objs = load_obj_func()
+            if not isinstance(objs, (list, tuple)):
+                objs = [objs]
+            for obj in objs:
+                for f, new_f in to_update.items():
+                    setattr(obj, f, data[new_f])
+                mapping.update(curs, obj)
+
+    update_obj = update_objs
 
     def objects_info(self, objects, viewer):
         result = []
