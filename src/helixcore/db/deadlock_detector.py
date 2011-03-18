@@ -1,4 +1,3 @@
-
 #Client code must inirialize this variable with allowed transitions list
 ALLOWED_TRANSITIONS = [
 #    ('table1', 'table2'), ...
@@ -8,6 +7,7 @@ ALLOWED_TRANSITIONS = [
 import threading
 import traceback
 
+
 class Lock(object):
     def __init__(self, table, args):
         self.trace_lst = traceback.extract_stack()
@@ -15,7 +15,7 @@ class Lock(object):
         self.fn_args = args
 
 context = threading.local()
-#context.locks = []
+
 
 class TransitionNotAllowedError(Exception):
     def __init__(self):
@@ -41,17 +41,21 @@ class TransitionNotAllowedError(Exception):
             msg += "\tcaller args: %s\n" % lock.fn_args
         return msg
 
+
 #context will be cleared on transaction end
 def clear_context():
     context.locks = []
+
 
 def handle_lock(table, *args):
     lock = Lock(table, args)
     if not hasattr(context, 'locks'):
         context.locks = []
 
-    context.locks.append(lock)
+    if len(context.locks) > 0 and context.locks[-1].table == lock.table:
+        return
 
+    context.locks.append(lock)
     if len(context.locks) == 1:
         return
 

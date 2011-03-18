@@ -24,6 +24,23 @@ class DeadlockDetectorTestCase(unittest.TestCase):
         self.drop_tables()
 
     @transaction()
+    def create_tables(self, curs=None):
+        for t in (self.table1, self.table2, self.table3):
+            curs.execute(
+                'CREATE TABLE %s (id serial, name varchar, date timestamp)' % t
+            )
+
+    @transaction()
+    def drop_tables(self, curs=None):
+        for t in (self.table1, self.table2, self.table3):
+            curs.execute('DROP TABLE IF EXISTS %s' % t)
+
+    def fill_table(self, table, num_records=5, curs=None):
+        for i in xrange(num_records):
+            q = Insert(table, {'name': i, 'date': datetime.now()})
+            curs.execute(*q.glue())
+
+    @transaction()
     def test_not_allowed(self, curs=None):
         #table2 -> table3 NOT ALLOWED
         deadlock_detector.ALLOWED_TRANSITIONS = [
@@ -49,6 +66,15 @@ class DeadlockDetectorTestCase(unittest.TestCase):
         deadlock_detector.handle_lock(self.table1)
         deadlock_detector.handle_lock(self.table2)
         deadlock_detector.handle_lock(self.table3)
+
+    @transaction()
+    def test_allowed_same_table(self, curs=None):
+        deadlock_detector.ALLOWED_TRANSITIONS = []
+        self.fill_table(self.table1, 5, curs)
+
+        deadlock_detector.handle_lock(self.table1)
+        deadlock_detector.handle_lock(self.table1)
+        deadlock_detector.handle_lock(self.table1)
 
     def lock_task(self, *tables):
         num_locked = 0
@@ -84,22 +110,6 @@ class DeadlockDetectorTestCase(unittest.TestCase):
 
         self.assertEquals(len(deadlock_detector.context.locks), 0)
 
-    @transaction()
-    def create_tables(self, curs=None):
-        for t in (self.table1, self.table2, self.table3):
-            curs.execute(
-                'CREATE TABLE %s (id serial, name varchar, date timestamp)' % t
-            )
-
-    @transaction()
-    def drop_tables(self, curs=None):
-        for t in (self.table1, self.table2, self.table3):
-            curs.execute('DROP TABLE IF EXISTS %s' % t)
-
-    def fill_table(self, table, num_records=5, curs=None):
-        for i in xrange(num_records):
-            q = Insert(table, {'name': i, 'date': datetime.now()})
-            curs.execute(*q.glue())
 
 if __name__ == '__main__':
     unittest.main()
