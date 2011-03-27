@@ -1,0 +1,13 @@
+Helixcore is core library of Helixprojects. Used in Helixauth, Helixweb, Helixbilling, Helixtariff.
+
+Contains db, wsgi application, install scripts, json protocol validator and helix server abstractions.
+
+Getting Helixcore
+==================
+
+The easiest way to get Helixcore is to download from github: is to use easy_install or pip::
+
+  git clone github.com/
+  cd helixcore
+  python setup.py install
+
