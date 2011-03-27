@@ -14,3 +14,5 @@ dist/
 debian/changelog
 debian/LAST_VERSION
 .gitconfig
+src/helixcore.egg-info
+src/MANIFEST
