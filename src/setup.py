@@ -1,9 +1,11 @@
 from setuptools import setup
 
+from __version__ import version
+
 
 setup(
     name = 'helixcore',
-    version = '1.0.0',
+    version = version,
     url = 'http://helixproject/',
     author = 'Helixproject Developers',
     author_email = 'developers@helixproject',
