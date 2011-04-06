@@ -1,15 +1,19 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-from helixcore.version import __version__
+
+VERSION = (0, 1, 1, 0)
+__version__ = VERSION
+__versionstr__ = '.'.join(map(str, VERSION))
 
 
 setup(
     name = 'helixcore',
-    version = __version__,
+    version = __versionstr__,
     url = 'http://helixproject/',
     author = 'Helixproject Developers',
     author_email = 'developers@helixproject',
     description = 'A core library of Helixproject',
+    packages = find_packages(),
     install_requires = ['python-cjson', 'iso8601', 'psycopg2', 'eventlet', 'pytz'],
     classifiers = [
         'License :: OSI Approved :: MIT License',

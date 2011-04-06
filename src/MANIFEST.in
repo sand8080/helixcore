@@ -1,7 +1,1 @@
-include AUTHORS
-include LICENSE
-include MANIFEST.in
-include README
-include setup.py
-recursive-include helixcore *.py
-prune helixcore/test/
+include AUTHORS LICENSE MANIFEST.in README
