@@ -1,8 +1,7 @@
 import unittest
 
 from helixcore.test.root_test import RootTestCase
-from helixcore.security import (sanitize_credentials, encrypt_passwords,
-FIELDS_FOR_ENCRYPTION)
+from helixcore.security import sanitize_credentials
 
 
 class SecurityTestCase(RootTestCase):
@@ -14,13 +13,6 @@ class SecurityTestCase(RootTestCase):
             'new_password': '******', 'su_password': '******',
             'session_id': 'sid'}
         self.assertEqual(expected, actual)
-
-    def test_encrypt_passwords(self):
-        d = {'login': 'l', 'password': 'p', 'new_password': 'np',
-            'su_password': 'sp', 'session_id': 'sid'}
-        enc_d = encrypt_passwords(d, lambda x: '_%s_' % x)
-        for f in FIELDS_FOR_ENCRYPTION:
-            self.assertNotEqual(d[f], enc_d[f])
 
 
 if __name__ == '__main__':
