@@ -1,1 +1,1 @@
-include AUTHORS LICENSE MANIFEST.in README
+include AUTHORS LICENSE MANIFEST.in README setup.py pavement.py bootstrap.py paver-minilib.zip
