@@ -1,0 +1,5 @@
+python-cjson
+iso8601
+psycopg2
+eventlet
+pytz
