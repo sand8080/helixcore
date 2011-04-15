@@ -1,4 +1,6 @@
+import cjson
 from random import random
+from StringIO import StringIO
 
 
 def random_syllable(
@@ -10,6 +12,18 @@ def random_syllable(
 
 def random_word(min_syllable=2, max_syllable=6):
     return ''.join(random_syllable() for x in range(random.randint(min_syllable, max_syllable))) #@UnusedVariable
+
+
+class ClientSimpleApplication(object):
+    def __init__(self, app):
+        self.app = app
+
+    def request(self, data):
+        environ = {'eventlet.input': StringIO(cjson.encode(data))}
+        def start_response(_, __):
+            pass
+        response = self.app(environ, start_response)[0]
+        return cjson.decode(response)
 
 
 def make_api_call(f_name):
