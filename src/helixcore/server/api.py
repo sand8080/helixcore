@@ -3,7 +3,6 @@ from helixcore.error import ValidationError, FormatError
 from helixcore import json_validator
 
 
-# Useful for documentation generation
 class ApiCall(object):
     def __init__(self, name, scheme, description='Not described at yet.'):
         self.name = name
@@ -99,3 +98,14 @@ class Api(object):
         @raise ValidationError: if validation failed for some reason
         '''
         return self._validate('%s_response' % action_name, data)
+
+
+class Session(object):
+    def __init__(self, session_id, environment_id, user_id):
+        self.session_id = session_id
+        self.environment_id = environment_id
+        self.user_id = user_id
+
+    @staticmethod
+    def from_dict(d):
+        return Session(d['session_id'], d['environment_id'], d['user_id'])
