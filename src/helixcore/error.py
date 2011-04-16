@@ -1,6 +1,14 @@
 from helixcore import error_code
 
 
+class HelixcoreException(Exception):
+    pass
+
+
+class UnauthorizedActivity(HelixcoreException):
+    pass
+
+
 class RequestProcessingError(Exception):
     def __init__(self, message, code=None, fields=None):
         Exception.__init__(self, message)

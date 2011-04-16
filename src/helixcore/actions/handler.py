@@ -6,7 +6,7 @@ from functools import wraps
 def detalize_error(err_cls, fields):
     '''
     Tries to execute function fields, catches exception of class err_cls
-    and converts it to RequestProcessingError of given category
+    and converts it to RequestProcessingError with given code
     '''
     def decorator(func):
         @wraps(func)

@@ -8,7 +8,7 @@ REQUEST_PAGING_PARAMS = {
 }
 
 AUTHORIZED_REQUEST_AUTH_INFO = {
-    Optional('session_id'): Text(),
+    'session_id': Text(),
     Optional('custom_actor_info'): NullableText(),
 }
 
@@ -17,9 +17,8 @@ RESPONSE_STATUS_OK = {'status': 'ok'}
 RESPONSE_STATUS_ERROR = {
     'status': 'error',
     'code': Text(),
-    'category': Text(),
     'message': Text(),
-    'details': [ArbitraryDict()],
+    Optional('fields'): [ArbitraryDict()],
 }
 
 ADDING_OBJECT_RESPONSE = AnyOf(
@@ -39,11 +38,6 @@ AUTHORIZED_RESPONSE_STATUS_ERROR = dict(
 
 RESPONSE_STATUS_ONLY = AnyOf(RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR)
 
-AUTHORIZED_RESPONSE_STATUS_ONLY = AnyOf(
-    AUTHORIZED_RESPONSE_STATUS_OK,
-    AUTHORIZED_RESPONSE_STATUS_ERROR
-)
-
 PING_REQUEST = {}
 
 PING_RESPONSE = RESPONSE_STATUS_ONLY
@@ -55,8 +49,31 @@ LOGIN_REQUEST = {
     Optional('custom_actor_info'): NullableText(),
 }
 
-LOGIN_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
+LOGIN_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY = AnyOf(
+    AUTHORIZED_RESPONSE_STATUS_OK,
+    RESPONSE_STATUS_ERROR
+)
+
 
 LOGOUT_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
 
 LOGOUT_RESPONSE = RESPONSE_STATUS_ONLY
+
+CHECK_ACCESS_REQUEST = dict(
+    {
+        'service_type': Text(),
+        'property': Text(),
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+CHECK_ACCESS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'user_id': int,
+            'environment_id': int,
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
