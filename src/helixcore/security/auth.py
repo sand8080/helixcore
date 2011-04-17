@@ -3,7 +3,7 @@ from functools import partial
 from helixcore.server.client import Client
 
 
-class Authentifier(object):
+class CoreAuthenticator(object):
     def __init__(self, url):
         self.cli = Client(url)
 
