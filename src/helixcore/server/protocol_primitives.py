@@ -49,11 +49,17 @@ LOGIN_REQUEST = {
     Optional('custom_actor_info'): NullableText(),
 }
 
-LOGIN_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY = AnyOf(
-    AUTHORIZED_RESPONSE_STATUS_OK,
+LOGIN_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'session_id': Text(),
+            'user_id': int,
+            'environment_id': int,
+        }
+    ),
     RESPONSE_STATUS_ERROR
 )
-
 
 LOGOUT_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
 
