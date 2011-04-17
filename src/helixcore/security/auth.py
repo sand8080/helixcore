@@ -1,3 +1,5 @@
+from functools import partial
+
 from helixcore.server.client import Client
 
 
@@ -10,7 +12,10 @@ class Authentifier(object):
             'service_type': service_type, 'property': property}
         return self.cli.request(req)
 
-    def login(self, data):
+    def _proxy_request(self, action, data):
         req = dict(data)
-        req['action'] = 'login'
+        req['action'] = action
         return self.cli.request(req, check_response=False)
+
+    login = partial(_proxy_request, 'login')
+    logout = partial(_proxy_request, 'logout')
