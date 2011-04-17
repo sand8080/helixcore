@@ -22,7 +22,8 @@ class Session(object):
 
     @staticmethod
     def from_dict(d):
-        return Session(d['session_id'], d['environment_id'], d['user_id'])
+        return Session(d['session_id'], '%s' % d['environment_id'],
+            '%s' % d['user_id'])
 
     def as_dict(self):
         return {'session_id': self.session_id, 'user_id': self.user_id,
