@@ -1,5 +1,5 @@
 from helixcore.db.sql import (And, Any, NullLeaf, Select, Columns, AnyOf, Or,
-    Scoped)
+    Scoped, Eq)
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore import mapping
 
@@ -68,3 +68,25 @@ class ObjectsFilter(object):
 
     def filter_counted(self, curs):
         return self.filter_objs(curs), self.filter_objs_count(curs)
+
+
+class EnvironmentObjectsFilter(ObjectsFilter):
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params, obj_class):
+        super(EnvironmentObjectsFilter, self).__init__(filter_params, paging_params, ordering_params, obj_class)
+        self.environment_id = environment_id
+
+    def _cond_by_filter_params(self):
+        cond = super(EnvironmentObjectsFilter, self)._cond_by_filter_params()
+        cond = And(cond, Eq('environment_id', self.environment_id))
+        return cond
+
+
+class InSessionFilter(ObjectsFilter):
+    def __init__(self, session, filter_params, paging_params, ordering_params, obj_class):
+        super(InSessionFilter, self).__init__(filter_params, paging_params, ordering_params, obj_class)
+        self.session = session
+
+    def _cond_by_filter_params(self):
+        cond = super(InSessionFilter, self)._cond_by_filter_params()
+        cond = And(cond, Eq('environment_id', self.session.environment_id))
+        return cond
