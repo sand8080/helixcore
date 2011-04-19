@@ -20,11 +20,6 @@ class Session(object):
         self.environment_id = environment_id
         self.user_id = user_id
 
-    @staticmethod
-    def from_dict(d):
-        return Session(d['session_id'], '%s' % d['environment_id'],
-            '%s' % d['user_id'])
-
     def as_dict(self):
         return {'session_id': self.session_id, 'user_id': self.user_id,
             'environment_id': self.environment_id}
