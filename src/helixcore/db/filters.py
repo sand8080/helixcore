@@ -8,6 +8,10 @@ def build_index(objs, idx_field='id'):
     return dict([(getattr(obj, idx_field), obj) for obj in objs])
 
 
+def build_dicts_index(dicts, idx_field='id'):
+    return dict([(d[idx_field], d) for d in dicts])
+
+
 class ObjectsFilter(object):
     '''[(p_name, db_f_name, operation_class), ...]
     '''

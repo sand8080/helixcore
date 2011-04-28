@@ -16,6 +16,11 @@ class FiltersTestCase(unittest.TestCase):
         objs_idx = filters.build_index(objs)
         self.assertEquals([1, 2], sorted(objs_idx.keys()))
 
+    def test_build_dicts_index(self):
+        dicts = [{'id': 1, 'cd': 2}, {'id': 2, 'cd': 3}]
+        dicts_idx = filters.build_dicts_index(dicts)
+        self.assertEquals([1, 2], sorted(dicts_idx.keys()))
+
 
 if __name__ == '__main__':
     unittest.main()
