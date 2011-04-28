@@ -14,7 +14,7 @@ def detalize_error(err_cls, fields):
             try:
                 return func(*args, **kwargs)
             except err_cls, e:
-                code = getattr(e, 'code', 'HELIXAUTH_ERROR')
+                code = getattr(e, 'code', 'HELIX_ERROR')
                 f = fields if isinstance(fields, list) else [fields]
                 raise RequestProcessingError('; '.join(e.args),
                     code=code, fields=f)
