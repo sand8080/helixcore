@@ -4,6 +4,10 @@ from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchon
 from helixcore import mapping
 
 
+def build_index(objs, idx_field='id'):
+    return dict([(getattr(obj, idx_field), obj) for obj in objs])
+
+
 class ObjectsFilter(object):
     '''[(p_name, db_f_name, operation_class), ...]
     '''
