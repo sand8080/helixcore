@@ -14,6 +14,7 @@ def _data_transfromer(d, fields, func):
 def sanitize_credentials(d):
     return _data_transfromer(d, FIELDS_FOR_SANITATION, lambda x: '******')
 
+
 class Session(object):
     def __init__(self, session_id, environment_id, user_id):
         self.session_id = session_id
