@@ -19,3 +19,4 @@ class CoreAuthenticator(object):
 
     login = partial(_proxy_request, 'login')
     logout = partial(_proxy_request, 'logout')
+    logout = partial(_proxy_request, 'check_user_exist')
