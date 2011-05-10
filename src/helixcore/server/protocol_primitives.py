@@ -54,8 +54,8 @@ LOGIN_RESPONSE = AnyOf(
         RESPONSE_STATUS_OK,
         **{
             'session_id': Text(),
-            'user_id': Text(),
-            'environment_id': Text(),
+            'user_id': int,
+            'environment_id': int,
         }
     ),
     RESPONSE_STATUS_ERROR
