@@ -12,6 +12,11 @@ class CoreAuthenticator(object):
             'service_type': service_type, 'property': property}
         return self.cli.request(req)
 
+    def check_user_exist(self, session_id, user_id):
+        req = {'action': 'check_user_exist', 'session_id': session_id,
+            'id': user_id}
+        return self.cli.request(req)
+
     def _proxy_request(self, action, data):
         req = dict(data)
         req['action'] = action
@@ -19,4 +24,3 @@ class CoreAuthenticator(object):
 
     login = partial(_proxy_request, 'login')
     logout = partial(_proxy_request, 'logout')
-    logout = partial(_proxy_request, 'check_user_exist')
