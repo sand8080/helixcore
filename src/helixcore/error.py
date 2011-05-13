@@ -9,7 +9,7 @@ class UnauthorizedActivity(HelixcoreException):
     pass
 
 
-class RequestProcessingError(Exception):
+class RequestProcessingError(HelixcoreException):
     def __init__(self, message, code=None, fields=None):
         Exception.__init__(self, message)
         if code is None:
