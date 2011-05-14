@@ -119,3 +119,13 @@ class ActionsLogTester(object):
     def check_response_ok(self, resp):
         self.assertEqual('ok', resp['status'])
 
+    def _check_subject_users_ids_set(self, sess_id, action, user_id):
+        req = {'session_id': sess_id, 'filter_params': {'action': action,
+            'user_id': user_id}, 'paging_params': {}}
+        resp = self.get_action_logs(**req)
+        self.check_response_ok(resp)
+
+        action_logs = resp['action_logs']
+        self.assertTrue(len(action_logs) >= 1)
+        for d_log in action_logs:
+            self.assertEquals([user_id], d_log['subject_users_ids'])

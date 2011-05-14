@@ -22,6 +22,27 @@ def detalize_error(err_cls, fields):
     return decorator
 
 
+def set_subject_users_ids(field_name):
+    '''
+    Sets subject users ids to data for correct action logging
+    '''
+    def decorator(func):
+        @wraps(func)
+        def decorated(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            finally:
+                data = args[1]
+                users_ids = data.get(field_name)
+                if users_ids is not None:
+                    if isinstance(users_ids, list):
+                        data['subject_users_ids'] = users_ids
+                    else:
+                        data['subject_users_ids'] = [users_ids]
+        return decorated
+    return decorator
+
+
 class AbstractHandler(object):
     def get_fields_for_update(self, data, prefix_of_new='new_'):
         '''
