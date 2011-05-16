@@ -36,7 +36,7 @@ def set_subject_users_ids(field_name):
                 users_ids = data.get(field_name)
                 if users_ids is not None:
                     if isinstance(users_ids, list):
-                        data['subject_users_ids'] = users_ids
+                        data['subject_users_ids'] = list(set(users_ids))
                     else:
                         data['subject_users_ids'] = [users_ids]
         return decorated
