@@ -387,6 +387,17 @@ class DecimalText(Text):
             raise ValidationError('Value %s must be a correct string representation of decimal' % data, path)
 
 
+class PositiveDecimalText(DecimalText):
+    '''
+    Validates if data is correct string representation of positive decimal.
+    '''
+    def validate(self, data, path):
+        super(PositiveDecimalText, self).validate(data, path)
+        if Decimal(data) <= 0:
+            raise ValidationError('Value %s must be a correct string representation of positive decimal' %
+                data, path)
+
+
 class NullableDecimalText(Text):
     '''
     Validates either decimal or None

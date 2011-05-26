@@ -2,7 +2,8 @@ import unittest
 import datetime
 
 from helixcore.json_validator import (validate, AnyOf, Optional, Scheme, ValueValidator,
-    Text, IsoDatetime, DecimalText, ArbitraryDict, ValidationError)
+    Text, IsoDatetime, DecimalText, ArbitraryDict, ValidationError,
+    PositiveDecimalText)
 
 
 class ValueValidatorTestCase(unittest.TestCase):
@@ -277,9 +278,26 @@ class DecimalTextTestCase(unittest.TestCase):
         x = DecimalText()
         validate(x, '08.0009')
         validate(x, '198.0105')
+        validate(x, '-198.0105')
+        validate(x, '-0')
+        validate(x, '0')
+        validate(x, '0.0')
         self.assertRaises(ValidationError, validate, x, 'e2e4')
         self.assertRaises(ValidationError, validate, x, 7)
         self.assertRaises(ValidationError, validate, x, 'some trash')
+
+
+class PositiveDecimalTextTestCase(unittest.TestCase):
+    def test_validator(self):
+        x = PositiveDecimalText()
+        validate(x, '08.0009')
+        validate(x, '198.0105')
+        self.assertRaises(ValidationError, validate, x, 'e2e4')
+        self.assertRaises(ValidationError, validate, x, 7)
+        self.assertRaises(ValidationError, validate, x, 'some trash')
+        self.assertRaises(ValidationError, validate, x, '-0.0')
+        self.assertRaises(ValidationError, validate, x, '0.0')
+        self.assertRaises(ValidationError, validate, x, '-10.06')
 
 
 if __name__ == '__main__':
