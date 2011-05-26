@@ -7,6 +7,7 @@ from helixcore.db.wrapper import EmptyResultSetError
 from helixcore.db.sql import Eq, Insert
 from helixcore.mapping.objects import Mapped
 from helixcore import mapping
+import cjson
 
 
 class MappingTestCase(unittest.TestCase):
@@ -72,6 +73,29 @@ class MappingTestCase(unittest.TestCase):
         obj = mapping.get(curs, self.T, cond=Eq('id', 1))
         mapping.delete(curs, obj)
         self.assertRaises(mapping.MappingError, mapping.delete, curs, obj)
+
+    def test_serialize_field(self):
+        d = {'one': 'value', 'info': ['one', 'two']}
+        d_res = mapping.objects.serialize_field(d, 'info', 'sz_info')
+        self.assertEquals(d['one'], d_res['one'])
+        self.assertFalse('info' in d_res)
+        self.assertEquals(cjson.encode(d['info']), d_res['sz_info'])
+
+        info = {'d_one': 'd_val', 'd_two': ['d_vval']}
+        d = {'one': 'value', 'info': info}
+        d_res = mapping.objects.serialize_field(d, 'info', 'sz_info')
+        self.assertEquals(d['one'], d_res['one'])
+        self.assertFalse('info' in d_res)
+        self.assertEquals(cjson.encode(info), d_res['sz_info'])
+
+    def test_deserialize_field(self):
+        info = {'a': [1, 2, 3], 'b': 'value'}
+        d = {'one': 'value', 'sz_info': cjson.encode(info)}
+        d_res = mapping.objects.deserialize_field(d, 'sz_info', 'info')
+        self.assertEquals(d['one'], d_res['one'])
+        self.assertFalse('sz_info' in d_res)
+        self.assertEquals(info, d_res['info'])
+
 
 if __name__ == '__main__':
     unittest.main()
