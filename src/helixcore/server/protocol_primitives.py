@@ -79,6 +79,7 @@ CHECK_ACCESS_RESPONSE = AnyOf(
         **{
             'user_id': int,
             'environment_id': int,
+            'access': AnyOf('granted', 'denied'),
         }
     ),
     RESPONSE_STATUS_ERROR
