@@ -105,6 +105,7 @@ class ActionsLogTester(object):
         if check_resp:
             self.check_response_ok(resp)
         self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
+        return resp
 
     def _not_logged_action(self, action, sess_id, req):
         api_call = getattr(self.cli, action)
