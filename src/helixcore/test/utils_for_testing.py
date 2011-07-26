@@ -110,8 +110,9 @@ class ActionsLogTester(object):
     def _not_logged_action(self, action, sess_id, req):
         api_call = getattr(self.cli, action)
         req['session_id'] = sess_id
-        api_call(**req)
+        resp = api_call(**req)
         self.assertEquals(0, self._count_records(sess_id, action))
+        return resp
 
     def _not_logged_filtering_action(self, action, sess_id):
         req = {'filter_params': {}, 'paging_params': {}}
