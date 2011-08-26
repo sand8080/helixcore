@@ -1,2 +1,2 @@
-include AUTHORS LICENSE MANIFEST.in README setup.py requirements.txt
+include AUTHORS LICENSE MANIFEST.in MANIFEST README
 recursive-include src *.py
