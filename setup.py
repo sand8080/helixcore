@@ -32,18 +32,23 @@ def packages(dir):
     return map(lambda x: x.replace(os.path.sep, '.'), sub_dirs)
 
 
-cur_dir = os.path.realpath(os.path.dirname(__file__))
+def clean_tests(pkgs):
+    return filter(lambda x: 'test' not in x, pkgs)
 
+
+cur_dir = os.path.realpath(os.path.dirname(__file__))
+name = 'helixcore'
+pkgs = clean_tests(packages(os.path.join(cur_dir, 'src')))
 
 setup(
-    name='helixcore',
+    name=name,
     version=__versionstr__,
     url='http://helixproject/',
     author='Helixproject Developers',
     author_email='developers@helixproject',
     description='A core library of Helixproject',
     package_dir={'': 'src'},
-    packages=packages(os.path.join(cur_dir, 'src')),
+    packages=pkgs,
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.6',
