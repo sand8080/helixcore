@@ -1,0 +1,8 @@
+distribute==0.6.10
+eventlet==0.9.16
+greenlet==0.3.1
+iso8601==0.1.4
+psycopg2==2.4.2
+python-cjson==1.0.5
+pytz==2011h
+wsgiref==0.1.2
