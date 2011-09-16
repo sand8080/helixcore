@@ -14,6 +14,14 @@ class HtmlTransformer(object):
             elems.append(self._process(o))
         return '<span class="api_list">[%s]</span>' % ', '.join(elems)
 
+    def _process_dict(self, obj):
+        result = '<table class="api_dict">%s</table>'
+        rows = []
+        for name, o in obj.items():
+            rows.append('<tr><td class="api_dict_key">%s</td>'
+                '<td class="api_dict_value">%s</td></tr>' % (name, self._process(o)))
+        return result % ''.join(rows)
+
     def _process_any_of(self, obj):
         result = '<table class="api_any_of">%s</table>'
         rows = []
@@ -29,5 +37,7 @@ class HtmlTransformer(object):
             return self._process_list(obj)
         elif obj_type is AnyOf:
             return self._process_any_of(obj)
+        elif obj_type is dict:
+            return self._process_dict(obj)
         else:
             return obj_type.__name__

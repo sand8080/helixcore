@@ -32,11 +32,21 @@ class HtmlTransformerTestCase(RootTestCase):
         self.assertEquals('Text', self.trans._process(Text))
 
     def test_process_any_of(self):
-        self.assertEquals('<table class="api_any_of">' \
-            '<tr class="api_any_of_case"><td>id</td></tr>' \
-            '<tr class="api_any_of_separator"><td>OR</td></tr>' \
+        self.assertEquals('<table class="api_any_of">'
+            '<tr class="api_any_of_case"><td>id</td></tr>'
+            '<tr class="api_any_of_separator"><td>OR</td></tr>'
             '<tr class="api_any_of_case"><td>-id</td></tr></table>',
             self.trans._process(AnyOf('id', '-id')))
+
+    def test_process_dict(self):
+        self.assertEquals('<table class="api_dict"></table>',
+            self.trans._process({}))
+        self.assertEquals('<table class="api_dict"><tr><td class="api_dict_key">id</td>'
+            '<td class="api_dict_value">int</td></tr></table>',
+            self.trans._process({'id': int}))
+        self.assertEquals('<table class="api_dict"><tr><td class="api_dict_key">values</td>'
+            '<td class="api_dict_value"><span class="api_list">[int]</span></td></tr></table>',
+            self.trans._process({'values': [int]}))
 
 
 if __name__ == '__main__':
