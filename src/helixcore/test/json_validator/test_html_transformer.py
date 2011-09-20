@@ -31,14 +31,14 @@ class HtmlTransformerTestCase(RootTestCase):
         self.assertEquals('Text', self.trans._process(Text()))
         self.assertEquals('Text', self.trans._process(Text))
 
-#    def test_process_any_of(self):
-#        self.assertEquals('<table class="api_any_of">'
-#            '<tr class="api_any_of_case"><td>id</td></tr>'
-#            '<tr class="api_any_of_separator"><td>OR</td></tr>'
-#            '<tr class="api_any_of_case"><td>-id</td></tr></table>',
-#            self.trans._process(AnyOf('id', '-id')))
-#        res = self.trans._process(AnyOf({'id': int}, {'cd': Text}))
-#        print '###', res
+    def test_process_any_of(self):
+        self.assertEquals('<table class="api_any_of">'
+            '<tr class="api_any_of_case"><td>id</td></tr>'
+            '<tr class="api_any_of_separator"><td>OR</td></tr>'
+            '<tr class="api_any_of_case"><td>-id</td></tr></table>',
+            self.trans._process(AnyOf('id', '-id')))
+        res = self.trans._process(AnyOf({'id': int}, {'cd': Text}))
+        print '###', res
 
     def test_process_dict(self):
         self.assertEquals('<table class="api_dict"></table>',
@@ -49,7 +49,8 @@ class HtmlTransformerTestCase(RootTestCase):
         self.assertEquals('<table class="api_dict"><tr><td class="api_dict_key">values</td>'
             '<td class="api_dict_value"><span class="api_list">[int]</span></td></tr></table>',
             self.trans._process({'values': [int]}))
-        self.assertEquals('<table class="api_dict"><tr><td class="api_dict_key_optional">id</td>'
+        self.assertEquals('<table class="api_dict"><tr class="api_dict_optional">'
+            '<td class="api_dict_key">id<br><span>optional</span></td>'
             '<td class="api_dict_value">int</td></tr></table>',
             self.trans._process({Optional('id'): int}))
 
