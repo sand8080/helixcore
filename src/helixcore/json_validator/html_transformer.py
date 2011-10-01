@@ -1,5 +1,5 @@
 from helixcore.json_validator import AnyOf, EqualityValidator,\
-    DictWrapperValidator, Optional
+    DictWrapperValidator, Optional, AtomicTypeWrapperValidator
 
 
 class HtmlTransformer(object):
@@ -37,12 +37,13 @@ class HtmlTransformer(object):
         result = '<table class="api_any_of">%s</table>'
         rows = []
         for o in obj.validators:
-            rows.append(self._process(o))
+            r = self._process(o)
+            rows.append('<tr class="api_any_of_case"><td>%s</td></tr>' % r)
         s_rows = '<tr class="api_any_of_separator"><td>OR</td></tr>'.join(rows)
         return result % s_rows
 
     def _process_equality_validator(self, validator):
-        return '<tr class="api_any_of_case"><td>%s</td></tr>' % validator.target_value
+        return '%s' % validator.target_value
 
     def _process(self, obj):
         obj_type = self._obj_type(obj)
@@ -54,5 +55,7 @@ class HtmlTransformer(object):
             return self._process_dict(obj)
         elif obj_type is EqualityValidator:
             return self._process_equality_validator(obj)
+        elif obj_type is AtomicTypeWrapperValidator:
+            return obj.scheme_type.__name__
         else:
             return obj_type.__name__

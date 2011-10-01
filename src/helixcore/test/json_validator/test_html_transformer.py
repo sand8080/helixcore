@@ -3,9 +3,6 @@ import unittest
 from helixcore.test.root_test import RootTestCase
 from helixcore.json_validator import Text, AnyOf, Optional
 from helixcore.json_validator.html_transformer import HtmlTransformer
-#from helixcore.json_validator import (validate, AnyOf, Optional, Scheme, ValueValidator,
-#    Text, IsoDatetime, DecimalText, ArbitraryDict, ValidationError,
-#    PositiveDecimalText)
 
 
 class HtmlTransformerTestCase(RootTestCase):
@@ -38,7 +35,17 @@ class HtmlTransformerTestCase(RootTestCase):
             '<tr class="api_any_of_case"><td>-id</td></tr></table>',
             self.trans._process(AnyOf('id', '-id')))
         res = self.trans._process(AnyOf({'id': int}, {'cd': Text}))
-        print '###', res
+        self.assertEquals('<table class="api_any_of">'
+            '<tr class="api_any_of_case"><td>'
+                '<table class="api_dict"><tr><td class="api_dict_key">id</td>'
+                '<td class="api_dict_value">int</td></tr></table>'
+            '</td></tr>'
+            '<tr class="api_any_of_separator"><td>OR</td></tr>'
+            '<tr class="api_any_of_case"><td>'
+                '<table class="api_dict"><tr><td class="api_dict_key">cd</td>'
+                '<td class="api_dict_value">UserPredicateValidator</td></tr></table>'
+            '</td></tr>'
+        '</table>', res)
 
     def test_process_dict(self):
         self.assertEquals('<table class="api_dict"></table>',
