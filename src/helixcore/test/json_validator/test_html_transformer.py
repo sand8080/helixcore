@@ -1,7 +1,8 @@
 import unittest
 
 from helixcore.test.root_test import RootTestCase
-from helixcore.json_validator import Text, AnyOf, Optional
+from helixcore.json_validator import Text, AnyOf, Optional, Scheme,\
+    SimpleWrappingValidator
 from helixcore.json_validator.html_transformer import HtmlTransformer
 
 
@@ -60,6 +61,27 @@ class HtmlTransformerTestCase(RootTestCase):
             '<td class="api_dict_key">id<br><span>optional</span></td>'
             '<td class="api_dict_value">int</td></tr></table>',
             self.trans._process({Optional('id'): int}))
+
+    def test_process_simple_wrapping_validator(self):
+        val = SimpleWrappingValidator({})
+        res = self.trans._process_simple_wrapping_validator(val)
+        self.assertEquals('<table class="api_dict"></table>', res)
+
+        val = SimpleWrappingValidator({'id': str})
+        res = self.trans._process_simple_wrapping_validator(val)
+        self.assertEquals('<table class="api_dict"><tr><td class="api_dict_key">id</td>'
+            '<td class="api_dict_value">str</td></tr></table>', res)
+
+    def test_process_scheme(self):
+        sch = Scheme({})
+        res = self.trans._process(sch)
+        self.assertEquals('<table class="api_dict"></table>', res)
+
+        sch = Scheme({'id': int, Optional('cd'): str})
+        res = self.trans._process(sch)
+        self.assertEquals('<table class="api_dict"><tr class="api_dict_optional">'
+            '<td class="api_dict_key">cd<br><span>optional</span></td><td class="api_dict_value">str</td></tr>'
+            '<tr><td class="api_dict_key">id</td><td class="api_dict_value">int</td></tr></table>', res)
 
 
 if __name__ == '__main__':

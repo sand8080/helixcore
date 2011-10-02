@@ -1,5 +1,6 @@
-from helixcore.json_validator import AnyOf, EqualityValidator,\
-    DictWrapperValidator, Optional, AtomicTypeWrapperValidator
+from helixcore.json_validator import (AnyOf, EqualityValidator,
+    DictWrapperValidator, Optional, AtomicTypeWrapperValidator,
+    Scheme)
 
 
 class HtmlTransformer(object):
@@ -45,6 +46,9 @@ class HtmlTransformer(object):
     def _process_equality_validator(self, validator):
         return '%s' % validator.target_value
 
+    def _process_simple_wrapping_validator(self, validator):
+        return self._process(validator.validator)
+
     def _process(self, obj):
         obj_type = self._obj_type(obj)
         if obj_type is list:
@@ -57,5 +61,7 @@ class HtmlTransformer(object):
             return self._process_equality_validator(obj)
         elif obj_type is AtomicTypeWrapperValidator:
             return obj.scheme_type.__name__
+        elif obj_type is Scheme:
+            return self._process_simple_wrapping_validator(obj)
         else:
             return obj_type.__name__
