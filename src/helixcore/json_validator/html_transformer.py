@@ -65,3 +65,16 @@ class HtmlTransformer(object):
             return self._process_simple_wrapping_validator(obj)
         else:
             return obj_type.__name__
+
+    def process_protocol(self, protocol):
+        rows = []
+        for api_call in protocol:
+            sch = self._process(api_call.scheme)
+            row = '<tr><td class="api_call_name">%s</td>' \
+                '<td class="api_call_scheme">%s</td>' \
+                '<td class="api_call_description">%s</td></tr>' % (api_call.name,
+                sch, api_call.description)
+            rows.append(row)
+        result = '<table class="api_protocol">%s</table>' % ''.join(rows)
+        return result
+

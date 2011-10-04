@@ -4,6 +4,7 @@ from helixcore.test.root_test import RootTestCase
 from helixcore.json_validator import Text, AnyOf, Optional, Scheme,\
     SimpleWrappingValidator
 from helixcore.json_validator.html_transformer import HtmlTransformer
+from helixcore.server.api import ApiCall
 
 
 class HtmlTransformerTestCase(RootTestCase):
@@ -82,6 +83,36 @@ class HtmlTransformerTestCase(RootTestCase):
         self.assertEquals('<table class="api_dict"><tr class="api_dict_optional">'
             '<td class="api_dict_key">cd<br><span>optional</span></td><td class="api_dict_value">str</td></tr>'
             '<tr><td class="api_dict_key">id</td><td class="api_dict_value">int</td></tr></table>', res)
+
+    def test_process_protocol(self):
+        protocol = [
+            ApiCall('request', Scheme({'id': int})),
+            ApiCall('response', Scheme({'status': AnyOf('ok', 'error')})),
+        ]
+        result = self.trans.process_protocol(protocol)
+        self.assertEquals('<table class="api_protocol">'
+            '<tr><td class="api_call_name">request</td>'
+            '<td class="api_call_scheme">'
+                '<table class="api_dict">'
+                    '<tr><td class="api_dict_key">id</td>'
+                    '<td class="api_dict_value">int</td></tr>'
+                '</table>'
+            '</td>'
+            '<td class="api_call_description">None</td></tr>'
+            '<tr><td class="api_call_name">response</td>'
+            '<td class="api_call_scheme">'
+                '<table class="api_dict">'
+                    '<tr><td class="api_dict_key">status</td>'
+                    '<td class="api_dict_value">'
+                        '<table class="api_any_of">'
+                            '<tr class="api_any_of_case"><td>ok</td></tr>'
+                            '<tr class="api_any_of_separator"><td>OR</td></tr>'
+                            '<tr class="api_any_of_case"><td>error</td></tr>'
+                        '</table>'
+                    '</td></tr>'
+                '</table>'
+            '</td><td class="api_call_description">None</td></tr></table>',
+            result)
 
 
 if __name__ == '__main__':

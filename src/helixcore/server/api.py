@@ -4,7 +4,7 @@ from helixcore import json_validator
 
 
 class ApiCall(object):
-    def __init__(self, name, scheme, description='Not described at yet.'):
+    def __init__(self, name, scheme, description=None):
         self.name = name
         self.scheme = scheme
         self.description = description
