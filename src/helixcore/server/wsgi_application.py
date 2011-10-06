@@ -1,4 +1,4 @@
-import cjson
+import json
 import logging
 import sys
 import traceback
@@ -75,14 +75,15 @@ class Application(object):
         self._log_action(remote_addr, secured_request, secured_response,
             action_name, processed_action_data)
 
+#        print '### response: ', response
         return [response]
 
     def _log_action(self, remote_addr, secured_request, secured_response,
         action_name, processed_action_data):
         try:
             if action_name in self.tracking_api_calls:
-                request = cjson.encode(secured_request)
-                response = cjson.encode(secured_response)
+                request = json.dumps(secured_request)
+                response = json.dumps(secured_response)
                 self.track_api_call(remote_addr, request,
                     response, action_name, processed_action_data)
         except Exception, e:

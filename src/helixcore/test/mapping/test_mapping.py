@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime
+import json
 
 from helixcore.test.test_environment import transaction
 
@@ -7,7 +8,6 @@ from helixcore.db.wrapper import EmptyResultSetError
 from helixcore.db.sql import Eq, Insert
 from helixcore.mapping.objects import Mapped
 from helixcore import mapping
-import cjson
 
 
 class MappingTestCase(unittest.TestCase):
@@ -79,18 +79,18 @@ class MappingTestCase(unittest.TestCase):
         d_res = mapping.objects.serialize_field(d, 'info', 'sz_info')
         self.assertEquals(d['one'], d_res['one'])
         self.assertFalse('info' in d_res)
-        self.assertEquals(cjson.encode(d['info']), d_res['sz_info'])
+        self.assertEquals(json.dumps(d['info']), d_res['sz_info'])
 
         info = {'d_one': 'd_val', 'd_two': ['d_vval']}
         d = {'one': 'value', 'info': info}
         d_res = mapping.objects.serialize_field(d, 'info', 'sz_info')
         self.assertEquals(d['one'], d_res['one'])
         self.assertFalse('info' in d_res)
-        self.assertEquals(cjson.encode(info), d_res['sz_info'])
+        self.assertEquals(json.dumps(info), d_res['sz_info'])
 
     def test_deserialize_field(self):
         info = {'a': [1, 2, 3], 'b': 'value'}
-        d = {'one': 'value', 'sz_info': cjson.encode(info)}
+        d = {'one': 'value', 'sz_info': json.dumps(info)}
         d_res = mapping.objects.deserialize_field(d, 'sz_info', 'info')
         self.assertEquals(d['one'], d_res['one'])
         self.assertFalse('sz_info' in d_res)

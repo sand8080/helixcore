@@ -1,4 +1,4 @@
-import cjson, datetime, copy, pytz
+import json, datetime, copy, pytz
 from helixcore.error import ValidationError, FormatError
 from helixcore import json_validator
 
@@ -25,8 +25,8 @@ class Api(object):
         @raise ValidationError: if request validation fails
         '''
         try:
-            decoded_data = cjson.decode(raw_data)
-        except cjson.DecodeError, e:
+            decoded_data = json.loads(raw_data)
+        except ValueError, e:
             raise FormatError("Cannot parse request: %s" % e)
 
         action_name = decoded_data.pop('action')
@@ -71,7 +71,7 @@ class Api(object):
         if validation:
             self.validate_response(action_name, response)
 
-        return cjson.encode(response)
+        return json.dumps(response)
 
     def _validate(self, call_name, data):
         scheme = self.scheme_dict.get(call_name)

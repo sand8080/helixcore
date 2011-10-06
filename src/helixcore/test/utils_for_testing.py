@@ -1,4 +1,4 @@
-import cjson
+import json
 from random import random
 from StringIO import StringIO
 from helixcore.error import ValidationError
@@ -20,11 +20,11 @@ class ClientSimpleApplication(object):
         self.app = app
 
     def request(self, data):
-        environ = {'eventlet.input': StringIO(cjson.encode(data))}
+        environ = {'eventlet.input': StringIO(json.dumps(data))}
         def start_response(_, __):
             pass
         response = self.app(environ, start_response)[0]
-        return cjson.decode(response)
+        return json.loads(response)
 
 
 def make_api_call(f_name):

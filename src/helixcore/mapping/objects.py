@@ -1,4 +1,4 @@
-import cjson
+import json
 
 
 class Mapped(object):
@@ -28,7 +28,7 @@ def serialize_field(d, f_src_name, f_dst_name):
     res = dict(d)
     if isinstance(res.get(f_src_name), (list, dict)):
         v = res.pop(f_src_name)
-        res[f_dst_name] = cjson.encode(v)
+        res[f_dst_name] = json.dumps(v)
     return res
 
 
@@ -36,5 +36,5 @@ def deserialize_field(d, f_src_name, f_dst_name):
     res = dict(d)
     if isinstance(res.get(f_src_name), (str, unicode)):
         v = res.pop(f_src_name)
-        res[f_dst_name] = cjson.decode(v)
+        res[f_dst_name] = json.loads(v)
     return res

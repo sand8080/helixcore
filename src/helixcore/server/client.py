@@ -1,4 +1,4 @@
-import cjson
+import json
 import urllib2
 
 from helixcore import error_code
@@ -11,9 +11,9 @@ class Client(object):
 
     def _request(self, data):
         try:
-            f = urllib2.urlopen(self.url, cjson.encode(data))
+            f = urllib2.urlopen(self.url, json.dumps(data))
             resp = f.read()
-            return cjson.decode(resp)
+            return json.loads(resp)
         except urllib2.URLError:
             return {'status': 'error', 'message': 'Service unavailable',
                 'code': error_code.HELIX_SERVICE_UNAVAILABLE}

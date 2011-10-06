@@ -1,5 +1,5 @@
 import unittest
-import cjson
+import json
 
 from helixcore.test.root_test import RootTestCase
 from helixcore.json_validator import Text
@@ -18,7 +18,7 @@ class RequestHandlingTestCase(RootTestCase):
             'aaa': 'str',
             'param2': 'foo bar',
         }
-        raw_data = cjson.encode(bad_data)
+        raw_data = json.dumps(bad_data)
         self.assertRaises(RequestProcessingError, Api([]).handle_request, raw_data)
 
     def test_request_ok(self):
@@ -29,7 +29,7 @@ class RequestHandlingTestCase(RootTestCase):
             'cent_factor': 100,
         }
 
-        raw_data = cjson.encode(good_data)
+        raw_data = json.dumps(good_data)
         protocol = [
             ApiCall('add_currency_request', {'name': Text(), 'designation': Text(), 'cent_factor': int}),
             ApiCall('add_currency_response', {'status': Text()}),
@@ -40,7 +40,7 @@ class RequestHandlingTestCase(RootTestCase):
         self.assertEquals(data, good_data)
 
         good_response = {'status': 'ok'}
-        actual_response = cjson.decode(test_api.handle_response(action_name, good_response))
+        actual_response = json.loads(test_api.handle_response(action_name, good_response))
         self.assertEquals(good_response, actual_response)
 
 
