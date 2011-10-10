@@ -74,8 +74,6 @@ class Application(object):
 
         self._log_action(remote_addr, secured_request, secured_response,
             action_name, processed_action_data)
-
-#        print '### response: ', response
         return [response]
 
     def _log_action(self, remote_addr, secured_request, secured_response,

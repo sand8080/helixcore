@@ -1,5 +1,5 @@
 from helixcore.json_validator import (Optional, AnyOf, NonNegative,
-    Text, ArbitraryDict, NullableText)
+    Text, ArbitraryDict, NullableText, IsoDatetime)
 
 
 REQUEST_PAGING_PARAMS = {
@@ -84,3 +84,58 @@ CHECK_ACCESS_RESPONSE = AnyOf(
     ),
     RESPONSE_STATUS_ERROR
 )
+
+ACTION_LOG_INFO = {
+    'id': int,
+    'session_id': NullableText(),
+    'custom_actor_info': NullableText(),
+    'actor_user_id': AnyOf(int, None),
+    'subject_users_ids': [int],
+    'action': Text(),
+    'request_date': IsoDatetime(),
+    'remote_addr': Text(),
+    'request': Text(),
+    'response': Text(),
+}
+
+GET_ACTION_LOGS_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('from_request_date'): IsoDatetime(),
+            Optional('to_request_date'): IsoDatetime(),
+            Optional('action'): Text(),
+            Optional('session_id'): Text(),
+            Optional('user_id'): int,
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('request_date', '-request_date', 'id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+GET_ACTION_LOGS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'action_logs': [ACTION_LOG_INFO],
+            'total': NonNegative(int),
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
+GET_ACTION_LOGS_SELF_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('from_request_date'): IsoDatetime(),
+            Optional('to_request_date'): IsoDatetime(),
+            Optional('action'): Text(),
+            Optional('session_id'): Text(),
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('request_date', '-request_date', 'id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+GET_ACTION_LOGS_SELF_RESPONSE = GET_ACTION_LOGS_RESPONSE
