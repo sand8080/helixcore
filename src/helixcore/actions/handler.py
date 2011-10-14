@@ -58,6 +58,7 @@ class AbstractHandler(object):
 
     def update_objs(self, curs, data, load_obj_func):
         to_update = self.get_fields_for_update(data)
+        updated_objs = []
         if len(to_update):
             objs = load_obj_func()
             if not isinstance(objs, (list, tuple)):
@@ -66,6 +67,8 @@ class AbstractHandler(object):
                 for f, new_f in to_update.items():
                     setattr(obj, f, data[new_f])
                 mapping.update(curs, obj)
+                updated_objs.append(obj)
+        return updated_objs
 
     update_obj = update_objs
 
