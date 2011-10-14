@@ -1,7 +1,8 @@
 from psycopg2 import IntegrityError
 
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
-from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, fetch_dict, DbError, ObjectCreationError
+from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, fetch_dict, DbError, ObjectCreationError,\
+    ObjectDeletionError
 import helixcore.db.deadlock_detector as deadlock_detector
 from helixcore.error import DataIntegrityError
 
@@ -84,8 +85,12 @@ def save(curs, obj):
 def delete(curs, obj):
     if not hasattr(obj, 'id'):
         raise MappingError('Deleting %s without id' % obj.__class__.__name__)
-    curs.execute(*Delete(obj.table, cond=Eq('id', obj.id)).glue())
-    del obj.id
+    try:
+        curs.execute(*Delete(obj.table, cond=Eq('id', obj.id)).glue())
+        del obj.id
+    except IntegrityError, e:
+        raise ObjectDeletionError('Object %s deleting error: %s' %
+            (obj, ';'.join(e.args)))
 
 
 def delete_objects(curs, objs):

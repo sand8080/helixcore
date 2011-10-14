@@ -23,6 +23,10 @@ class ObjectCreationError(DbError):
     pass
 
 
+class ObjectDeletionError(DbError):
+    pass
+
+
 def fetchall_dicts(curs):
     """
     Fetches all results and makes list of dicts with column names as keys
