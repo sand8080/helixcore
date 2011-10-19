@@ -2,7 +2,7 @@
 import unittest
 
 from helixcore.db.sql import quote, BinaryOperator, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete, Insert,\
-    AnyOf
+    AnyOf, NotEq
 
 
 class SqlTestCase(unittest.TestCase):
@@ -26,6 +26,17 @@ class SqlTestCase(unittest.TestCase):
         cond_end = Eq('order_type', None)
         (cond, params) = cond_end.glue()
         self.assertEqual('"order_type" IS NULL', cond)
+        self.assertEqual([], params)
+
+    def test_not_eq_cond(self):
+        cond_end = NotEq('billing.id', 0)
+        (cond, params) = cond_end.glue()
+        self.assertEqual('"billing"."id" != %s', cond)
+        self.assertEqual([0], params)
+
+        cond_end = NotEq('order_type', None)
+        (cond, params) = cond_end.glue()
+        self.assertEqual('"order_type" IS NOT NULL', cond)
         self.assertEqual([], params)
 
     def test_and_cond(self):

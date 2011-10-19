@@ -196,6 +196,7 @@ class Like(BinaryOperator):
             rh = rh.replace('%', '\%').replace('*', '%')
             super(Like, self).__init__(lh, case_sensitive and 'LIKE' or 'ILIKE', rh)
 
+
 class Eq(BinaryOperator):
     """
     Alias for leaf equality condition
@@ -206,12 +207,25 @@ class Eq(BinaryOperator):
         else:
             super(Eq, self).__init__(lh, '=', rh)
 
+
+class NotEq(BinaryOperator):
+    """
+    Alias for leaf not equality condition
+    """
+    def __init__(self, lh, rh):
+        if rh is None:
+            super(NotEq, self).__init__(lh, 'IS NOT', rh)
+        else:
+            super(NotEq, self).__init__(lh, '!=', rh)
+
+
 class Plus(BinaryOperator):
     """
     lh + rh
     """
     def __init__(self, lh, rh):
         super(Plus, self).__init__(lh, '+', rh)
+
 
 class Minus(BinaryOperator):
     """
