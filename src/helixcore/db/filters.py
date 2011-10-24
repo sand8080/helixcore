@@ -8,6 +8,15 @@ def build_index(objs, idx_field='id'):
     return dict([(getattr(obj, idx_field), obj) for obj in objs])
 
 
+def build_complex_index(objs, idx_fields, delimiter='_'):
+    result = {}
+    for obj in objs:
+        keys_values = ['%s' % getattr(obj, idx_field) for idx_field in idx_fields]
+        key = delimiter.join(keys_values)
+        result[key] = obj
+    return result
+
+
 def build_dicts_index(dicts, idx_field='id'):
     return dict([(d[idx_field], d) for d in dicts])
 
