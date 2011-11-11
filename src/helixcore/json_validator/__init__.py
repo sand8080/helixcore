@@ -342,12 +342,12 @@ class IsoDate(ValueValidator):
     '''
     date_pattern = re.compile(
         '^'
-        '(?P<year>[0-9]{4})'
+        '(?P<year>\d\d\d\d)'
         '-'
-        '(?P<month>[0-9]{1,2})'
+        '(?P<month>\d\d)'
         '-'
-        '(?P<day>[0-9]{1,2})'
-        '(?P<timezone>Z|([+-][0-9]{2}(.[0-9]{2})?))?'
+        '(?P<day>\d\d)'
+        '(?P<timezone>Z|([+-]\d\d(.\d\d)?))?'
         '$'
     )
 
@@ -497,3 +497,12 @@ def validate(scheme, data):
     @raise ValidationError: if validation failed
     '''
     create_validator(scheme).validate(data, [])
+
+ARBITRARY_DICT = ArbitraryDict()
+ISO_DATE = IsoDate()
+ISO_DATETIME = IsoDatetime()
+TEXT = Text()
+NULLABLE_TEXT = NullableText()
+NULLABLE_DECIMAL_TEXT = NullableDecimalText()
+DECIMAL_TEXT = DecimalText()
+POSITIVE_DECIMAL_TEXT = PositiveDecimalText()
