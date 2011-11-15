@@ -1,5 +1,5 @@
 from helixcore.json_validator import (Optional, AnyOf, NonNegative,
-    ARBITRARY_DICT, TEXT, ISO_DATETIME, NULLABLE_TEXT)
+    ARBITRARY_DICT, TEXT, ISO_DATETIME, NULLABLE_TEXT, DECIMAL_TEXT)
 
 
 REQUEST_PAGING_PARAMS = {
@@ -14,6 +14,7 @@ AUTHORIZED_REQUEST_AUTH_INFO = {
 
 RESPONSE_STATUS_OK = {
     'status': 'ok',
+    Optional('execution_time'): DECIMAL_TEXT,
 }
 
 RESPONSE_STATUS_ERROR = {
@@ -21,6 +22,7 @@ RESPONSE_STATUS_ERROR = {
     'code': TEXT,
     'message': TEXT,
     Optional('fields'): [ARBITRARY_DICT],
+    Optional('execution_time'): DECIMAL_TEXT,
 }
 
 ADDING_OBJECT_RESPONSE = AnyOf(
