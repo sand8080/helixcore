@@ -12,7 +12,7 @@ def execution_time(func):
         resp = func(*args, **kwargs)
         end = datetime.datetime.now()
         td = end - start
-        resp['execution_time'] = '%s.%s' % (td.seconds, td.microseconds)
+        resp['execution_time'] = '%d.%06d' % (td.seconds, td.microseconds)
         return resp
     return decorated
 
