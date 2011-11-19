@@ -1,6 +1,20 @@
+import datetime
+from functools import wraps
+
 from helixcore import mapping
 from helixcore.error import RequestProcessingError
-from functools import wraps
+
+
+def execution_time(func):
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        start = datetime.datetime.now()
+        resp = func(*args, **kwargs)
+        end = datetime.datetime.now()
+        td = end - start
+        resp['execution_time'] = '%d.%06d' % (td.seconds, td.microseconds)
+        return resp
+    return decorated
 
 
 def detalize_error(err_cls, fields):
