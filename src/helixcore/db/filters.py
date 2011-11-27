@@ -1,8 +1,8 @@
 from helixcore.db.sql import (And, Any, NullLeaf, Select, Columns, AnyOf, Or,
-    Scoped, Eq)
+    Scoped, Eq, MoreEq, LessEq)
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore import mapping
-from helixcore.db.dataobject import Currency
+from helixcore.db.dataobject import Currency, ActionLog
 from helixcore.error import CurrencyNotFound
 
 
@@ -129,3 +129,18 @@ class CurrencyFilter(ObjectsFilter):
             raise CurrencyNotFound(**self.filter_params)
 
 
+class ActionLogFilter(EnvironmentObjectsFilter):
+    cond_map = [
+        ('action', 'action', Eq),
+        ('session_id', 'session_id', Eq),
+        ('actor_user_id', 'actor_user_id', Eq),
+        ('from_request_date', 'request_date', MoreEq),
+        ('to_request_date', 'request_date', LessEq),
+        # OR condition
+        (('subject_users_ids', 'actor_user_id'),
+            ('subject_users_ids', 'actor_user_id'), (Any, Eq)),
+    ]
+
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
+        super(ActionLogFilter, self).__init__(environment_id,
+            filter_params, paging_params, ordering_params, ActionLog)
