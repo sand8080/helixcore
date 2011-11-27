@@ -1,4 +1,5 @@
-from helixcore import error_code
+from helixcore import error_code, security
+from helixcore.db.wrapper import ObjectNotFound
 
 
 class HelixcoreException(Exception):
@@ -59,3 +60,17 @@ class AuthError(RequestProcessingError):
     def __init__(self, msg):
         RequestProcessingError.__init__(self,
             msg, code=error_code.HELIX_AUTH_ERROR)
+
+
+class HelixcoreObjectNotFound(ObjectNotFound):
+    def __init__(self, class_name, **kwargs):
+        sanitized_kwargs = security.sanitize_credentials(kwargs)
+        super(HelixcoreObjectNotFound, self).__init__('%s not found by params: %s' %
+            (class_name, sanitized_kwargs))
+        self.code = error_code.HELIX_OBJECT_NOT_FOUND
+
+
+class CurrencyNotFound(HelixcoreObjectNotFound):
+    def __init__(self, **kwargs):
+        super(CurrencyNotFound, self).__init__('Currency', **kwargs)
+

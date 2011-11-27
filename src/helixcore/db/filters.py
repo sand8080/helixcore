@@ -2,6 +2,8 @@ from helixcore.db.sql import (And, Any, NullLeaf, Select, Columns, AnyOf, Or,
     Scoped, Eq)
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore import mapping
+from helixcore.db.dataobject import Currency
+from helixcore.error import CurrencyNotFound
 
 
 def build_index(objs, idx_field='id'):
@@ -107,3 +109,23 @@ class InSessionFilter(ObjectsFilter):
         cond = super(InSessionFilter, self)._cond_by_filter_params()
         cond = And(cond, Eq('environment_id', self.session.environment_id))
         return cond
+
+
+class CurrencyFilter(ObjectsFilter):
+    cond_map = [
+        ('id', 'id', Eq),
+        ('code', 'code', Eq),
+    ]
+
+    def __init__(self, filter_params, paging_params, ordering_params):
+        super(CurrencyFilter, self).__init__(filter_params, paging_params,
+            ordering_params, Currency)
+
+    def filter_one_obj(self, curs, for_update=False):
+        try:
+            return super(CurrencyFilter, self).filter_one_obj(curs,
+                for_update=for_update)
+        except (ObjectNotFound, SelectedMoreThanOneRow):
+            raise CurrencyNotFound(**self.filter_params)
+
+

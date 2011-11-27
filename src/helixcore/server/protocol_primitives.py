@@ -1,5 +1,6 @@
 from helixcore.json_validator import (Optional, AnyOf, NonNegative,
-    ARBITRARY_DICT, TEXT, ISO_DATETIME, NULLABLE_TEXT, DECIMAL_TEXT)
+    ARBITRARY_DICT, TEXT, ISO_DATETIME, NULLABLE_TEXT, DECIMAL_TEXT,
+    POSITIVE_INT)
 
 
 REQUEST_PAGING_PARAMS = {
@@ -150,3 +151,26 @@ GET_ACTION_LOGS_SELF_REQUEST = dict(
 )
 
 GET_ACTION_LOGS_SELF_RESPONSE = GET_ACTION_LOGS_RESPONSE
+
+GET_CURRENCIES_REQUEST = dict(
+    {
+        Optional('ordering_params'): [AnyOf('code', '-code')],
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+CURRENCY_INFO = {
+    'id': int,
+    'code': TEXT,
+    'cent_factor': POSITIVE_INT,
+    'name': TEXT,
+    'location': TEXT,
+}
+
+GET_CURRENCIES_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{'currencies': [CURRENCY_INFO]}
+    ),
+    RESPONSE_STATUS_ERROR
+)
