@@ -154,6 +154,7 @@ GET_ACTION_LOGS_SELF_RESPONSE = GET_ACTION_LOGS_RESPONSE
 
 GET_CURRENCIES_REQUEST = dict(
     {
+        'paging_params': REQUEST_PAGING_PARAMS,
         Optional('ordering_params'): [AnyOf('code', '-code')],
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
