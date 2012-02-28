@@ -509,3 +509,5 @@ DECIMAL_TEXT = DecimalText()
 POSITIVE_DECIMAL_TEXT = PositiveDecimalText()
 NON_NEGATIVE_INT = NonNegative(int)
 POSITIVE_INT = Positive(int)
+ID = POSITIVE_INT
+INT = int
