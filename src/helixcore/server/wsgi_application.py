@@ -21,7 +21,7 @@ class Application(object):
         pass
 
     def __call__(self, environ, start_response):
-        raw_data = environ['eventlet.input'].read()
+        raw_data = environ['wsgi.input'].read()
         remote_addr = environ.get('REMOTE_ADDR', 'undefined')
 
         action_name = None
