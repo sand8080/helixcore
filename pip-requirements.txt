@@ -1,7 +1,4 @@
 distribute
-eventlet
-greenlet
 iso8601
 psycopg2
 pytz
-wsgiref
