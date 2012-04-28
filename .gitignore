@@ -4,5 +4,6 @@
 .settings
 .pydevproject
 .gitconfig
+.venv
 MANIFEST
 dist
