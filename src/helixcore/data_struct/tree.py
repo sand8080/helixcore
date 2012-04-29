@@ -1,4 +1,8 @@
+from copy import deepcopy
+
 from helixcore.error import HelixcoreException
+
+
 class Tree(object):
     def __init__(self, root=None):
         self.root = TreeNode(root)
@@ -13,6 +17,8 @@ class Tree(object):
         for el in chain:
             if not node.has_child(el):
                 node.add_child(el)
+            node = node.get_child(el)
+
 
     def walk_depth(self):
         return TreeNodeDepthIter(self.root)
@@ -39,7 +45,10 @@ class TreeNode(object):
     Obj wrapped by TreeNode should implement __eq__ method
     '''
     def __init__(self, obj):
-        self.obj = obj
+        if isinstance(obj, self.__class__):
+            self.obj = deepcopy(obj.obj)
+        else:
+            self.obj = deepcopy(obj)
         self.children = []
 
     def __eq__(self, other):
@@ -51,10 +60,7 @@ class TreeNode(object):
     def add_child(self, child):
         if self.has_child(child):
             return
-        if isinstance(child, self.__class__):
-            self.children.append(child)
-        else:
-            self.children.append(TreeNode(child))
+        self.children.append(TreeNode(child))
 
     def remove_child(self, child):
         try:

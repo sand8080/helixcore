@@ -1,10 +1,11 @@
 import unittest
 
-from helixcore.data_struct.tree import TreeNode, TreeNodeNotFound
+from helixcore.data_struct.tree import Tree, TreeNode, TreeNodeNotFound
+from helixcore.test.root_test import RootTestCase
 
 
-class TreeNodeTestCase(unittest.TestCase):
-    def test_tree_node_eq(self):
+class TreeNodeTestCase(RootTestCase):
+    def test_eq(self):
         self.assertEquals(TreeNode('a'), TreeNode('a'))
         self.assertNotEquals(TreeNode('a'), TreeNode('b'))
 
@@ -22,12 +23,12 @@ class TreeNodeTestCase(unittest.TestCase):
         self.assertNotEquals(lh, rh)
         self.assertNotEquals(lh, TreeNode(A(1)))
 
-    def test_tree_node_compare_with_obj(self):
+    def test_compare_with_obj(self):
         lh = TreeNode('aa')
         self.assertEquals(lh, 'aa')
         self.assertNotEquals(lh, 'aaa')
 
-    def test_tree_node_add_child(self):
+    def test_add_child(self):
         n = TreeNode(None)
         ch_val = 'a'
         ch_num = len(n.children)
@@ -36,7 +37,7 @@ class TreeNodeTestCase(unittest.TestCase):
         self.assertTrue(ch_val in n.children)
         self.assertTrue(TreeNode(ch_val) in n.children)
 
-    def test_tree_node_add_child_no_duplicates(self):
+    def test_add_child_no_duplicates(self):
         n = TreeNode(None)
         ch_num = len(n.children)
         ch = 'a'
@@ -45,7 +46,7 @@ class TreeNodeTestCase(unittest.TestCase):
         n.add_child(ch)
         self.assertEquals(ch_num + 1, len(n.children))
 
-    def test_tree_node_remove_child(self):
+    def test_remove_child(self):
         n = TreeNode(None)
         ch = 'a'
         n.add_child(ch)
@@ -64,7 +65,7 @@ class TreeNodeTestCase(unittest.TestCase):
         n.remove_child(TreeNode(ch))
         self.assertEquals(ch_num - 1, len(n.children))
 
-    def test_tree_node_remove_duplicate(self):
+    def test_remove_duplicate(self):
         n = TreeNode(None)
         ch = 'a'
         n.add_child(ch)
@@ -74,7 +75,7 @@ class TreeNodeTestCase(unittest.TestCase):
         n.remove_child(ch)
         self.assertEquals(ch_num - 1, len(n.children))
 
-    def test_tree_node_has_child(self):
+    def test_has_child(self):
         n = TreeNode(1)
         n.add_child(1)
         n.add_child(2)
@@ -111,6 +112,18 @@ class TreeNodeTestCase(unittest.TestCase):
         self.assertRaises(TreeNodeNotFound, t.get_child, TreeNode(None))
         self.assertRaises(TreeNodeNotFound, t.get_child, 'd')
         self.assertRaises(TreeNodeNotFound, t.get_child, TreeNode('d'))
+
+
+class TreeTestCase(RootTestCase):
+    def test_add_chain(self):
+        t = Tree()
+        ch_0 = 'l1-1'
+        ch_1 = 'l2-1'
+        chain = [ch_0, ch_1]
+        t.add_chain(chain)
+        self.assertTrue(t.root.has_child(ch_0))
+        self.assertTrue(t.root.get_child(ch_0).has_child(ch_1))
+
 
 if __name__ == '__main__':
     unittest.main()
