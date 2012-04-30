@@ -7,6 +7,9 @@ class Tree:
     def __init__(self, root=None):
         self.root = TreeNode(root)
 
+    def __repr__(self):
+        return '<Tree> root: %s' % self.root
+
     def add_chain(self, chain):
         '''
         chain is collection of elements to
@@ -19,21 +22,25 @@ class Tree:
                 node.add_child(el)
             node = node.get_child(el)
 
-
     def walk_depth(self):
-        return TreeNodeDepthIter(self.root)
+        return TreeNodeWalkDepthIter(self.root)
 
 
-class TreeNodeDepthIter:
+class TreeNodeWalkDepthIter:
     def __init__(self, node):
-        self.depth = 0
         self.node = node
+        self.depth = 0
 
-    '''
-    returns next object and current depth
-    '''
-    def next(self):
-        pass
+    def __iter__(self):
+        return self.next()
+
+    def next(self): #@ReservedAssignment
+        def _next(n, depth):
+            yield n.obj, depth
+            for ch in n.children:
+                for v in _next(ch, depth + 1):
+                    yield v
+        return _next(self.node, 0)
 
 
 class TreeNodeNotFound(HelixcoreException):
@@ -57,6 +64,10 @@ class TreeNode:
             return self.obj == other.obj
         else:
             return self.obj == other
+
+    def __repr__(self):
+        return '<TreeNode> obj: %s, children: %s' % (
+            self.obj, self.children)
 
     def add_child(self, child):
         if self.has_child(child):

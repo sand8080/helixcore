@@ -1,6 +1,7 @@
 import unittest
 
-from helixcore.data_struct.tree import Tree, TreeNode, TreeNodeNotFound
+from helixcore.data_struct.tree import Tree, TreeNode, TreeNodeNotFound,\
+    TreeNodeWalkDepthIter
 from helixcore.test.root_test import RootTestCase
 
 
@@ -141,6 +142,32 @@ class TreeTestCase(RootTestCase):
         t.add_chain(chain)
         self.assertTrue(t.root.has_child(ch_0))
         self.assertTrue(t.root.get_child(ch_0).has_child(ch_1))
+
+    def test_walk_depth(self):
+        t = Tree(0)
+        t.add_chain([1, 11])
+        t.add_chain([1, 12])
+        t.add_chain([1, 13])
+        t.add_chain([1, 12, 121])
+        t.add_chain([1, 12, 122])
+        for _, _ in t.walk_depth():
+            pass
+
+
+class TreeNodeWalkDeepIteratorTestCase(RootTestCase):
+    def test_next(self):
+        t = Tree(0)
+        t.add_chain([1, 11])
+        t.add_chain([1, 12])
+        t.add_chain([1, 13])
+        t.add_chain([1, 12, 121])
+        t.add_chain([1, 12, 122])
+        it = TreeNodeWalkDepthIter(t.root)
+        exp_res = [(0, 0), (1, 1), (11, 2), (12, 2), (121, 3), (122, 3), (13, 2)]
+        act_res = []
+        for pair in it:
+            act_res.append(pair)
+        self.assertEquals(exp_res, act_res)
 
 
 if __name__ == '__main__':
