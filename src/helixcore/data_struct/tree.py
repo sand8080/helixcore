@@ -3,7 +3,7 @@ from copy import deepcopy
 from helixcore.error import HelixcoreException
 
 
-class Tree(object):
+class Tree:
     def __init__(self, root=None):
         self.root = TreeNode(root)
 
@@ -24,7 +24,7 @@ class Tree(object):
         return TreeNodeDepthIter(self.root)
 
 
-class TreeNodeDepthIter(object):
+class TreeNodeDepthIter:
     def __init__(self, node):
         self.depth = 0
         self.node = node
@@ -40,7 +40,7 @@ class TreeNodeNotFound(HelixcoreException):
     pass
 
 
-class TreeNode(object):
+class TreeNode:
     '''
     Obj wrapped by TreeNode should implement __eq__ method
     '''
