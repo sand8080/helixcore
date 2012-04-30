@@ -44,11 +44,12 @@ class TreeNode(object):
     '''
     Obj wrapped by TreeNode should implement __eq__ method
     '''
-    def __init__(self, obj):
+    def __init__(self, obj, copy_obj=False):
+        copy_fn = deepcopy if copy_obj else lambda x: x
         if isinstance(obj, self.__class__):
-            self.obj = deepcopy(obj.obj)
+            self.obj = copy_fn(obj.obj)
         else:
-            self.obj = deepcopy(obj)
+            self.obj = copy_fn(obj)
         self.children = []
 
     def __eq__(self, other):

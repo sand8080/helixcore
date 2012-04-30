@@ -23,6 +23,24 @@ class TreeNodeTestCase(RootTestCase):
         self.assertNotEquals(lh, rh)
         self.assertNotEquals(lh, TreeNode(A(1)))
 
+    def test_no_copy_logic(self):
+        l1 = [1, 2]
+        n = TreeNode(l1)
+        obj = n.obj
+        self.assertEquals(l1, obj)
+        l1.append(3)
+        self.assertEquals(l1, obj)
+        obj.append(4)
+        self.assertEquals(l1, obj)
+
+    def test_copy_logic(self):
+        l1 = [1, 2]
+        n = TreeNode(l1, copy_obj=True)
+        obj = n.obj
+        self.assertEquals(l1, obj)
+        l1.append(3)
+        self.assertNotEquals(l1, obj)
+
     def test_compare_with_obj(self):
         lh = TreeNode('aa')
         self.assertEquals(lh, 'aa')
