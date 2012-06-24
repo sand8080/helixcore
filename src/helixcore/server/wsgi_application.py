@@ -15,6 +15,7 @@ class Application(object):
         self.logger = logger
         self.helix_api = HelixApi(protocol)
         self.tracking_api_calls = tracking_api_calls
+        self.logger.info('WSGI application %s started', self.__class__.__name__)
 
     def track_api_call(self, s_req, s_resp, remote_addr,
         action_name, authorized_data):
