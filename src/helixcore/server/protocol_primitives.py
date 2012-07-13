@@ -26,6 +26,21 @@ RESPONSE_STATUS_ERROR = {
     Optional('execution_time'): DECIMAL_TEXT,
 }
 
+def resp(d_resp):
+    return AnyOf(
+        dict(
+            RESPONSE_STATUS_OK,
+            **d_resp
+        ),
+        RESPONSE_STATUS_ERROR
+    )
+
+def authorized_req(d_req):
+    return dict(
+        d_req,
+        **AUTHORIZED_REQUEST_AUTH_INFO
+    )
+
 ADDING_OBJECT_RESPONSE = AnyOf(
     dict({'id': int}, **RESPONSE_STATUS_OK),
     RESPONSE_STATUS_ERROR
