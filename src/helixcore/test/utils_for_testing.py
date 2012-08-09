@@ -98,7 +98,9 @@ class ActionsLogTester(object):
         return self._do_count(sess_id, action, self.cli.get_action_logs_self)
 
     def _logged_action(self, action, req, check_resp=True):
-        sess_id = req['session_id']
+        sess_id = req.get('session_id')
+        if sess_id is None:
+            sess_id = self.sess_id
         logs_num = self._count_records(sess_id, action)
         api_call = getattr(self.cli, action)
         resp = api_call(**req)
