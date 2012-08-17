@@ -35,11 +35,17 @@ def make_api_call(f_name):
     return m
 
 
+def rreplace(s, old, new, occurrence):
+    li = s.rsplit(old, occurrence)
+    return new.join(li)
+
+
 def get_api_calls(protocol):
     api_calls = [p.name for p in protocol]
     result = set()
     for api_call in api_calls:
-        clean = api_call.replace('_request', '').replace('_response', '')
+        clean = rreplace(api_call, '_request', '', 1)
+        clean = rreplace(clean, '_response', '', 1)
         result.add(clean)
     return result
 
@@ -109,11 +115,15 @@ class ActionsLogTester(object):
         self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
         return resp
 
-    def _not_logged_action(self, action, sess_id, req):
+    def _not_logged_action(self, action, sess_id, req, req_with_sess=True):
         api_call = getattr(self.cli, action)
-        req['session_id'] = sess_id
+        if req_with_sess:
+            req['session_id'] = sess_id
+        logs_num = self._count_records(sess_id, action)
+
         resp = api_call(**req)
-        self.assertEquals(0, self._count_records(sess_id, action))
+
+        self.assertEquals(logs_num, self._count_records(sess_id, action))
         return resp
 
     def _not_logged_filtering_action(self, action, sess_id):
