@@ -398,6 +398,17 @@ class PositiveDecimalText(DecimalText):
                 data, path)
 
 
+class NonNegativeDecimalText(DecimalText):
+    '''
+    Validates if data is correct string representation of non negative decimal.
+    '''
+    def validate(self, data, path):
+        super(NonNegativeDecimalText, self).validate(data, path)
+        if Decimal(data) < 0:
+            raise ValidationError('Value %s must be a correct string representation of non negative decimal' %
+                data, path)
+
+
 class NullableDecimalText(Text):
     '''
     Validates either decimal or None
@@ -507,6 +518,7 @@ NULLABLE_INT = AnyOf(None, int)
 NULLABLE_DECIMAL_TEXT = NullableDecimalText()
 DECIMAL_TEXT = DecimalText()
 POSITIVE_DECIMAL_TEXT = PositiveDecimalText()
+NON_NEGATIVE_DECIMAL_TEXT = NonNegative(int)
 NON_NEGATIVE_INT = NonNegative(int)
 POSITIVE_INT = Positive(int)
 ID = POSITIVE_INT

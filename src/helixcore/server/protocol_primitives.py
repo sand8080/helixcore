@@ -117,7 +117,7 @@ GET_ACTION_LOGS_REQUEST = dict(
             Optional('from_request_date'): ISO_DATETIME,
             Optional('to_request_date'): ISO_DATETIME,
             Optional('action'): TEXT,
-            Optional('session_id'): TEXT,
+            Optional('session_id'): NULLABLE_TEXT,
             Optional('user_id'): ID,
         },
         'paging_params': REQUEST_PAGING_PARAMS,
