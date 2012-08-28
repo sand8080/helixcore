@@ -1,7 +1,10 @@
 *.pyc
 *.swp
 .project
+.idea
+.pydevproject
 .settings
+*.log*
 .pydevproject
 .gitconfig
 .venv
