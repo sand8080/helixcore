@@ -14,12 +14,14 @@ else
 fi
 . .env/bin/activate
 pip install -r pip-requires.txt
+pip install -r pip-requires-ci.txt
 
 find . -name \*.pyc -delete
 
 #Run unittest with coverage report
 python src/helixcore_tests.py --verbose --nocapture --with-xunit --xunit-file=reports/nosetests.xml --force-zero-status --with-coverage
 coverage xml -i
+mv coverage.xml reports
 
 #Get violation data
 #Pylint settings

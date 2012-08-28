@@ -8,5 +8,6 @@
 .pydevproject
 .gitconfig
 .venv
+.env
 MANIFEST
 dist
