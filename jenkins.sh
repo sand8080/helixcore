@@ -10,9 +10,9 @@ export PYTHONPATH=./src/
 if [ -d ".env" ]; then
     true
 else
-    virtualenv .env --no-site-packages
+    virtualenv .env --distribute
 fi
-. .env/bin/activate
+. $DIR/.env/bin/activate
 pip install -r pip-requires.txt
 pip install -r pip-requires-ci.txt
 

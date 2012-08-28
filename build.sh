@@ -10,9 +10,13 @@ export PYTHONPATH=$DIR/src/
 if [ -d ".env" ]; then
     true
 else
-    virtualenv .env --no-site-packages
+    virtualenv .env --distribute
 fi
 . $DIR/.env/bin/activate
+pip install -r pip-requires.txt
+pip install -r pip-requires-ci.txt
+
+find . -name \*.pyc -delete
 
 $DIR/.env/bin/python setup.py sdist --dist-dir /var/lib/jenkins/userContent/helixcore
 #$DIR/.env/bin/python setup.py register -r local sdist upload -r local
