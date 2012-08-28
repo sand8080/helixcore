@@ -1,0 +1,9 @@
+*.pyc
+*.swp
+.project
+.settings
+.pydevproject
+.gitconfig
+.venv
+MANIFEST
+dist
