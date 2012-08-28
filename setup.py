@@ -32,14 +32,9 @@ def packages(dir):
     return map(lambda x: x.replace(os.path.sep, '.'), sub_dirs)
 
 
-def clean_tests(pkgs):
-    return filter(lambda x: 'test' not in x, pkgs)
-
-
 cur_dir = os.path.realpath(os.path.dirname(__file__))
 name = 'helixcore'
-pkgs = clean_tests(packages(os.path.join(cur_dir, 'src')))
-
+pkgs = packages(os.path.join(cur_dir, 'src'))
 setup(
     name=name,
     version=__versionstr__,
