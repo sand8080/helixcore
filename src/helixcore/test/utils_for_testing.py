@@ -64,13 +64,13 @@ class ProtocolTester(object):
     def validate_authorized_error_response(self, action_name):
         self.api.validate_response(action_name, {'session_id': 'i',
             'status': 'error', 'code': 'c',
-            'message': 'h', 'fields': [{'f': 'v'}]})
+            'message': 'h', 'fields': ['f', 'v']})
         self.api.validate_response(action_name, {'session_id': 'i',
             'status': 'error', 'code': 'c',
-            'message': 'h', 'fields': [{}]})
+            'message': 'h', 'fields': []})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
             {'status': 'error', 'code': 'c',
-            'message': 'h', 'fields': [{'f': 'v'}]})
+            'message': 'h', 'fields': ['f']})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
             {'status': 'error', 'code': 'c'})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,

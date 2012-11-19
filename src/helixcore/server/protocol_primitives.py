@@ -22,8 +22,9 @@ RESPONSE_STATUS_ERROR = {
     'status': 'error',
     'code': TEXT,
     'message': TEXT,
-    Optional('fields'): [ARBITRARY_DICT],
+    Optional('fields'): [TEXT],
     Optional('execution_time'): DECIMAL_TEXT,
+#    Optional('environment_id'): ID,
 }
 
 def resp(d_resp):
