@@ -8,7 +8,7 @@ def apply(curs):
             environment_id varchar NOT NULL,
             session_id text,
             custom_actor_info varchar,
-            actor_user_id int NOT NULL,
+            actor_user_id int,
             subject_users_ids int[],
             action varchar NOT NULL,
             request_date timestamp with time zone NOT NULL DEFAULT now(),
