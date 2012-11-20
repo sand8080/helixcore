@@ -44,7 +44,7 @@ def sync_helixauth():
     proj_dir_owner = proj_dir_group = 'helixauth'
     proj_dir_perms = '700'
 
-    rsync_project(proj_dir, local_dir=_project_dir(),
+    rsync_project(proj_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
     _fix_rd(proj_dir, proj_dir_owner, proj_dir_group,
         proj_dir_perms)
