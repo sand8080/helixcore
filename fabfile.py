@@ -26,12 +26,12 @@ print green("Configuring helixcore production environment")
 env.proj_root_dir = '/opt/helixproject'
 env.rsync_exclude = ['.*', '*.sh', '*.pyc',
     'fabfile.py', 'pip-requirements-dev.txt']
-env.activate = '. %s/bin/activate' % _get_env()
+env.pythonpath = 'export PYTHONPATH="%s"' % _project_dir()
 print green("Helixcore production environment configured")
 
 
 def run_tests():
-    with prefix(env.activate):
+    with prefix(env.pythonpath):
         print green("Starting tests")
         with settings(warn_only=True):
             t_run = os.path.join(_get_env(), 'bin', 'nosetests')
