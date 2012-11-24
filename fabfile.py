@@ -24,11 +24,16 @@ def _get_env():
 
 
 print green("Configuring helixcore production environment")
-env.proj_root_dir = '/opt/helixproject/helixauth'
-env.proj_dir = os.path.join(env.proj_root_dir, 'helixcore')
-env.proj_dir_owner = 'helixauth'
-env.proj_dir_group = 'helixauth'
-env.proj_dir_perms = '700'
+env.proj_ha_root_dir = '/opt/helixproject/helixauth'
+env.proj_ha_dir = os.path.join(env.proj_ha_root_dir, 'helixcore')
+env.proj_ha_dir_owner = 'helixauth'
+env.proj_ha_dir_group = 'helixauth'
+env.proj_ha_dir_perms = '700'
+env.proj_hw_root_dir = '/opt/helixproject/helixweb'
+env.proj_hw_dir = os.path.join(env.proj_hw_root_dir, 'helixcore')
+env.proj_hw_dir_owner = 'helixweb'
+env.proj_hw_dir_group = 'helixweb'
+env.proj_hw_dir_perms = '700'
 
 env.rsync_exclude = ['.*', '*.sh', '*.pyc',
     'fabfile.py', 'pip-requirements-dev.txt']
@@ -76,10 +81,25 @@ def sync_helixauth():
     run_tests()
     print green("Project files synchronization")
 
-    rsync_project(env.proj_dir, local_dir='%s/' % _project_dir(),
+    rsync_project(env.proj_ha_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
-    _fix_rd(env.proj_dir, env.proj_dir_owner, env.proj_dir_group,
-        env.proj_dir_perms)
-    _check_rd(env.proj_dir, env.proj_dir_owner, env.proj_dir_group,
-        env.proj_dir_perms)
+    _fix_rd(env.proj_ha_dir, env.proj_ha_dir_owner, env.proj_ha_dir_group,
+        env.proj_ha_dir_perms)
+    _check_rd(env.proj_ha_dir, env.proj_ha_dir_owner, env.proj_ha_dir_group,
+        env.proj_ha_dir_perms)
     print green("Helixcore files to helixauth synchronization complete")
+
+
+@hosts('helixweb@78.47.11.201')
+def sync_helixweb():
+    print green("Helixcore files synchronization to helixweb started")
+    run_tests()
+    print green("Project files synchronization")
+
+    rsync_project(env.proj_hw_dir, local_dir='%s/' % _project_dir(),
+        exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
+    _fix_rd(env.proj_hw_dir, env.proj_hw_dir_owner, env.proj_hw_dir_group,
+        env.proj_hw_dir_perms)
+    _check_rd(env.proj_hw_dir, env.proj_hw_dir_owner, env.proj_hw_dir_group,
+        env.proj_hw_dir_perms)
+    print green("Helixcore files to helixweb synchronization complete")
