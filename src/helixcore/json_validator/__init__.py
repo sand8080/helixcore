@@ -439,6 +439,7 @@ class SimpleWrappingValidator(ValueValidator):
     def __repr__(self):
         return 'scheme %s' % self.validator
 
+
 class Scheme(SimpleWrappingValidator):
     '''
     For backward compatibility with validol. Just wraps single validator object.
@@ -466,6 +467,19 @@ class NonNegative(SimpleWrappingValidator):
         super(NonNegative, self).validate(data, path)
         if not data >= 0:
             raise ValidationError('Value %s must be positive' % data, path)
+
+
+class EmailText(RegexpCompiledValidator, Text):
+    '''
+    Validates if data is correct string representation of email.
+    '''
+    def __init__(self):
+        match_obj = re.compile(r'^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,6})$')
+        super(EmailText, self).__init__(match_obj)
+
+    def validate(self, data, path):
+        Text.validate(self, data, path)
+        RegexpCompiledValidator.validate(self, data, path)
 
 
 ### factory ###
@@ -509,6 +523,7 @@ def validate(scheme, data):
     '''
     create_validator(scheme).validate(data, [])
 
+
 ARBITRARY_DICT = ArbitraryDict()
 ISO_DATE = IsoDate()
 ISO_DATETIME = IsoDatetime()
@@ -524,3 +539,4 @@ POSITIVE_INT = Positive(int)
 ID = POSITIVE_INT
 INT = int
 BOOLEAN = bool
+EMAIL = EmailText()
