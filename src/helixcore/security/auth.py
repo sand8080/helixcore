@@ -6,7 +6,7 @@ from helixcore.server.client import Client
 class CoreAuthenticator(object):
     def __init__(self, url):
         self.cli = Client(url)
-        self.login = partial(self._proxy_request, 'login')
+        self.login = partial(self._proxy_request, 'email')
         self.logout = partial(self._proxy_request, 'logout')
 
     def check_access(self, session_id, service_type, property): #@ReservedAssignment

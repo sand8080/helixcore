@@ -1,6 +1,6 @@
 from helixcore.json_validator import (Optional, AnyOf,
-    ARBITRARY_DICT, TEXT, ISO_DATETIME, NULLABLE_TEXT,
-    DECIMAL_TEXT, POSITIVE_INT, ID, NON_NEGATIVE_INT)
+    TEXT, ISO_DATETIME, NULLABLE_TEXT, DECIMAL_TEXT,
+    POSITIVE_INT, ID, NON_NEGATIVE_INT, EMAIL)
 
 
 REQUEST_PAGING_PARAMS = {
@@ -63,7 +63,7 @@ PING_REQUEST = {}
 PING_RESPONSE = RESPONSE_STATUS_ONLY
 
 LOGIN_REQUEST = {
-    'login': TEXT,
+    'email': EMAIL,
     'password': TEXT,
     'environment_name': TEXT,
     Optional('custom_actor_info'): NULLABLE_TEXT,

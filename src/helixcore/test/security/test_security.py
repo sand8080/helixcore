@@ -6,10 +6,10 @@ from helixcore.security import sanitize_credentials
 
 class SecurityTestCase(RootTestCase):
     def test_sanitize_credentials(self):
-        d = {'login': 'l', 'password': 'p', 'new_password': 'np',
+        d = {'email': 'l', 'password': 'p', 'new_password': 'np',
             'su_password': 'sp', 'session_id': 'sid'}
         actual = sanitize_credentials(d)
-        expected = {'login': 'l', 'password': '******',
+        expected = {'email': 'l', 'password': '******',
             'new_password': '******', 'su_password': '******',
             'session_id': 'sid'}
         self.assertEqual(expected, actual)
