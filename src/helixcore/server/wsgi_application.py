@@ -29,9 +29,15 @@ class Application(object):
         action_name, authorized_data):
         pass
 
+    def _remote_addr(self, environ):
+        remote_addr = environ.get('HTTP_X_FORWARDED_FOR')
+        if remote_addr is None:
+            remote_addr = environ.get('REMOTE_ADDR', 'undefined')
+        return remote_addr
+
     def __call__(self, environ, start_response):
         raw_data = environ['wsgi.input'].read()
-        remote_addr = environ.get('REMOTE_ADDR', 'undefined')
+        remote_addr = self._remote_addr(environ)
 
         action_name = None
         processed_action_data = {}
