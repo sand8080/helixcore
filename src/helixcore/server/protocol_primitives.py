@@ -1,6 +1,6 @@
 from helixcore.json_validator import (Optional, AnyOf,
     TEXT, ISO_DATETIME, NULLABLE_TEXT, DECIMAL_TEXT,
-    POSITIVE_INT, ID, NON_NEGATIVE_INT, EMAIL)
+    POSITIVE_INT, ID, NON_NEGATIVE_INT, EMAIL, BOOLEAN)
 
 
 REQUEST_PAGING_PARAMS = {
@@ -67,6 +67,7 @@ LOGIN_REQUEST = {
     'password': TEXT,
     'environment_name': TEXT,
     Optional('custom_actor_info'): NULLABLE_TEXT,
+    Optional('bind_to_ip'): BOOLEAN,
 }
 
 LOGIN_RESPONSE = AnyOf(
