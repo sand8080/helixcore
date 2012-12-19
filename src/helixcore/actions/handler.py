@@ -9,11 +9,18 @@ def execution_time(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         start = datetime.datetime.now()
-        resp = func(*args, **kwargs)
-        end = datetime.datetime.now()
-        td = end - start
-        resp['execution_time'] = '%d.%06d' % (td.seconds, td.microseconds)
-        return resp
+        try:
+            resp = func(*args, **kwargs)
+            end = datetime.datetime.now()
+            td = end - start
+            resp['execution_time'] = '%d.%06d' % (td.seconds, td.microseconds)
+            return resp
+        except RequestProcessingError, e:
+            end = datetime.datetime.now()
+            td = end - start
+            exec_time = '%d.%06d' % (td.seconds, td.microseconds)
+            raise RequestProcessingError(e.message,
+                code=e.code, fields=e.fields, execution_time=exec_time)
     return decorated
 
 
