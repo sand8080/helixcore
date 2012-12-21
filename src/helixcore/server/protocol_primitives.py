@@ -66,8 +66,9 @@ LOGIN_REQUEST = {
     'email': EMAIL,
     'password': TEXT,
     'environment_name': TEXT,
-    Optional('custom_actor_info'): NULLABLE_TEXT,
     Optional('bind_to_ip'): BOOLEAN,
+    Optional('fixed_lifetime_minutes'): POSITIVE_INT,
+    Optional('custom_actor_info'): NULLABLE_TEXT,
 }
 
 LOGIN_RESPONSE = AnyOf(
