@@ -525,6 +525,7 @@ def validate(scheme, data):
 
 
 ARBITRARY_DICT = ArbitraryDict()
+DICT = ARBITRARY_DICT
 ISO_DATE = IsoDate()
 ISO_DATETIME = IsoDatetime()
 TEXT = Text()
