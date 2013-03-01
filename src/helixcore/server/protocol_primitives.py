@@ -190,3 +190,8 @@ GET_CURRENCIES_RESPONSE = AnyOf(
     ),
     RESPONSE_STATUS_ERROR
 )
+
+NOTIFICATION_PROCESSING = {
+    'is_sent': BOOLEAN,
+    'processing_steps': [TEXT]
+}
