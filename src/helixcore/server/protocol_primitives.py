@@ -1,6 +1,6 @@
 from helixcore.json_validator import (Optional, AnyOf,
     TEXT, ISO_DATETIME, NULLABLE_TEXT, DECIMAL_TEXT,
-    POSITIVE_INT, ID, NON_NEGATIVE_INT, EMAIL, BOOLEAN)
+    POSITIVE_INT, ID, NON_NEGATIVE_INT, EMAIL, BOOLEAN, ARBITRARY_DICT)
 
 
 REQUEST_PAGING_PARAMS = {
@@ -193,5 +193,7 @@ GET_CURRENCIES_RESPONSE = AnyOf(
 
 NOTIFICATION_PROCESSING = {
     'is_sent': BOOLEAN,
-    'processing_steps': [TEXT]
+    'is_processable': BOOLEAN,
+    'checking_steps': [TEXT],
+    'message_data': ARBITRARY_DICT,
 }
