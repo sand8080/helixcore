@@ -23,6 +23,9 @@ class Mapped(object):
         attrs = [(a, getattr(self, a, None)) for a in self.__slots__ if a not in except_attrs]
         return dict(attrs)
 
+    def deserialized(self, name):
+        return json.loads(getattr(self, name))
+
     def __getstate__(self):
         """
         used for storing in memcache
