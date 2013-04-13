@@ -16,7 +16,7 @@ def _project_dir():
 
 
 sys.path.append(os.path.join(_project_dir(), 'src'))
-from helixcore.deploy import _fix_rd, _check_rd
+from helixcore.deploy import _fix_r_res, _check_r_res
 
 
 def _get_env():
@@ -67,9 +67,9 @@ def sync_helixauth():
 
     rsync_project(env.proj_ha_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
-    _fix_rd(env.proj_ha_dir, env.proj_ha_dir_owner, env.proj_ha_dir_group,
+    _fix_r_res(env.proj_ha_dir, env.proj_ha_dir_owner, env.proj_ha_dir_group,
         env.proj_ha_dir_perms)
-    _check_rd(env.proj_ha_dir, env.proj_ha_dir_owner, env.proj_ha_dir_group,
+    _check_r_res(env.proj_ha_dir, env.proj_ha_dir_owner, env.proj_ha_dir_group,
         env.proj_ha_dir_perms)
     print green("Helixcore files to helixauth synchronization complete")
 
@@ -82,8 +82,8 @@ def sync_helixweb():
 
     rsync_project(env.proj_hw_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
-    _fix_rd(env.proj_hw_dir, env.proj_hw_dir_owner, env.proj_hw_dir_group,
+    _fix_r_res(env.proj_hw_dir, env.proj_hw_dir_owner, env.proj_hw_dir_group,
         env.proj_hw_dir_perms)
-    _check_rd(env.proj_hw_dir, env.proj_hw_dir_owner, env.proj_hw_dir_group,
+    _check_r_res(env.proj_hw_dir, env.proj_hw_dir_owner, env.proj_hw_dir_group,
         env.proj_hw_dir_perms)
     print green("Helixcore files to helixweb synchronization complete")
