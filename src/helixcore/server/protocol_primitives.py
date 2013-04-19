@@ -197,3 +197,8 @@ NOTIFICATION_PROCESSING = {
     'checking_steps': [TEXT],
     'message_data': ARBITRARY_DICT,
 }
+
+RESPONSE_STATUS_WITH_NOTIFICATION = AnyOf(
+    dict({Optional('notification'): NOTIFICATION_PROCESSING}, **RESPONSE_STATUS_OK),
+    RESPONSE_STATUS_ERROR
+)
