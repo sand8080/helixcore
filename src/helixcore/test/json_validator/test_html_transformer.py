@@ -154,8 +154,8 @@ class HtmlTransformerTestCase(RootTestCase):
         ]
         res = trans.process_protocol(protocol)
         self.assertEquals('<table class="api_protocol">'
-            '<tr>'
-                '<td class="api_call_name api_call_request">request</td>'
+            '<tr class="api_call_request">'
+                '<td class="api_call_name">request</td>'
                 '<td class="api_call_scheme">'
                     '<table class="api_dict">'
                         '<tr><td colspan="2">{</td></tr>'
@@ -168,8 +168,8 @@ class HtmlTransformerTestCase(RootTestCase):
                 '</td>'
                 '<td class="api_call_description"></td>'
             '</tr>'
-            '<tr>'
-                '<td class="api_call_name api_call_response">response</td>'
+            '<tr class="api_call_response">'
+                '<td class="api_call_name">response</td>'
                 '<td class="api_call_scheme">'
                     '<table class="api_dict">'
                         '<tr><td colspan="2">{</td></tr>'
