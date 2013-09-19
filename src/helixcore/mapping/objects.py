@@ -23,6 +23,22 @@ class Mapped(object):
         attrs = [(a, getattr(self, a, None)) for a in self.__slots__ if a not in except_attrs]
         return dict(attrs)
 
+    def deserialized(self, name):
+        return json.loads(getattr(self, name))
+
+    def __getstate__(self):
+        """
+        used for storing in memcache
+        """
+        return self.to_dict()
+
+    def __setstate__(self, d):
+        """
+        used for restoring from memcache
+        """
+        for k, v in d.items():
+            self.__setattr__(k, v)
+
 
 def serialize_field(d, f_src_name, f_dst_name):
     res = dict(d)

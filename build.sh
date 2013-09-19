@@ -13,8 +13,8 @@ else
     virtualenv .env --distribute
 fi
 . $DIR/.env/bin/activate
-pip install -r pip-requires.txt
-pip install -r pip-requires-ci.txt
+pip install -r pip-requirements.txt
+pip install -r pip-requirements-ci.txt
 
 find . -name \*.pyc -delete
 

@@ -83,14 +83,19 @@ class HtmlTransformer(object):
         else:
             return obj_type.__name__
 
+    def _is_request(self, api_call):
+        return api_call.name.endswith('request')
+
     def process_protocol(self, protocol):
         rows = []
         for api_call in protocol:
             sch = self._process(api_call.scheme)
-            row = '<tr><td class="api_call_name">%s</td>' \
-                '<td class="api_call_scheme">%s</td>' \
-                '<td class="api_call_description">%s</td></tr>' % (api_call.name,
-                sch, api_call.description)
+            api_call_type = 'api_call_request' if self._is_request(api_call) else 'api_call_response'
+            row = '<tr class="%(api_call_type)s"><td class="api_call_name">%(name)s</td>' \
+                '<td class="api_call_scheme">%(schema)s</td>' \
+                '<td class="api_call_description">%(descr)s</td></tr>' % {
+                'api_call_type': api_call_type, 'name': api_call.name,
+                'schema': sch, 'descr': api_call.description}
             rows.append(row)
         result = '<table class="api_protocol">%s</table>' % ''.join(rows)
         return result

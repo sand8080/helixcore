@@ -11,13 +11,14 @@ class UnauthorizedActivity(HelixcoreException):
 
 
 class RequestProcessingError(HelixcoreException):
-    def __init__(self, message, code=None, fields=None):
+    def __init__(self, message, code=None, fields=None, execution_time=None):
         Exception.__init__(self, message)
         if code is None:
             self.code = error_code.HELIX_REQUEST_PROCESSING_ERROR
         else:
             self.code = code
         self.fields = [] if fields is None else fields
+        self.execution_time = execution_time
 
 
 class UnknownActionError(RequestProcessingError):

@@ -9,17 +9,20 @@ class Client(object):
     def __init__(self, url):
         self.url = url
 
-    def _request(self, data):
+    def _request(self, data, django_req):
         try:
-            f = urllib2.urlopen(self.url, json.dumps(data))
+            ip = self._client_ip(django_req)
+            h = {'X-Forwarded-For': ip}
+            req = urllib2.Request(self.url, headers=h)
+            f = urllib2.urlopen(req, json.dumps(data))
             resp = f.read()
             return json.loads(resp)
         except urllib2.URLError:
             return {'status': 'error', 'message': 'Service unavailable',
                 'code': error_code.HELIX_SERVICE_UNAVAILABLE}
 
-    def request(self, data, check_response=True):
-        resp = self._request(data)
+    def request(self, data, django_req, check_response=True):
+        resp = self._request(data, django_req)
         if check_response:
             self._check_response(resp)
         return resp
@@ -29,3 +32,11 @@ class Client(object):
             'HELIXAUTH_USER_AUTH_ERROR')
         if resp['status'] != 'ok' and resp['code'] in unauth:
             raise UnauthorizedActivity
+
+    def _client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip

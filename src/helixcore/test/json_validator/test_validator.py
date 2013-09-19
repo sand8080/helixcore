@@ -3,7 +3,7 @@ import datetime
 
 from helixcore.json_validator import (validate, AnyOf, Optional, Scheme, ValueValidator,
     Text, IsoDatetime, DecimalText, ArbitraryDict, ValidationError,
-    PositiveDecimalText, NonNegativeDecimalText)
+    PositiveDecimalText, NonNegativeDecimalText, EmailText)
 
 
 class ValueValidatorTestCase(unittest.TestCase):
@@ -312,6 +312,17 @@ class NonNegativeDecimalTextTestCase(unittest.TestCase):
         self.assertRaises(ValidationError, validate, x, 7)
         self.assertRaises(ValidationError, validate, x, 'some trash')
         self.assertRaises(ValidationError, validate, x, '-10.06')
+
+
+class EmailTestCase(unittest.TestCase):
+    def test_validator(self):
+        x = EmailText()
+        self.assertRaises(ValidationError, validate, x, 33)
+        self.assertRaises(ValidationError, validate, x, 'xzy')
+        self.assertRaises(ValidationError, validate, x, 'a-b @m.travel')
+        validate(x, 'a@m.ru')
+        validate(x, 'a@m.travel')
+        validate(x, 'a-b@m.travel')
 
 
 if __name__ == '__main__':

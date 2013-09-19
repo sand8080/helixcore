@@ -9,6 +9,14 @@ from helixcore.server.response import response_error, response_app_error
 from helixcore.error import RequestProcessingError, ValidationError
 
 
+class RequestInfo(object):
+    def __init__(self, remote_addr=None):
+        self.remote_addr = remote_addr
+
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, self.__dict__)
+
+
 class Application(object):
     def __init__(self, action_handler, protocol, logger, tracking_api_calls=()):
         self.action_handler = action_handler
@@ -21,9 +29,15 @@ class Application(object):
         action_name, authorized_data):
         pass
 
+    def _remote_addr(self, environ):
+        remote_addr = environ.get('HTTP_X_FORWARDED_FOR')
+        if remote_addr is None:
+            remote_addr = environ.get('REMOTE_ADDR', 'undefined')
+        return remote_addr
+
     def __call__(self, environ, start_response):
         raw_data = environ['wsgi.input'].read()
-        remote_addr = environ.get('REMOTE_ADDR', 'undefined')
+        remote_addr = self._remote_addr(environ)
 
         action_name = None
         processed_action_data = {}
@@ -36,7 +50,9 @@ class Application(object):
             self.logger.debug('Request from %s: %s' % (remote_addr, secured_request))
 
             processed_action_data = dict(action_data)
-            raw_response = self.action_handler(action_name, processed_action_data)
+            req_info = RequestInfo(remote_addr=remote_addr)
+            raw_response = self.action_handler(action_name, processed_action_data,
+                req_info)
 
             secured_response = security.sanitize_credentials(raw_response)
             self.logger.log(logging.DEBUG, 'Response to %s: %s' % (remote_addr, secured_response))

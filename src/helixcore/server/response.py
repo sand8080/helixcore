@@ -14,8 +14,11 @@ def response_error(e):
     @return: error response based on given RequestProcessingError
     @param request_processing_error: instance of RequestProcessingError
     '''
-    return {'status': 'error', 'code': e.code, 'message': ';'.join(e.args),
+    resp = {'status': 'error', 'code': e.code, 'message': ';'.join(e.args),
         'fields': e.fields}
+    if e.execution_time is not None:
+        resp['execution_time'] = e.execution_time
+    return resp
 
 
 def response_app_error(message):

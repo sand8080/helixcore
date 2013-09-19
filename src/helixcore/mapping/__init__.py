@@ -48,7 +48,7 @@ def exec_for_each(curs, func, cls, cond, order_by='id', limit=None, offset=0):
     while True:
         d = fetch_dict(curs)
         if d is None:
-            break
+            break;
         func(cls(**d))
 
 
