@@ -1,4 +1,5 @@
-from psycopg2 import IntegrityError
+import cx_Oracle
+from cx_Oracle import IntegrityError
 
 from helixcore.db.sql import Eq, And, Select, Insert, Update, Delete
 from helixcore.db.wrapper import fetchone_dict, fetchall_dicts, fetch_dict, DbError, ObjectCreationError,\
@@ -19,14 +20,14 @@ def get(curs, cls, cond, for_update=False):
 
 
 def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=False):
-    '''
+    """
     Selects list of objects
     @return: list of objects selected.
-    '''
+    """
     if for_update:
         deadlock_detector.handle_lock(cls.table)
-
-    curs.execute(*Select(cls.table, cond=cond, for_update=for_update, order_by=order_by, limit=limit, offset=offset).glue())
+    curs.execute(*Select(cls.table, cond=cond, for_update=for_update, order_by=order_by, limit=limit,
+                         offset=offset).glue())
     dicts_list = fetchall_dicts(curs)
 
     if for_update and len(dicts_list) > 1:
@@ -36,19 +37,16 @@ def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=Fa
 
 
 def exec_for_each(curs, func, cls, cond, order_by='id', limit=None, offset=0):
-    '''
+    """
     Executes callback unary function for each selected object.
     practically, not applicable for for-update queries, cause we cannot use cursor between fetches
     (i.e. to save objects)
-    '''
+    """
     curs.execute(*Select(cls.table, cond=cond, for_update=False, order_by=order_by, limit=limit, offset=offset).glue())
-    if curs.rowcount < 1:
-        return
-
     while True:
         d = fetch_dict(curs)
         if d is None:
-            break;
+            break
         func(cls(**d))
 
 
@@ -60,8 +58,10 @@ def insert(curs, obj):
     if hasattr(obj, 'id'):
         raise ObjectCreationError('Object %s id %s already exists' % (obj, obj.id))
     try:
-        curs.execute(*Insert(obj.table, get_fields(obj)).glue())
-        obj.id = fetchone_dict(curs)['id']
+        id_var = curs.var(cx_Oracle.NUMBER)
+        sql, params = Insert(obj.table, get_fields(obj)).glue()
+        curs.execute(sql, params + [id_var])
+        obj.id = int(id_var.getvalue())
     except IntegrityError, e:
         raise ObjectCreationError("Object can't be created: %s" % '; '.join(e.args))
 

@@ -52,5 +52,6 @@ class FilteringTestCase(unittest.TestCase):
         self.assertEqual(['6', '3', '2-2', '1'], filter_backward(None, '6-1', patches))
         self.assertEqual(['6', '3', '2-2', '1'], filter_backward(None, '6', patches))
 
+
 if __name__ == '__main__':
     unittest.main()

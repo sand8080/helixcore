@@ -1,11 +1,13 @@
 import unittest
-import psycopg2
 from datetime import datetime
+import cx_Oracle
 from time import sleep
 
-from helixcore.db.wrapper import fetchall_dicts, fetchone_dict, dict_from_lists, EmptyResultSetError,\
+from helixcore.db.wrapper import fetchall_dicts, fetchone_dict, dict_from_lists, EmptyResultSetError, \
     SelectedMoreThanOneRow
 from helixcore.db.sql import Eq, In, Select, Insert, Update
+from helixcore.install.install import is_table_exists, is_sequence_exists
+from helixcore.test.db import create_table, drop_table, fill_table
 from helixcore.test.test_environment import transaction, get_connection
 
 
@@ -14,12 +16,13 @@ class WrapperTestCase(unittest.TestCase):
 
     def setUp(self):
         try:
-            self.create_table()
-        except psycopg2.Error, e:
+            create_table(self.table)
+        except Exception, e:
             print e
 
     def tearDown(self):
-        self.drop_table()
+        drop_table(self.table)
+        pass
 
     def test_dict_from_lists(self):
         names = ['id', 'name', 'code']
@@ -40,15 +43,15 @@ class WrapperTestCase(unittest.TestCase):
     @transaction()
     def test_fetchall_dicts(self, curs=None):
         num_records = 4
-        self.fill_table(num_records=num_records)
+        fill_table(self.table, num_records=num_records)
         curs.execute(*Select(self.table).glue())
         result = fetchall_dicts(curs)
         self.assertEqual(num_records, len(result))
         data = result[0]
         self.assertEqual(3, len(data))
-        self.assertTrue('id' in data)
-        self.assertTrue('name' in data)
-        self.assertTrue('date' in data)
+        self.assertTrue('ID' in data)
+        self.assertTrue('NAME' in data)
+        self.assertTrue('DATE_FIELD' in data)
 
     @transaction()
     def test_fetchall_dicts_not_found(self, curs=None):
@@ -57,13 +60,13 @@ class WrapperTestCase(unittest.TestCase):
 
     @transaction()
     def test_fetchone_dict(self, curs=None):
-        self.fill_table(num_records=4)
+        fill_table(self.table, num_records=4)
         curs.execute(*Select(self.table, cond=Eq('id', 1)).glue())
         fetchone_dict(curs)
 
     @transaction()
     def test_fetchone_dict_error(self, curs=None):
-        self.fill_table(num_records=4)
+        fill_table(self.table, num_records=4)
         curs.execute(*Select(self.table, cond=In('id', [1, 2])).glue())
         self.assertRaises(SelectedMoreThanOneRow, fetchone_dict, curs)
 
@@ -81,26 +84,9 @@ class WrapperTestCase(unittest.TestCase):
             raise
 
     @transaction()
-    def create_table(self, curs=None):
-        curs.execute(
-            'CREATE TABLE %s (id serial, name varchar, date timestamp)' %
-            self.table
-        )
-
-    @transaction()
-    def drop_table(self, curs=None):
-        curs.execute('DROP TABLE IF EXISTS %s' % self.table)
-
-    @transaction()
-    def fill_table(self, num_records=5, curs=None):
-        for i in xrange(num_records):
-            q = Insert(self.table, {'name': i, 'date': datetime.now()})
-            curs.execute(*q.glue())
-
-    @transaction()
     def test_dict_from_list(self, curs=None):
         num_records = 7
-        self.fill_table(num_records)
+        fill_table(self.table, num_records=num_records)
         curs.execute(*Select(self.table).glue())
         self.assertEqual(num_records, len(fetchall_dicts(curs)))
 
@@ -133,7 +119,7 @@ class WrapperTestCase(unittest.TestCase):
         report['task_wait_before'] = fetchone_dict(curs)
 
     def test_data_isolation(self):
-        self.fill_table()
+        fill_table(self.table)
         from threading import Thread
         report = {}
         id = 1 #IGNORE:W0622
@@ -142,10 +128,10 @@ class WrapperTestCase(unittest.TestCase):
         t_slow.start()
         t_fast.start()
         t_slow.join()
-        self.assertNotEqual(report['slow_task']['name'], report['fast_task']['name'])
+        self.assertNotEqual(report['slow_task']['NAME'], report['fast_task']['NAME'])
 
     def test_data_consistency(self):
-        self.fill_table()
+        fill_table(self.table)
         from threading import Thread
         report = {}
         id = 1 #IGNORE:W0622
@@ -155,7 +141,7 @@ class WrapperTestCase(unittest.TestCase):
         t_two.start()
         t_one.join()
         t_two.join()
-        self.assertEqual(report['slow_task']['name'], report['task_wait_before']['name'])
+        self.assertEqual(report['slow_task']['NAME'], report['task_wait_before']['NAME'])
 
 
 if __name__ == '__main__':

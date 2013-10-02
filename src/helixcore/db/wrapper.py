@@ -37,27 +37,28 @@ def fetchall_dicts(curs):
 
 
 def fetchone_dict(curs):
-    '''
-    @return: Single rowset as dict.
+    """
+    @return: Single row as dict.
     @raise SelectedMoreThanOneRow: if curs contains more than one row
     @raise EmptyResultSetError: if curs contains no rows
-    '''
-    if curs.rowcount > 1:
+    """
+    result = fetch_dict(curs)
+    # Checking multiply result. cx_Oracle violates Python Db API with cursor.rowcount.
+    # In cx_Oracle rowcount specifies the number of rows that have currently been fetched from the cursor,
+    # not the number of rows that the last .execute*() produced.
+    if curs.fetchone() is not None:
         raise SelectedMoreThanOneRow()
-    if curs.rowcount == 0:
-        raise EmptyResultSetError('Nothing to be fetched')
-    return fetch_dict(curs)
+    return result
 
 
 def fetch_dict(curs):
-    '''@return: next rowset as dict. None if no rowsets in cursor
-    '''
-    if curs.rowcount > 1:
-        raise SelectedMoreThanOneRow()
-    if curs.rowcount == 0:
-        raise EmptyResultSetError('Nothing to be fetched')
-    columns = [info[0] for info in curs.description]
+    """
+    @return: next rowset as dict. None if no rowsets in cursor
+    """
     values = curs.fetchone()
+    if values is None:
+        raise EmptyResultSetError("Nothing to be fetched")
+    columns = [info[0] for info in curs.description]
     return dict_from_lists(columns, values)
 
 
@@ -73,7 +74,8 @@ def transaction(get_conn, put_conn):
                 conn.commit()
                 return result
             except Exception, e:
-                import sys, traceback
+                import sys
+                import traceback
                 traceback.print_exc(file=sys.stderr)
                 _end_trans(curs)
                 conn.rollback()

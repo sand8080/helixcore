@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime
 import json
+from helixcore.test.db import create_table, fill_table, drop_table
 
 from helixcore.test.test_environment import transaction
 
@@ -12,19 +13,15 @@ from helixcore import mapping
 
 class MappingTestCase(unittest.TestCase):
     class T(Mapped):
-        __slots__ = ['id', 'name', 'date']
+        __slots__ = ['id', 'name', 'date_field']
         table = 'test_actions'
 
-    @transaction()
-    def do_setUp(self, curs=None):
-        curs.execute('DROP TABLE IF EXISTS %s' % self.T.table)
-        curs.execute('CREATE TABLE %s (id serial, PRIMARY KEY (id), name varchar, date timestamp)' % self.T.table)
-        for i in range(10):
-            q = Insert(self.T.table, {'name': '%d' % i, 'date': datetime.now()})
-            curs.execute(*q.glue())
-
     def setUp(self):
-        self.do_setUp()
+        create_table(self.T.table)
+        fill_table(self.T.table)
+
+    def tearDown(self):
+        drop_table(self.T.table)
 
     @transaction()
     def test_get(self, curs=None):
@@ -34,32 +31,36 @@ class MappingTestCase(unittest.TestCase):
 
     @transaction()
     def test_insert_with_id(self, curs=None):
-        obj = self.T(id=1, name='n', date=datetime.now())
+        obj = self.T(id=1, name='n', date_field=datetime.now())
         self.assertRaises(mapping.ObjectCreationError, mapping.insert, curs, obj)
 
     @transaction()
     def test_insert(self, curs=None):
-        obj = self.T(name='n', date=datetime.now())
+        obj = self.T(name='n', date_field=datetime.now())
         mapping.insert(curs, obj)
+        ins_obj = mapping.get(curs, self.T, cond=Eq('id', obj.id))
+        self.assertEquals(obj.id, ins_obj.id)
+        self.assertEquals(obj.name, ins_obj.name)
 
     @transaction()
     def test_double_insert(self, curs=None):
-        obj = self.T(name='n', date=datetime.now())
+        obj = self.T(name='n', date_field=datetime.now())
         mapping.insert(curs, obj)
         self.assertRaises(mapping.ObjectCreationError, mapping.insert, curs, obj)
 
     @transaction()
     def test_update_without_id(self, curs=None):
-        obj = self.T(name='n', date=datetime.now())
+        obj = self.T(name='n', date_field=datetime.now())
         self.assertRaises(mapping.MappingError, mapping.update, curs, obj)
 
     @transaction()
     def test_update(self, curs=None):
         obj = mapping.get(curs, self.T, cond=Eq('id', 1))
-        obj.name = 'mamba'
+        obj.name = 'updated_%s' % obj.name
         mapping.update(curs, obj)
-        new_obj = mapping.get(curs, self.T, cond=Eq('id', 1))
-        self.assertEqual(obj.name, new_obj.name)
+        upd_obj = mapping.get(curs, self.T, cond=Eq('id', 1))
+        self.assertEqual(obj.id, upd_obj.id)
+        self.assertEqual(obj.name, upd_obj.name)
 
     @transaction()
     def test_delete(self, curs=None):

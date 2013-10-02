@@ -7,6 +7,7 @@ from helixcore import mapping
 from helixcore.test.test_environment import transaction
 
 
+@unittest.skip("Oracle not supports arrays")
 class ArraysTestCase(unittest.TestCase):
     class T(Mapped):
         __slots__ = ['id', 'name', 'client_ids']

@@ -1,3 +1,4 @@
 iso8601
 psycopg2
 pytz
+cx_Oracle

@@ -1,11 +1,9 @@
 import unittest
-import psycopg2
 from time import sleep
-from datetime import datetime
 
 from helixcore.db.sql import Eq, Insert
 import helixcore.db.deadlock_detector as deadlock_detector
-
+from helixcore.test.db import create_table, drop_table, fill_table
 from helixcore.test.test_environment import transaction
 
 
@@ -17,28 +15,19 @@ class DeadlockDetectorTestCase(unittest.TestCase):
     def setUp(self):
         try:
             self.create_tables()
-        except psycopg2.Error, e:
+        except Exception, e:
             print e
 
     def tearDown(self):
         self.drop_tables()
 
-    @transaction()
-    def create_tables(self, curs=None):
+    def create_tables(self):
         for t in (self.table1, self.table2, self.table3):
-            curs.execute(
-                'CREATE TABLE %s (id serial, name varchar, date timestamp)' % t
-            )
+            create_table(t)
 
-    @transaction()
-    def drop_tables(self, curs=None):
+    def drop_tables(self):
         for t in (self.table1, self.table2, self.table3):
-            curs.execute('DROP TABLE IF EXISTS %s' % t)
-
-    def fill_table(self, table, num_records=5, curs=None):
-        for i in xrange(num_records):
-            q = Insert(table, {'name': i, 'date': datetime.now()})
-            curs.execute(*q.glue())
+            drop_table(t)
 
     @transaction()
     def test_not_allowed(self, curs=None):
@@ -47,11 +36,12 @@ class DeadlockDetectorTestCase(unittest.TestCase):
             (self.table1, self.table2),
             (self.table1, self.table3),
         ]
-        self.fill_table(self.table2, 1, curs)
-        self.fill_table(self.table3, 1, curs)
+        fill_table(self.table2, 1)
+        fill_table(self.table3, 1)
 
         deadlock_detector.handle_lock(self.table2)
-        self.assertRaises(deadlock_detector.TransitionNotAllowedError, deadlock_detector.handle_lock, self.table3, Eq('name', '1'))
+        self.assertRaises(deadlock_detector.TransitionNotAllowedError, deadlock_detector.handle_lock,
+                          self.table3, Eq('name', '1'))
 
     @transaction()
     def test_allowed(self, curs=None):
@@ -59,9 +49,9 @@ class DeadlockDetectorTestCase(unittest.TestCase):
             (self.table1, self.table2),
             (self.table2, self.table3),
         ]
-        self.fill_table(self.table1, 1, curs)
-        self.fill_table(self.table2, 1, curs)
-        self.fill_table(self.table3, 1, curs)
+        fill_table(self.table1, 1)
+        fill_table(self.table2, 1)
+        fill_table(self.table3, 1)
 
         deadlock_detector.handle_lock(self.table1)
         deadlock_detector.handle_lock(self.table2)
@@ -70,7 +60,7 @@ class DeadlockDetectorTestCase(unittest.TestCase):
     @transaction()
     def test_allowed_same_table(self, curs=None):
         deadlock_detector.ALLOWED_TRANSITIONS = []
-        self.fill_table(self.table1, 5, curs)
+        fill_table(self.table1, 5)
 
         deadlock_detector.handle_lock(self.table1)
         deadlock_detector.handle_lock(self.table1)
@@ -90,9 +80,9 @@ class DeadlockDetectorTestCase(unittest.TestCase):
             (self.table1, self.table2),
             (self.table2, self.table3),
         ]
-        self.fill_table(self.table1, 1, curs)
-        self.fill_table(self.table2, 1, curs)
-        self.fill_table(self.table3, 1, curs)
+        fill_table(self.table1, 1)
+        fill_table(self.table2, 1)
+        fill_table(self.table3, 1)
 
         from threading import Thread
         t1 = Thread(target=self.lock_task, args=(self.table1, self.table2))
@@ -101,13 +91,12 @@ class DeadlockDetectorTestCase(unittest.TestCase):
         t2.start()
         sleep(0.2)
 
-        #current context must be clean
-        #locks attribute was initialized in other transaction calls (create_tables, ...) but was cleaned on transactions end
+        # current context must be clean
+        # locks attribute was initialized in other transaction calls (create_tables, ...)
+        # but was cleaned on transactions end
         self.assertEquals(len(deadlock_detector.context.locks), 0)
-
         t1.join()
         t2.join()
-
         self.assertEquals(len(deadlock_detector.context.locks), 0)
 
 

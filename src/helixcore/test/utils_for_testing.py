@@ -2,6 +2,7 @@ import json
 from random import random
 from StringIO import StringIO
 from helixcore.error import ValidationError
+import logging
 
 
 def random_syllable(
@@ -143,3 +144,18 @@ class ActionsLogTester(object):
         self.assertTrue(len(action_logs) >= 1)
         for d_log in action_logs:
             self.assertEquals([user_id], d_log['subject_users_ids'])
+
+
+def configure_logger():
+    log_level = logging.DEBUG
+    console_logger = logging.getLogger('console_logger')
+    console_logger.setLevel(log_level)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    handler = logging.StreamHandler()
+    handler.setLevel(log_level)
+    handler.setFormatter(formatter)
+    console_logger.addHandler(handler)
+    return console_logger
+
+console_logger = configure_logger()
+

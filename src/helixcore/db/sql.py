@@ -2,12 +2,13 @@ from helixcore.utils import lists_from_dict
 
 
 def quote(val, quotechar='"', splitter='.'):
-    return  splitter.join(
-        x.startswith(quotechar) and
-        x.endswith(quotechar) and
-        x or '%s%s%s' % (quotechar, x, quotechar)
-        for x in val.split(splitter)
-    )
+    return val
+    # return splitter.join(
+    #     x.startswith(quotechar) and
+    #     x.endswith(quotechar) and
+    #     x or '%s%s%s' % (quotechar, x, quotechar)
+    #     for x in val.split(splitter)
+    # )
 
 
 class SqlNode(object):
@@ -35,7 +36,7 @@ class Parameter(SqlNode):
         self.param = param
 
     def glue(self):
-        return '%s', [self.param]
+        return ':s', [self.param]
 
 
 class Terminal(SqlNode):
@@ -301,7 +302,7 @@ class In(SqlNode):
         if isinstance(self.values, SqlNode):
             in_str, params = self.values.glue()
         else:
-            in_str = ','.join(['%s' for _ in self.values])
+            in_str = ','.join([':s' for _ in self.values])
             params = self.values
         col_sql, col_params = glue_col(self.param)
         cond = '%s IN (%s)' % (col_sql, in_str)
@@ -443,34 +444,6 @@ class GroupBy(SqlNode):
         return 'GROUP BY %s' % ','.join(groups), []
 
 
-class Select(SqlNode):
-    def __init__(self, table, columns=None, cond=None, group_by=None, order_by=None,
-        limit=None, offset=0, for_update=False):
-        super(Select, self).__init__()
-        self.table = table
-        self.columns = columns
-        self.cond = cond
-        self.group_by = group_by
-        self.order_by = order_by
-        self.limit = limit
-        self.offset = offset
-        self.for_update = for_update
-
-    def glue(self):
-        where_str, where_params = Where(self.cond).glue()
-        sql = 'SELECT %(target)s FROM %(table)s %(where)s %(group_by)s %(order_by)s %(limit)s %(offset)s %(locking)s' % {
-            'target': ColumnsList(self.columns).glue()[0],
-            'table': quote(self.table),
-            'where': where_str,
-            'group_by': GroupBy(self.group_by).glue()[0],
-            'limit': ''  if self.limit is None else 'LIMIT %d' % self.limit,
-            'offset': ''  if self.offset == 0 else 'OFFSET %d' % self.offset,
-            'order_by': OrderBy(self.order_by).glue()[0],
-            'locking': ''  if not self.for_update else 'FOR UPDATE',
-        }
-        return sql.strip(), where_params
-
-
 class Update(SqlNode):
     def __init__(self, table, updates, cond=None):
         super(Update, self).__init__()
@@ -483,7 +456,7 @@ class Update(SqlNode):
         where_str, where_params = Where(self.cond).glue()
         sql = 'UPDATE %(table)s SET %(updates)s %(where)s' % {
             'table': quote(self.table),
-            'updates': ','.join('%s = %%s' % glue_col(c)[0] for c in update_columns),
+            'updates': ','.join('%s = :s' % glue_col(c)[0] for c in update_columns),
             'where': where_str,
         }
         return sql.strip(), update_params + where_params
@@ -515,9 +488,53 @@ class Insert(SqlNode):
         columns = []
         for o in raw_columns:
             columns.append(glue_col(o)[0])
-        sql = 'INSERT INTO %(table)s (%(columns)s) VALUES (%(values)s) RETURNING id' % {
-            'table': quote(self.table),
-            'columns': ','.join(columns),
-            'values': ','.join('%s' for _ in columns),
-        }
+        sql = 'INSERT INTO %(table)s (id, %(columns)s) VALUES (%(table)s_seq.nextval, %(values)s) ' \
+              'RETURNING id into :id' % {'table': quote(self.table), 'columns': ','.join(columns),
+                                         'values': ','.join(':s' for _ in columns)}
         return sql.strip(), insert_params
+
+
+class Select(SqlNode):
+    def __init__(self, table, columns=None, cond=None, group_by=None, order_by=None, limit=None, offset=0,
+                 for_update=False):
+        super(Select, self).__init__()
+        self.table = table
+        self.columns = columns
+        self.cond = cond
+        self.group_by = group_by
+        self.order_by = order_by
+        self.limit = limit
+        self.offset = offset
+        self.for_update = for_update
+
+    def glue(self):
+        target = ColumnsList(self.columns).glue()[0]
+        where_str, where_params = Where(self.cond).glue()
+        sql = 'SELECT %(target)s FROM %(table)s %(where)s %(group_by)s %(order_by)s' % {
+            'target': target,
+            'table': quote(self.table),
+            'where': where_str,
+            'group_by': GroupBy(self.group_by).glue()[0],
+            'order_by': OrderBy(self.order_by).glue()[0],
+        }
+        if self.columns is None:
+            limit_alias = 'limit_alias.*'
+            offset_alias = 'offset_alias.*'
+        else:
+            limit_alias = target
+            offset_alias = target
+        if self.limit is not None:
+            sql = 'SELECT %(limit_alias)s, ROWNUM AS ora_rn FROM (%(query)s) limit_alias WHERE ROWNUM <= %(limit)d'\
+                  % {'limit_alias': limit_alias, 'query': sql, 'limit': self.limit}
+            if self.offset is not None and self.offset > 0:
+                sql = 'SELECT %(offset_alias)s FROM (%(query)s) offset_alias WHERE ora_rn > %(offset)d' % {
+                    'offset_alias': offset_alias, 'query': sql, 'offset': self.offset}
+        else:
+            if self.offset is not None and self.offset > 0:
+                sql = 'SELECT %(offset_alias)s FROM (SELECT %(limit_alias)s, ROWNUM as ora_rn FROM (%(query)s) ' \
+                      'limit_alias) offset_alias WHERE ora_rn > %(offset)d' % {'offset_alias': offset_alias,
+                                                                               'limit_alias': limit_alias, 'query': sql,
+                                                                               'offset': self.offset}
+        if self.for_update:
+            sql = '%s FOR UPDATE' % sql
+        return sql.strip(), where_params

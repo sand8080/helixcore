@@ -6,13 +6,15 @@ class Mapped(object):
 
     def __init__(self, **kwargs):
         for k in kwargs:
-            if k in self.__slots__:
-                setattr(self, k, kwargs[k])
+            lk = k.lower()
+            if lk in self.__slots__:
+                setattr(self, lk, kwargs[k])
             else:
-                raise TypeError('Property "%s" undefinded' % k)
+                raise TypeError('Property "%s" undefinded' % lk)
 
     def update(self, data):
-        for (attr, v) in data.iteritems(): setattr(self, attr, v)
+        for (attr, v) in data.iteritems():
+            setattr(self, attr, v)
 
     def __repr__(self, except_attrs=()):
         h = self.to_dict(except_attrs)
