@@ -146,6 +146,6 @@ COMMANDS = {
 }
 
 
-def execute(cmd_name, get_connection_func, put_connection_func, patch_table_name, patches_path):
-    patch_processor = PatchProcessor(get_connection_func, put_connection_func, patch_table_name, patches_path)
+def execute(cmd_name, get_connection_func, put_connection_func, patch_table_name, patches_path, logger):
+    patch_processor = PatchProcessor(get_connection_func, put_connection_func, patch_table_name, patches_path, logger)
     COMMANDS[cmd_name](patch_processor)
