@@ -1,14 +1,13 @@
+import json
 import unittest
 from datetime import datetime
-import json
-from helixcore.test.db import create_table, fill_table, drop_table
 
 from helixcore.test.test_environment import transaction
-
-from helixcore.db.wrapper import EmptyResultSetError
-from helixcore.db.sql import Eq, Insert
-from helixcore.mapping.objects import Mapped
+from helixcore.test.db import create_table, fill_table, drop_table
 from helixcore import mapping
+from helixcore.db.wrapper import EmptyResultSetError
+from helixcore.db.sql import Eq
+from helixcore.mapping.objects import Mapped
 
 
 class MappingTestCase(unittest.TestCase):

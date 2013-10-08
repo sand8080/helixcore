@@ -1,4 +1,5 @@
 import json
+import cx_Oracle
 
 
 class Mapped(object):
@@ -8,7 +9,10 @@ class Mapped(object):
         for k in kwargs:
             lk = k.lower()
             if lk in self.__slots__:
-                setattr(self, lk, kwargs[k])
+                val = kwargs[k]
+                if isinstance(val, cx_Oracle.LOB):
+                    val = val.read()
+                setattr(self, lk, val)
             else:
                 raise TypeError('Property "%s" undefinded' % lk)
 
