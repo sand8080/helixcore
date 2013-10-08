@@ -4,9 +4,14 @@ from helixcore.mapping.objects import Mapped, serialize_field
 class ActionLog(Mapped):
     __slots__ = ['id', 'environment_id', 'session_id',
         'custom_actor_info', 'actor_user_id',
-        'subject_users_ids', 'action', 'request_date',
+        'action', 'request_date',
         'remote_addr', 'request', 'response']
     table = 'action_log'
+
+
+class ActionLogSubjectUserId(Mapped):
+    __slots__ = ['id', 'action_log_id', 'subject_id']
+    table = 'al_subjs_ids'
 
 
 class Currency(Mapped):
