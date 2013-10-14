@@ -37,8 +37,7 @@ def detalize_error(err_cls, fields):
             except err_cls, e:
                 code = getattr(e, 'code', 'HELIX_ERROR')
                 f = fields if isinstance(fields, list) else [fields]
-                raise RequestProcessingError('; '.join(e.args),
-                    code=code, fields=f)
+                raise RequestProcessingError('; '.join(e.args), code=code, fields=f)
         return decorated
     return decorator
 

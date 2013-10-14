@@ -63,7 +63,8 @@ def insert(curs, obj):
         curs.execute(sql, params + [id_var])
         obj.id = int(id_var.getvalue())
     except IntegrityError, e:
-        raise ObjectCreationError("Object can't be created: %s" % '; '.join(e.args))
+        # e.args in cx_Oracle is not strings
+        raise ObjectCreationError("Object can't be created: %s" % '; '.join(map(str, e.args)))
 
 
 def update(curs, obj):
@@ -72,7 +73,8 @@ def update(curs, obj):
     try:
         curs.execute(*Update(obj.table, get_fields(obj), cond=Eq('id', obj.id)).glue())
     except IntegrityError, e:
-        raise DataIntegrityError('Object %s updating error: %s' % (obj, ';'.join(e.args)))
+        # e.args in cx_Oracle is not strings
+        raise DataIntegrityError("Object %s updating error: %s" % (obj, ';'.join(map(str, e.args))))
 
 
 def save(curs, obj):
