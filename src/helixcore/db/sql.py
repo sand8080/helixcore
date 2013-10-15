@@ -13,11 +13,11 @@ def quote(val, quotechar='"', splitter='.'):
 
 class SqlNode(object):
     def glue(self):
-        '''
+        """
         @return: tuple (sql, params) where
         sql - SQL statement (string),
         params - list of query parameters
-        '''
+        """
         raise NotImplementedError
 
 
@@ -49,12 +49,12 @@ class Terminal(SqlNode):
 
 
 def glue_col(obj):
-    '''
+    """
     Glue function, by default treats argument as SQL column name.
     Provides specialization for calling on terminal nodes (not derived from SqlNode class).
     @param obj: object (either SqlNode or column name) to glue
     @return tuple (sql, params) - sql representation of object
-    '''
+    """
     if obj is None:
         return 'NULL', []
     if isinstance(obj, SqlNode):
@@ -63,12 +63,12 @@ def glue_col(obj):
 
 
 def glue_param(obj):
-    '''
+    """
     Glue function, by default treats argument as a string terminal.
     Provides specialization for calling on terminal nodes (not derived from SqlNode class).
     @param obj: object (either SqlNode or string terminal) to glue
     @return tuple (sql, params) - sql representation of object
-    '''
+    """
     if obj is None:
         return 'NULL', []
     if isinstance(obj, SqlNode):
@@ -84,26 +84,28 @@ class NullLeaf(SqlNode):
         return '', []
 
 
-class BinaryExpr(SqlNode): #IGNORE:W0223
+class BinaryExpr(SqlNode):  # IGNORE:W0223
     def __init__(self, lh, rh):
         super(BinaryExpr, self).__init__()
         self.lh = lh
         self.rh = rh
 
     def _merge_parts(self):
-        '''
+        """
         @return: tuple(left_glued_cond, right_glued_cond, all_params)
-        '''
+        """
         nested_cond_l, nested_params_l = glue_col(self.lh)
         nested_cond_r, nested_params_r = glue_param(self.rh)
         return nested_cond_l, nested_cond_r, nested_params_l + nested_params_r
+
 
 class Interval(SqlNode):
     """
     Datetime interval. SQL: interval '1 day'
     """
-    DAYS='days'
-    HOURS='hours'
+    DAYS = 'days'
+    HOURS = 'hours'
+
     def __init__(self, number, unit):
         self.number = number
         self.unit = unit
@@ -112,6 +114,7 @@ class Interval(SqlNode):
         placeholder, params = glue_param(self.number)
         cond = "interval '%s %s'" % (placeholder, self.unit)
         return cond, params
+
 
 class IsNull(SqlNode):
     """
@@ -125,6 +128,7 @@ class IsNull(SqlNode):
         cond = "%s IS NULL" % col
         return cond, params
 
+
 class IsNotNull(SqlNode):
     """
     col IS NOT NULL
@@ -136,6 +140,7 @@ class IsNotNull(SqlNode):
         col, params = glue_col(self.col)
         cond = "%s IS NOT NULL" % col
         return cond, params
+
 
 class Any(SqlNode):
     """
@@ -195,7 +200,10 @@ class Like(BinaryOperator):
             super(Like, self).__init__(lh, 'IS', rh)
         else:
             rh = rh.replace('%', '\%').replace('*', '%')
-            super(Like, self).__init__(lh, case_sensitive and 'LIKE' or 'ILIKE', rh)
+            if not case_sensitive:
+                lh = Upper(lh)
+                rh = Upper("'%s'" % rh)
+            super(Like, self).__init__(lh, 'LIKE', rh)
 
 
 class Eq(BinaryOperator):
@@ -339,6 +347,7 @@ class Or(Composite):
     def __init__(self, lh, rh):
         super(Or, self).__init__(lh, 'OR', rh)
 
+
 ### sql functions (aggregate and simple)
 
 class Function(SqlNode):
@@ -351,10 +360,11 @@ class Function(SqlNode):
         sql, params = glue_col(self.expr)
         return ('%s(%s)' % (self.fn_name, sql)), params
 
+
 class Now(SqlNode):
-    '''
+    """
     sql now()
-    '''
+    """
     def __init__(self):
         super(Now, self).__init__()
 
@@ -370,6 +380,11 @@ class Count(Function):
 class Length(Function):
     def __init__(self, expr):
         super(Length, self).__init__('length', expr)
+
+
+class Upper(Function):
+    def __init__(self, expr):
+        super(Upper, self).__init__('upper', expr)
 
 
 class Columns(object):

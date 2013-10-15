@@ -2,7 +2,7 @@
 import unittest
 
 from helixcore.db.sql import quote, BinaryOperator, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete,\
-    Insert, AnyOf, NotEq
+    Insert, AnyOf, NotEq, Like, Upper
 
 
 class SqlTestCase(unittest.TestCase):
@@ -240,6 +240,27 @@ class SqlTestCase(unittest.TestCase):
         self.assertEqual('"billing"."id"', quote('"billing"."id"'))
         self.assertEqual('"billing.id"', quote('"billing.id"'))
         self.assertEqual('billing.id.cd', quote('billing.id.cd'))
+
+    def test_like_case_sensitive(self):
+        c, p = Like('field', '%value', case_sensitive=True).glue()
+        self.assertEqual('field LIKE :s', c)
+        self.assertEquals(['\\%value'], p)
+        c, p = Like('field', '*value*', case_sensitive=True).glue()
+        self.assertEqual('field LIKE :s', c)
+        self.assertEquals(['%value%'], p)
+        c, p = Like('field', 'value', case_sensitive=True).glue()
+        self.assertEqual('field LIKE :s', c)
+        self.assertEquals(['value'], p)
+
+    def test_like_case_insensitive(self):
+        c, p = Like('field', '%value', case_sensitive=False).glue()
+        self.assertEqual("upper(field) LIKE upper('\%value')", c)
+        self.assertEquals([], p)
+
+    def test_upper(self):
+        c, p = Upper(':s').glue()
+        self.assertEqual('upper(:s)', c)
+        self.assertEquals([], p)
 
 
 if __name__ == '__main__':
