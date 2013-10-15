@@ -9,8 +9,8 @@ class ActionLog(Mapped):
     table = 'action_log'
 
 
-class ActionLogSubjectUserId(Mapped):
-    __slots__ = ['id', 'action_log_id', 'subject_id']
+class ActionLogSubjectUser(Mapped):
+    __slots__ = ['id', 'environment_id', 'action_log_id', 'subject_id']
     table = 'al_subjs_ids'
 
 

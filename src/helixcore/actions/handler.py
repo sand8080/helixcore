@@ -25,10 +25,10 @@ def execution_time(func):
 
 
 def detalize_error(err_cls, fields):
-    '''
+    """
     Tries to execute function fields, catches exception of class err_cls
     and converts it to RequestProcessingError with given code
-    '''
+    """
     def decorator(func):
         @wraps(func)
         def decorated(*args, **kwargs):
@@ -43,9 +43,9 @@ def detalize_error(err_cls, fields):
 
 
 def set_subject_users_ids(field_name):
-    '''
+    """
     Sets subject users ids to data for correct action logging
-    '''
+    """
     def decorator(func):
         @wraps(func)
         def decorated(*args, **kwargs):
@@ -65,11 +65,11 @@ def set_subject_users_ids(field_name):
 
 class AbstractHandler(object):
     def get_fields_for_update(self, data, prefix_of_new='new_'):
-        '''
+        """
         If data contains fields with prefix == prefix_of_new,
         such fields will be added into result dict:
             {'field': 'new_field'}
-        '''
+        """
         result = {}
         for f in data.keys():
             if f.startswith(prefix_of_new):
