@@ -127,35 +127,35 @@ class SqlTestCase(unittest.TestCase):
     def test_nested_select(self):
         nested = Select('service_set_descr', columns=['name'], cond=Eq('name', 'registration ru'))
         c, p = nested.glue()
-        self.assertEqual(c, 'SELECT name FROM service_set_descr WHERE name = :s')
+        self.assertEqual(c, 'SELECT name FROM service_set_descr  WHERE name = :s')
         self.assertEqual(p, ['registration ru'])
 
         scoped_cond = Scoped(nested)
         c, p = scoped_cond.glue()
-        self.assertEqual(c, '(SELECT name FROM service_set_descr WHERE name = :s)')
+        self.assertEqual(c, '(SELECT name FROM service_set_descr  WHERE name = :s)')
         self.assertEqual(p, ['registration ru'])
 
         cond_eq = Eq('service_set_descr_id', Scoped(nested))
         c, p = cond_eq.glue()
-        self.assertEqual(c, 'service_set_descr_id = (SELECT name FROM service_set_descr WHERE name = :s)')
+        self.assertEqual(c, 'service_set_descr_id = (SELECT name FROM service_set_descr  WHERE name = :s)')
         self.assertEqual(p, ['registration ru'])
 
         nested = Select('service_set', columns=['service_type_id'], cond=cond_eq)
         c, p = nested.glue()
-        self.assertEqual(c, 'SELECT service_type_id FROM service_set WHERE service_set_descr_id = '
-                            '(SELECT name FROM service_set_descr WHERE name = :s)')
+        self.assertEqual(c, 'SELECT service_type_id FROM service_set  WHERE service_set_descr_id = '
+                            '(SELECT name FROM service_set_descr  WHERE name = :s)')
         self.assertEqual(p, ['registration ru'])
 
         in_cond = In('id', nested)
         c, p = in_cond.glue()
-        self.assertEqual(c, 'id IN (SELECT service_type_id FROM service_set WHERE service_set_descr_id = '
-                            '(SELECT name FROM service_set_descr WHERE name = :s))')
+        self.assertEqual(c, 'id IN (SELECT service_type_id FROM service_set  WHERE service_set_descr_id = '
+                            '(SELECT name FROM service_set_descr  WHERE name = :s))')
         self.assertEqual(p, ['registration ru'])
 
         any_cond = Any('id', nested)
         c, p = any_cond.glue()
-        self.assertEqual(c, ':s = ANY (SELECT service_type_id FROM service_set WHERE service_set_descr_id = '
-                            '(SELECT name FROM service_set_descr WHERE name = :s))')
+        self.assertEqual(c, ':s = ANY (SELECT service_type_id FROM service_set  WHERE service_set_descr_id = '
+                            '(SELECT name FROM service_set_descr  WHERE name = :s))')
         self.assertEqual(p, ['id', 'registration ru'])
 
     def test_select(self):
@@ -165,36 +165,36 @@ class SqlTestCase(unittest.TestCase):
         self.assertEqual('SELECT id FROM billing', Select('billing', columns=['id']).glue()[0])
         self.assertEqual('SELECT id,billing.amount FROM billing',
             Select('billing', columns=['id', 'billing.amount']).glue()[0])
-        self.assertEqual('SELECT id,billing.amount FROM billing  GROUP BY id,billing.currency',
+        self.assertEqual('SELECT id,billing.amount FROM billing   GROUP BY id,billing.currency',
             Select('billing', columns=['id', 'billing.amount'], group_by=['id', 'billing.currency']).glue()[0])
-        self.assertEqual('SELECT id,billing.amount FROM billing   ORDER BY id ASC,billing.amount DESC',
+        self.assertEqual('SELECT id,billing.amount FROM billing    ORDER BY id ASC,billing.amount DESC',
              Select('billing', columns=['id', 'billing.amount'], order_by=['id', '-billing.amount']).glue()[0])
-        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM (SELECT * FROM billing   ) '
+        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM (SELECT * FROM billing    ) '
                          'limit_alias WHERE ROWNUM <= 4', Select('billing', limit=4).glue()[0])
-        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM (SELECT * FROM billing   ) limit_alias '
+        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM (SELECT * FROM billing    ) limit_alias '
                          'WHERE ROWNUM <= 0', Select('billing', limit=0).glue()[0])
         self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM as ora_rn FROM '
-                         '(SELECT * FROM billing   ORDER BY id ASC,ammount ASC) limit_alias) offset_alias '
+                         '(SELECT * FROM billing    ORDER BY id ASC,ammount ASC) limit_alias) offset_alias '
                          'WHERE ora_rn > 6',
                          Select('billing', order_by=['id', 'ammount'], offset=6).glue()[0])
-        self.assertEqual('SELECT id FROM (SELECT id, ROWNUM AS ora_rn FROM (SELECT id FROM billing   ORDER BY '
+        self.assertEqual('SELECT id FROM (SELECT id, ROWNUM AS ora_rn FROM (SELECT id FROM billing    ORDER BY '
                          'id ASC,amount ASC) limit_alias WHERE ROWNUM <= 4) offset_alias WHERE ora_rn > 6',
                          Select('billing', columns=['id'], order_by=['id', 'amount'], limit=4, offset=6).glue()[0])
-        self.assertEqual('SELECT id,amount, ROWNUM AS ora_rn FROM (SELECT id,amount FROM billing   ) '
+        self.assertEqual('SELECT id,amount, ROWNUM AS ora_rn FROM (SELECT id,amount FROM billing    ) '
                          'limit_alias WHERE ROWNUM <= 4',
                          Select('billing', columns=['id', 'amount'], limit=4).glue()[0])
         self.assertEqual('SELECT id,amount FROM (SELECT id,amount, ROWNUM AS ora_rn FROM (SELECT id,amount '
-                         'FROM billing   ) limit_alias WHERE ROWNUM <= 4) offset_alias WHERE ora_rn > 1',
+                         'FROM billing    ) limit_alias WHERE ROWNUM <= 4) offset_alias WHERE ora_rn > 1',
                          Select('billing', columns=['id', 'amount'], limit=4, offset=1).glue()[0])
 
     def test_select_with_locking(self):
         cond_and = And(BinaryOperator('billing.amount', '>', 10), BinaryOperator('billing.amount', '<', 100))
         q_str, params = Select('billing', cond=cond_and).glue()
-        self.assertEqual('SELECT * FROM billing WHERE billing.amount > :s AND billing.amount < :s', q_str)
+        self.assertEqual('SELECT * FROM billing  WHERE billing.amount > :s AND billing.amount < :s', q_str)
         self.assertEqual([10, 100], params)
-        self.assertEqual('SELECT * FROM billing WHERE id = :s   FOR UPDATE',
+        self.assertEqual('SELECT * FROM billing  WHERE id = :s   FOR UPDATE',
             Select('billing', cond=Eq('id', 5), for_update=True).glue()[0])
-        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM (SELECT * FROM billing WHERE id IN (:s,:s)  )'
+        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM (SELECT * FROM billing  WHERE id IN (:s,:s)  )'
                          ' limit_alias WHERE ROWNUM <= 1 FOR UPDATE', Select('billing', cond=In('id', [1, 2]), limit=1,
                                                                              for_update=True).glue()[0])
 
@@ -205,11 +205,37 @@ class SqlTestCase(unittest.TestCase):
         @return:
         """
         self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM AS ora_rn FROM (SELECT * FROM '
-                         'billing   ) limit_alias WHERE ROWNUM <= 1) offset_alias WHERE ora_rn > 2 FOR UPDATE',
+                         'billing    ) limit_alias WHERE ROWNUM <= 1) offset_alias WHERE ora_rn > 2 FOR UPDATE',
                          Select('billing', offset=2, limit=1, for_update=True).glue()[0])
         self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM as ora_rn FROM (SELECT * FROM '
-                         'billing   ) limit_alias) offset_alias WHERE ora_rn > 2 FOR UPDATE',
+                         'billing    ) limit_alias) offset_alias WHERE ora_rn > 2 FOR UPDATE',
                          Select('billing', offset=2, for_update=True).glue()[0])
+
+    def test_select_with_join(self):
+        self.assertEqual('SELECT * FROM user_data', Select('user_data').glue()[0])
+        join = ('user_data_group_id', 'user_data.id', 'user_data_group_id.user_data_id')
+        self.assertEqual('SELECT user_data.id, user_data_group_id.* FROM user_data JOIN user_data_group_id '
+                         'ON (user_data.id = user_data_group_id.user_data_id)',
+                         Select('user_data', columns='id', join=join).glue()[0])
+        self.assertEqual('SELECT user_data.*, user_data_group_id.* FROM user_data JOIN user_data_group_id '
+                         'ON (user_data.id = user_data_group_id.user_data_id)   '
+                         'ORDER BY user_data.id ASC,user_data.email DESC',
+                         Select('user_data', order_by=['user_data.id', '-user_data.email'], join=join).glue()[0])
+        join = ('user_data_group_id', 'user_data.id', 'user_data_group_id.user_data_id', ['user_data_id'])
+        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM '
+                         '(SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id '
+                         'ON (user_data.id = user_data_group_id.user_data_id)   ) limit_alias WHERE ROWNUM <= 4',
+                         Select('user_data', limit=4, join=join).glue()[0])
+        self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM as ora_rn FROM ('
+                         'SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id '
+                         'ON (user_data.id = user_data_group_id.user_data_id)   ORDER BY user_data.id ASC) limit_alias)'
+                         ' offset_alias WHERE ora_rn > 6',
+                         Select('user_data', order_by=['user_data.id'], offset=6, join=join).glue()[0])
+        self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM AS ora_rn FROM ('
+                         'SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id ON'
+                         ' (user_data.id = user_data_group_id.user_data_id)   ORDER BY user_data.id ASC) limit_alias '
+                         'WHERE ROWNUM <= 4) offset_alias WHERE ora_rn > 6',
+                         Select('user_data', order_by=['user_data.id'], limit=4, offset=6, join=join).glue()[0])
 
     def test_update(self):
          q_str, q_params = Update('balance', {'client_id': 4}, Eq('id', 1)).glue()

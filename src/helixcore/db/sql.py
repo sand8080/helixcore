@@ -44,6 +44,9 @@ class Terminal(SqlNode):
         super(Terminal, self).__init__()
         self.term = term
 
+    def __str__(self):
+        return self.term
+
     def glue(self):
         return self.term, []
 
@@ -392,15 +395,17 @@ class Columns(object):
 
 
 class ColumnsList(SqlNode):
-    def __init__(self, c):
+    def __init__(self, c, with_table=None):
         super(ColumnsList, self).__init__()
+
         if c is None:
             self.columns_list = [Terminal('*')]
-            return
         elif isinstance(c, str):
             self.columns_list = [c]
-            return
-        self.columns_list = c
+        else:
+            self.columns_list = c
+        if with_table is not None:
+            self.columns_list = ['%s.%s' % (with_table, col) for col in self.columns_list]
 
     def glue(self):
         cols, _ = zip(*map(glue_col, self.columns_list))
@@ -510,12 +515,28 @@ class Insert(SqlNode):
 
 
 class Select(SqlNode):
-    def __init__(self, table, columns=None, cond=None, group_by=None, order_by=None, limit=None, offset=0,
+    def __init__(self, table, columns=None, join=None, cond=None, group_by=None, order_by=None, limit=None, offset=0,
                  for_update=False):
+        """
+        @param table: table name
+        @param columns: columns list. if not set * will used
+        @param join: tuple of values (table, on_lh_field, on_rh_field, list of columns for selection, join type).
+                if list of columns for selection is None or not in tuple table.* will be used.
+                join type can be None. if join type is not None ('%s JOIN' % join type) will be used.
+                TODO: select with join, limit, offset and columns list not works
+        @param cond: conditions for where
+        @param group_by: list of group field names
+        @param order_by: list of fields for ordering. desc: -field_name, asc: field_name
+        @param limit: limit
+        @param offset: offset
+        @param for_update: blocking flag
+        @return:
+        """
         super(Select, self).__init__()
         self.table = table
         self.columns = columns
         self.cond = cond
+        self.join = join
         self.group_by = group_by
         self.order_by = order_by
         self.limit = limit
@@ -523,11 +544,23 @@ class Select(SqlNode):
         self.for_update = for_update
 
     def glue(self):
-        target = ColumnsList(self.columns).glue()[0]
+        table = quote(self.table)
+        with_table = table if self.join is not None else None
+        target = ColumnsList(self.columns, with_table=with_table).glue()[0]
+        if self.join is not None:
+            join_table = quote(self.join[0])
+            join_str = 'JOIN %s ON (%s = %s)' % self.join[:3]
+            join_columns = None if len(self.join) < 4 else self.join[3]
+            target = '%s, %s' % (target, ColumnsList(join_columns, with_table=join_table).glue()[0])
+            if len(self.join) >= 5:
+                join_str = '%s %s' % (self.join[4], join_str)
+        else:
+            join_str = ''
         where_str, where_params = Where(self.cond).glue()
-        sql = 'SELECT %(target)s FROM %(table)s %(where)s %(group_by)s %(order_by)s' % {
+        sql = 'SELECT %(target)s FROM %(table)s %(join)s %(where)s %(group_by)s %(order_by)s' % {
             'target': target,
-            'table': quote(self.table),
+            'join': join_str,
+            'table': table,
             'where': where_str,
             'group_by': GroupBy(self.group_by).glue()[0],
             'order_by': OrderBy(self.order_by).glue()[0],
