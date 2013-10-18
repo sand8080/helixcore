@@ -14,7 +14,7 @@ class ActionLog(Mapped):
 
 
 class ActionLogSubjectUser(Mapped):
-    __slots__ = ['id', 'environment_id', 'action_log_id', 'subject_id']
+    __slots__ = ['id', 'environment_id', 'action_log_id', 'subject_user_id']
     table = 'al_subj_id'
 
 
