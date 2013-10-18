@@ -144,7 +144,7 @@ class ActionLogFilter(EnvironmentObjectsFilter):
         ('to_request_date', 'action_log.request_date', LessEq),
         # OR condition
         (('subject_users_ids', 'actor_user_id'),
-            ('al_subj_id.user_data_id', 'action_log.actor_user_id'), (Eq, Eq)),
+            ('al_subj_id.subject_user_id', 'action_log.actor_user_id'), (Eq, Eq)),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
