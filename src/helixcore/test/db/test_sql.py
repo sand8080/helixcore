@@ -121,7 +121,7 @@ class SqlTestCase(unittest.TestCase):
         self.assertEqual(p, ['one', 2, 'three'])
         cond_in = In('name', [])
         c, p = cond_in.glue()
-        self.assertEqual(c, 'False')
+        self.assertEqual(c, '1!=1')
         self.assertEqual(p, [])
 
     def test_nested_select(self):

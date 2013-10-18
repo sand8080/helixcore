@@ -307,7 +307,7 @@ class In(SqlNode):
 
     def glue(self):
         if not self.values:
-            return 'False', []
+            return '1!=1', []
         params = []
         in_str = ''
         if isinstance(self.values, SqlNode):
