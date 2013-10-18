@@ -99,6 +99,7 @@ class ActionsLogTester(object):
         return len(resp['action_logs'])
 
     def _count_records(self, sess_id, action):
+        print "### counting records", sess_id, action
         return self._do_count(sess_id, action, self.cli.get_action_logs)
 
     def _count_self_records(self, sess_id, action):

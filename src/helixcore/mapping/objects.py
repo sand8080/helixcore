@@ -6,6 +6,7 @@ class Mapped(object):
     __slots__ = []
 
     def __init__(self, **kwargs):
+        non_strict = kwargs.pop('non_strict', False)
         for k in kwargs:
             lk = k.lower()
             if lk in self.__slots__:
@@ -14,7 +15,12 @@ class Mapped(object):
                     val = val.read()
                 setattr(self, lk, val)
             else:
-                raise TypeError('Property "%s" undefinded' % lk)
+                if not non_strict:
+                    raise TypeError("Property '%s' undefinded in %s" % (lk, self.__class__.__name__))
+
+    @classmethod
+    def separate_known_fields(cls, fields_names):
+        return filter(lambda x: x.lower() in cls.__slots__, fields_names)
 
     def update(self, data):
         for (attr, v) in data.iteritems():

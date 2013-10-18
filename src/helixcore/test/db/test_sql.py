@@ -2,7 +2,7 @@
 import unittest
 
 from helixcore.db.sql import quote, BinaryOperator, Eq, And, Or, Scoped, Any, NullLeaf, In, Select, Update, Delete,\
-    Insert, AnyOf, NotEq, Like, Upper
+    Insert, AnyOf, NotEq, Like, Upper, Columns
 
 
 class SqlTestCase(unittest.TestCase):
@@ -216,26 +216,29 @@ class SqlTestCase(unittest.TestCase):
         join = ('user_data_group_id', 'user_data.id', 'user_data_group_id.user_data_id')
         self.assertEqual('SELECT user_data.id, user_data_group_id.* FROM user_data JOIN user_data_group_id '
                          'ON (user_data.id = user_data_group_id.user_data_id)',
-                         Select('user_data', columns='id', join=join).glue()[0])
+                         Select('user_data', columns='id', join_cond=join).glue()[0])
         self.assertEqual('SELECT user_data.*, user_data_group_id.* FROM user_data JOIN user_data_group_id '
                          'ON (user_data.id = user_data_group_id.user_data_id)   '
                          'ORDER BY user_data.id ASC,user_data.email DESC',
-                         Select('user_data', order_by=['user_data.id', '-user_data.email'], join=join).glue()[0])
+                         Select('user_data', order_by=['user_data.id', '-user_data.email'], join_cond=join).glue()[0])
         join = ('user_data_group_id', 'user_data.id', 'user_data_group_id.user_data_id', ['user_data_id'])
-        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM '
-                         '(SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id '
-                         'ON (user_data.id = user_data_group_id.user_data_id)   ) limit_alias WHERE ROWNUM <= 4',
-                         Select('user_data', limit=4, join=join).glue()[0])
-        self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM as ora_rn FROM ('
-                         'SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id '
-                         'ON (user_data.id = user_data_group_id.user_data_id)   ORDER BY user_data.id ASC) limit_alias)'
-                         ' offset_alias WHERE ora_rn > 6',
-                         Select('user_data', order_by=['user_data.id'], offset=6, join=join).glue()[0])
         self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM AS ora_rn FROM ('
                          'SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id ON'
                          ' (user_data.id = user_data_group_id.user_data_id)   ORDER BY user_data.id ASC) limit_alias '
                          'WHERE ROWNUM <= 4) offset_alias WHERE ora_rn > 6',
-                         Select('user_data', order_by=['user_data.id'], limit=4, offset=6, join=join).glue()[0])
+                         Select('user_data', order_by=['user_data.id'], limit=4, offset=6, join_cond=join).glue()[0])
+        self.assertEqual('SELECT limit_alias.*, ROWNUM AS ora_rn FROM '
+                         '(SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id '
+                         'ON (user_data.id = user_data_group_id.user_data_id)   ) limit_alias WHERE ROWNUM <= 4',
+                         Select('user_data', limit=4, join_cond=join).glue()[0])
+        self.assertEqual('SELECT offset_alias.* FROM (SELECT limit_alias.*, ROWNUM as ora_rn FROM ('
+                         'SELECT user_data.*, user_data_group_id.user_data_id FROM user_data JOIN user_data_group_id '
+                         'ON (user_data.id = user_data_group_id.user_data_id)   ORDER BY user_data.id ASC) limit_alias)'
+                         ' offset_alias WHERE ora_rn > 6',
+                         Select('user_data', order_by=['user_data.id'], offset=6, join_cond=join).glue()[0])
+        self.assertEqual('SELECT COUNT(*) FROM user_data JOIN user_data_group_id ON'
+                         ' (user_data.id = user_data_group_id.user_data_id)',
+                         Select('user_data', columns=[Columns.COUNT_ALL], join_cond=join).glue()[0])
 
     def test_update(self):
          q_str, q_params = Update('balance', {'client_id': 4}, Eq('id', 1)).glue()

@@ -77,8 +77,9 @@ class Application(object):
                 ';'.join(e.args)))
         except Exception, e:
             exc_type, value, tb = sys.exc_info()
+            # e.args in cx_Oracle is not strings
             exc_descr = 'Exception type: %s. message: %s. trace: %s' % (
-                exc_type, '; '.join(value.args), traceback.extract_tb(tb))
+                exc_type, '; '.join(map(str, value.args)), traceback.extract_tb(tb))
             del tb
             raw_response = response_app_error(exc_descr)
             response = self.helix_api.handle_response(action_name,

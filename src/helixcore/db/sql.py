@@ -379,6 +379,10 @@ class Count(Function):
     def __init__(self, expr):
         super(Count, self).__init__('COUNT', expr)
 
+    def __str__(self):
+        sql, params = self.glue()
+        return sql
+
 
 class Length(Function):
     def __init__(self, expr):
@@ -413,7 +417,7 @@ class ColumnsList(SqlNode):
 
 
 class Where(SqlNode):
-    def __init__(self, cond):
+    def __init__(self, cond, with_table=None):
         super(Where, self).__init__()
         self.cond = cond
 
@@ -515,7 +519,7 @@ class Insert(SqlNode):
 
 
 class Select(SqlNode):
-    def __init__(self, table, columns=None, join=None, cond=None, group_by=None, order_by=None, limit=None, offset=0,
+    def __init__(self, table, columns=None, join_cond=None, cond=None, group_by=None, order_by=None, limit=None, offset=0,
                  for_update=False):
         """
         @param table: table name
@@ -536,7 +540,8 @@ class Select(SqlNode):
         self.table = table
         self.columns = columns
         self.cond = cond
-        self.join = join
+        self.join_cond = join_cond
+        self.is_join_with_count = join_cond is not None and columns == [Columns.COUNT_ALL]
         self.group_by = group_by
         self.order_by = order_by
         self.limit = limit
@@ -545,15 +550,19 @@ class Select(SqlNode):
 
     def glue(self):
         table = quote(self.table)
-        with_table = table if self.join is not None else None
+        if self.join_cond and not self.is_join_with_count:
+            with_table = table
+        else:
+            with_table = None
         target = ColumnsList(self.columns, with_table=with_table).glue()[0]
-        if self.join is not None:
-            join_table = quote(self.join[0])
-            join_str = 'JOIN %s ON (%s = %s)' % self.join[:3]
-            join_columns = None if len(self.join) < 4 else self.join[3]
-            target = '%s, %s' % (target, ColumnsList(join_columns, with_table=join_table).glue()[0])
-            if len(self.join) >= 5:
-                join_str = '%s %s' % (self.join[4], join_str)
+        if self.join_cond is not None:
+            join_table = quote(self.join_cond[0])
+            join_str = 'JOIN %s ON (%s = %s)' % self.join_cond[:3]
+            join_columns = None if len(self.join_cond) < 4 else self.join_cond[3]
+            if not self.is_join_with_count:
+                target = '%s, %s' % (target, ColumnsList(join_columns, with_table=join_table).glue()[0])
+            if len(self.join_cond) >= 5:
+                join_str = '%s %s' % (self.join_cond[4], join_str)
         else:
             join_str = ''
         where_str, where_params = Where(self.cond).glue()

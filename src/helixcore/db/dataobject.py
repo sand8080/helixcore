@@ -15,7 +15,7 @@ class ActionLog(Mapped):
 
 class ActionLogSubjectUser(Mapped):
     __slots__ = ['id', 'environment_id', 'action_log_id', 'subject_id']
-    table = 'al_subjs_ids'
+    table = 'al_subj_id'
 
 
 class Currency(Mapped):

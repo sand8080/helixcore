@@ -2,7 +2,7 @@ from helixcore.db.sql import (And, Any, NullLeaf, Select, Columns, AnyOf, Or,
     Scoped, Eq, MoreEq, LessEq)
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore import mapping
-from helixcore.db.dataobject import Currency, ActionLog
+from helixcore.db.dataobject import Currency, ActionLog, ActionLogSubjectUser
 from helixcore.error import CurrencyNotFound
 
 
@@ -24,8 +24,9 @@ def build_dicts_index(dicts, idx_field='id'):
 
 
 class ObjectsFilter(object):
-    '''[(p_name, db_f_name, operation_class), ...]
-    '''
+    """
+    [(p_name, db_f_name, operation_class), ...]
+    """
     cond_map = []
 
     def __init__(self, filter_params, paging_params, ordering_params, obj_class):
@@ -65,12 +66,14 @@ class ObjectsFilter(object):
     def filter_objs(self, curs, for_update=False):
         cond = self._cond_by_filter_params()
         limit, offset = self._get_paging_params()
-        return mapping.get_list(curs, self.obj_class, cond=cond, order_by=self.ordering_params,
-            limit=limit, offset=offset, for_update=for_update)
+        join_cond = getattr(self, 'join_cond', None)
+        return mapping.get_list(curs, self.obj_class, cond=cond, order_by=self.ordering_params, limit=limit,
+                                offset=offset, for_update=for_update, join_cond=join_cond)
 
     def filter_objs_count(self, curs):
         cond = self._cond_by_filter_params()
-        q = Select(self.obj_class.table, columns=[Columns.COUNT_ALL], cond=cond)
+        join_cond = getattr(self, 'join_cond', None)
+        q = Select(self.obj_class.table, columns=[Columns.COUNT_ALL], cond=cond, join_cond=join_cond)
         curs.execute(*q.glue())
         count_dict = fetchone_dict(curs)
         _, count = count_dict.popitem()
@@ -90,13 +93,15 @@ class ObjectsFilter(object):
 
 
 class EnvironmentObjectsFilter(ObjectsFilter):
-    def __init__(self, environment_id, filter_params, paging_params, ordering_params, obj_class):
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params, obj_class, with_table=None):
         super(EnvironmentObjectsFilter, self).__init__(filter_params, paging_params, ordering_params, obj_class)
         self.environment_id = environment_id
+        self.with_table = with_table
 
     def _cond_by_filter_params(self):
         cond = super(EnvironmentObjectsFilter, self)._cond_by_filter_params()
-        cond = And(cond, Eq('environment_id', self.environment_id))
+        env_field = 'environment_id' if self.with_table is None else '%s.environment_id' % self.with_table
+        cond = And(cond, Eq(env_field, self.environment_id))
         return cond
 
 
@@ -130,17 +135,31 @@ class CurrencyFilter(ObjectsFilter):
 
 
 class ActionLogFilter(EnvironmentObjectsFilter):
+    join_cond = ('al_subj_id', 'action_log.id', 'al_subj_id.action_log_id', ['subject_user_id'], 'LEFT')
+
     cond_map = [
-        ('action', 'action', Eq),
-        ('session_id', 'session_id', Eq),
-        ('actor_user_id', 'actor_user_id', Eq),
-        ('from_request_date', 'request_date', MoreEq),
-        ('to_request_date', 'request_date', LessEq),
+        ('action', 'action_log.action', Eq),
+        ('session_id', 'action_log.session_id', Eq),
+        ('actor_user_id', 'action_log.actor_user_id', Eq),
+        ('from_request_date', 'action_log.request_date', MoreEq),
+        ('to_request_date', 'action_log.request_date', LessEq),
         # OR condition
         (('subject_users_ids', 'actor_user_id'),
-            ('subject_users_ids', 'actor_user_id'), (Any, Eq)),
+            ('al_subj_id.user_data_id', 'action_log.actor_user_id'), (Eq, Eq)),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
-        super(ActionLogFilter, self).__init__(environment_id,
-            filter_params, paging_params, ordering_params, ActionLog)
+        if not ordering_params:
+            ordering_params = ['%s.id' % ActionLog.table]
+        super(ActionLogFilter, self).__init__(environment_id, filter_params, paging_params, ordering_params,
+                                              ActionLog, with_table=ActionLog.table)
+
+
+class ActionLogSubjectUsersFilter(EnvironmentObjectsFilter):
+    cond_map = [
+        ('action_log_id', 'action_log_id', Eq),
+    ]
+
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
+        super(ActionLogSubjectUsersFilter, self).__init__(environment_id, filter_params, paging_params,
+                                                          ordering_params, ActionLogSubjectUser)

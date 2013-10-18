@@ -19,7 +19,8 @@ def get(curs, cls, cond, for_update=False):
     return cls(**fetchone_dict(curs))
 
 
-def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=False):
+def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=False,
+             join_cond=None):
     """
     Selects list of objects
     @return: list of objects selected.
@@ -27,13 +28,14 @@ def get_list(curs, cls, cond, order_by='id', limit=None, offset=0, for_update=Fa
     if for_update:
         deadlock_detector.handle_lock(cls.table)
     curs.execute(*Select(cls.table, cond=cond, for_update=for_update, order_by=order_by, limit=limit,
-                         offset=offset).glue())
+                         offset=offset, join_cond=join_cond).glue())
     dicts_list = fetchall_dicts(curs)
 
     if for_update and len(dicts_list) > 1:
         deadlock_detector.handle_lock(cls.table)
 
-    return [cls(**d) for d in dicts_list]
+    non_strict = join_cond is not None
+    return [cls(non_strict=non_strict, **d) for d in dicts_list]
 
 
 def exec_for_each(curs, func, cls, cond, order_by='id', limit=None, offset=0):
@@ -107,10 +109,10 @@ def reload(curs, obj, for_update=False): #IGNORE:W0622
 
 
 def get_obj_by_fields(curs, cls, fields, for_update):
-    '''
+    """
     Returns object of class cls by anded conditions from fields.
     fields is dictionary of {field: value}
-    '''
+    """
     and_cond = None
     for k, v in fields.items():
         eq_cond = Eq(k, v)
@@ -119,6 +121,7 @@ def get_obj_by_fields(curs, cls, fields, for_update):
         else:
             and_cond = And(and_cond, eq_cond)
     return get(curs, cls, and_cond, for_update)
+
 
 def get_obj_by_field(curs, cls, field, value, for_update):
     return get_obj_by_fields(curs, cls, {field: value}, for_update)
