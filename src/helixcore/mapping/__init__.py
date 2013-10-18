@@ -110,7 +110,7 @@ def reload(curs, obj, for_update=False): #IGNORE:W0622
 
 def get_obj_by_fields(curs, cls, fields, for_update):
     """
-    Returns object of class cls by anded conditions from fields.
+    Returns object of class cls by conditions from fields. Conditions glued by AND.
     fields is dictionary of {field: value}
     """
     and_cond = None

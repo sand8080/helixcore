@@ -1,7 +1,6 @@
 import unittest
 
 from helixcore.db import filters
-from helixcore.db.filters import ActionLogFilter
 
 
 class FiltersTestCase(unittest.TestCase):
