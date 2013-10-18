@@ -1,8 +1,7 @@
-from helixcore.db.sql import (And, Any, NullLeaf, Select, Columns, AnyOf, Or,
-    Scoped, Eq, MoreEq, LessEq)
-from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore import mapping
 from helixcore.db.dataobject import Currency, ActionLog, ActionLogSubjectUser
+from helixcore.db.sql import And, Any, NullLeaf, Select, Columns, AnyOf, Or, Scoped, Eq, MoreEq, LessEq, In
+from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore.error import CurrencyNotFound
 
 
@@ -158,6 +157,7 @@ class ActionLogFilter(EnvironmentObjectsFilter):
 class ActionLogSubjectUsersFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('action_log_id', 'action_log_id', Eq),
+        ('action_logs_ids', 'action_log_id', In)
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
