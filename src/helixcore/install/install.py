@@ -60,6 +60,7 @@ class PatchProcessor(object):
             self.logger.debug("Nothing to be reverted")
             return
         patches = filtering.filter_backward(None, last_applied, self.get_patches())
+        self.logger.debug("Patches for revert: %s" % patches)
         self.dynamic_patch_call(patches, 'revert', self.unregister_patch)
 
     def revert_all(self):
