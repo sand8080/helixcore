@@ -6,11 +6,14 @@ import datetime
 
 class Mapped(object):
     __slots__ = []
+    __reserved__ = ('ora_rn',)
 
     def __init__(self, **kwargs):
         non_strict = kwargs.pop('non_strict', False)
         for k in kwargs:
             lk = k.lower()
+            if lk in self.__reserved__:
+                continue
             if lk in self.__slots__:
                 val = kwargs[k]
                 if isinstance(val, cx_Oracle.LOB):
