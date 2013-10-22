@@ -71,12 +71,13 @@ def insert(curs, obj):
 
 def update(curs, obj):
     if not hasattr(obj, 'id'):
-        raise MappingError('Updating %s without id' % obj.__class__.__name__)
+        raise MappingError("Updating %s without id" % obj.__class__.__name__)
     try:
         curs.execute(*Update(obj.table, get_fields(obj), cond=Eq('id', obj.id)).glue())
     except IntegrityError, e:
         # e.args in cx_Oracle is not strings
-        raise DataIntegrityError("Object %s updating error: %s" % (obj, ';'.join(map(str, e.args))))
+        raise DataIntegrityError("Object %s, id %s updating error: %s" %
+                                 (obj.__class__.__name__, obj.id, ';'.join(map(str, e.args))))
 
 
 def save(curs, obj):
