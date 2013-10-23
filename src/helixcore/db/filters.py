@@ -150,6 +150,18 @@ class ActionLogFilter(EnvironmentObjectsFilter):
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
         if not ordering_params:
             ordering_params = ['%s.id' % ActionLog.table]
+        else:
+            fixed_ordering_params = []
+            for o_param in ordering_params:
+                direction = ''
+                if o_param.startswith('-'):
+                    o_param = o_param[1:]
+                    direction = '-'
+                if o_param.startswith(ActionLog.table):
+                    fixed_ordering_params.append(o_param)
+                else:
+                    fixed_ordering_params.append('%s%s.%s' % (direction, ActionLog.table, o_param))
+            ordering_params = fixed_ordering_params
         super(ActionLogFilter, self).__init__(environment_id, filter_params, paging_params, ordering_params,
                                               ActionLog, with_table=ActionLog.table)
 
