@@ -14,7 +14,7 @@ else
 fi
 . $DIR/.env/bin/activate
 pip install -r pip-requirements.txt
-pip install -r pip-requirements-ci.txt
+pip install -r pip-requirements-dev.txt
 
 find . -name \*.pyc -delete
 
