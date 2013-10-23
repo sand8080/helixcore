@@ -3,9 +3,9 @@ from functools import partial
 from helixcore.db import wrapper
 
 DSN = {
-    'user': 'pg_test',
-    'password': 'lsDf#2cv',
-    'dsn': 'dm01-scan.malina.local/CommTEST',
+    'user': 'TEST_PG_AUTH',
+    'password': 'oBOesjAWan19',
+    'dsn': 'srv-integration.loyalty-partners.ru/XE',
 }
 
 get_connection = partial(cx_Oracle.connect, **DSN)
