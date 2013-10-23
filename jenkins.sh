@@ -5,6 +5,7 @@ DIR="$( cd "$( dirname "$0" )" && pwd )"
 #Set environment
 export PATH=$DIR/.env/bin:$PATH
 export PYTHONPATH=./src/
+export ORACLE_HOME=/home/oracle-xe/app/oracle/product/11.2.0/xe/
 
 #Check, enable, update virtualenv
 if [ -d ".env" ]; then
@@ -19,7 +20,7 @@ pip install -r pip-requirements-dev.txt
 find . -name \*.pyc -delete
 
 #Run unittest with coverage report
-python src/helixcore/tests.py --verbose --nocapture --with-xunit --xunit-file=reports/nosetests.xml --force-zero-status --with-coverage
+python src/helixcore_tests.py --verbose --nocapture --with-xunit --xunit-file=reports/nosetests.xml --force-zero-status --with-coverage
 coverage xml -i
 mv coverage.xml reports
 
