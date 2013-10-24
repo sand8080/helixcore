@@ -93,7 +93,7 @@ class ProtocolTester(object):
 class ActionsLogTester(object):
     def _do_count(self, sess_id, action, filtering_method):
         req = {'session_id': sess_id, 'filter_params': {'action': action},
-            'paging_params': {}, 'ordering_params': []}
+               'paging_params': {}, 'ordering_params': []}
         resp = filtering_method(**req)
         self.check_response_ok(resp)
         return len(resp['action_logs'])
@@ -121,9 +121,7 @@ class ActionsLogTester(object):
         if req_with_sess:
             req['session_id'] = sess_id
         logs_num = self._count_records(sess_id, action)
-
         resp = api_call(**req)
-
         self.assertEquals(logs_num, self._count_records(sess_id, action))
         return resp
 
@@ -137,7 +135,7 @@ class ActionsLogTester(object):
     def _check_subject_users_ids_set(self, sess_id, action, user_id):
         req = {'session_id': sess_id, 'filter_params': {'action': action, 'user_id': user_id},
                'paging_params': {}}
-        resp = self.get_action_logs(**req)
+        resp = self.cli.get_action_logs(**req)
         self.check_response_ok(resp)
 
         action_logs = resp['action_logs']
