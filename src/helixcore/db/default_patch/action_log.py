@@ -1,69 +1,42 @@
-def apply(curs):
-    print 'Creating table action_log'
-    curs.execute(
-    '''
-        CREATE TABLE action_log (
-            id serial,
-            PRIMARY KEY(id),
-            environment_id varchar NOT NULL,
-            session_id text,
-            custom_actor_info varchar,
-            actor_user_id int,
-            subject_users_ids int[],
-            action varchar NOT NULL,
-            request_date timestamp with time zone NOT NULL DEFAULT now(),
-            remote_addr text NOT NULL,
-            request text NOT NULL,
-            response text NOT NULL
-        )
-    ''')
+from helixcore.install.install import is_table_exists, is_sequence_exists
 
-    print 'Creating index action_log_environment_id_idx on action_log'
-    curs.execute(
-    '''
-        CREATE INDEX action_log_environment_id_idx ON action_log(environment_id);
-    ''')
-
-    print 'Creating index action_log_environment_id_actor_user_id_idx on action_log'
-    curs.execute(
-    '''
-        CREATE INDEX action_log_environment_id_actor_user_id_idx ON action_log(environment_id, actor_user_id);
-    ''')
-
-    print 'Creating index action_log_environment_id_session_id_idx on action_log'
-    curs.execute(
-    '''
-        CREATE INDEX action_log_environment_id_session_id_idx ON action_log(environment_id, session_id);
-    ''')
-
-    print 'Creating index action_log_environment_id_action_idx on action_log'
-    curs.execute(
-    '''
-        CREATE INDEX action_log_environment_id_action_idx ON action_log(environment_id, action);
-    ''')
-
-    print 'Creating index action_log_environment_id_subject_users_ids_idx on action_log'
-    curs.execute(
-    '''
-        CREATE INDEX action_log_environment_id_subject_users_ids_idx ON action_log(environment_id, subject_users_ids);
-    ''')
+table = 'action_log'
+sequence = '%s_seq' % table
+env_idx = '%s_env_id_idx' % table
+env_actor_idx = '%s_env_id_actor_id_idx' % table
+env_session_idx = '%s_env_id_sess_id_idx' % table
+env_action_idx = '%s_env_id_action_idx' % table
 
 
-def revert(curs):
-    print 'Dropping index action_log_environment_id_subject_users_ids_idx on action_log'
-    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_subject_users_ids_idx')
+def apply(curs, logger):
+    logger.info("Creating table %s" % table)
+    curs.execute('CREATE TABLE %(table)s (id INTEGER NOT NULL, environment_id INTEGER NOT NULL, '
+                 'session_id VARCHAR2(128 CHAR), custom_actor_info VARCHAR2(2000 CHAR), '
+                 'actor_user_id INTEGER,  action VARCHAR2(128 CHAR) NOT NULL, '
+                 'request_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,'
+                 'remote_addr VARCHAR2(128 CHAR) NOT NULL, '
+                 'request CLOB NOT NULL, response CLOB NOT NULL, '
+                 'CONSTRAINT %(table)s_pk PRIMARY KEY(id))' % {'table': table})
+    logger.info("Creating sequence %s" % sequence)
+    curs.execute('CREATE SEQUENCE %s' % sequence)
 
-    print 'Dropping index action_log_environment_id_action_idx on action_log'
-    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_action_idx')
+    logger.info("Creating index %s" % env_idx)
+    curs.execute('CREATE INDEX %s ON %s(environment_id)' % (env_idx, table))
 
-    print 'Dropping index action_log_environment_id_session_id_idx on action_log'
-    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_session_id_idx')
+    logger.info("Creating index %s" % env_actor_idx)
+    curs.execute('CREATE INDEX %s ON %s(environment_id, actor_user_id)' % (env_actor_idx, table))
 
-    print 'Dropping index action_log_environment_id_actor_user_id_idx on action_log'
-    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_actor_user_id_idx')
+    logger.info("Creating index %s" % env_session_idx)
+    curs.execute('CREATE INDEX %s ON %s(environment_id, session_id)' % (env_session_idx, table))
 
-    print 'Dropping index action_log_environment_id_idx on action_log'
-    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_idx')
+    logger.info("Creating index %s" % env_action_idx)
+    curs.execute('CREATE INDEX %s ON %s(environment_id, action)' % (env_action_idx, table))
 
-    print 'Dropping table action_log'
-    curs.execute('DROP TABLE IF EXISTS action_log')
+
+def revert(curs, logger):
+    if is_sequence_exists(curs, sequence):
+        logger.info("Dropping sequence %s" % sequence)
+        curs.execute('DROP SEQUENCE %s' % sequence)
+    if is_table_exists(curs, table):
+        logger.info("Dropping table %s" % table)
+        curs.execute('DROP TABLE %s' % table)
