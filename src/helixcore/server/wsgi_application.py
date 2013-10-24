@@ -47,15 +47,14 @@ class Application(object):
         try:
             action_name, action_data = self.helix_api.handle_request(raw_data)
             secured_request = self._secured_request(action_name, action_data)
-            self.logger.debug('Request from %s: %s' % (remote_addr, secured_request))
+            self.logger.debug("Request from %s: %s" % (remote_addr, secured_request))
 
             processed_action_data = dict(action_data)
             req_info = RequestInfo(remote_addr=remote_addr)
-            raw_response = self.action_handler(action_name, processed_action_data,
-                req_info)
+            raw_response = self.action_handler(action_name, processed_action_data, req_info)
 
             secured_response = security.sanitize_credentials(raw_response)
-            self.logger.log(logging.DEBUG, 'Response to %s: %s' % (remote_addr, secured_response))
+            self.logger.log(logging.DEBUG, "Response to %s: %s" % (remote_addr, secured_response))
 
             response = self.helix_api.handle_response(action_name, raw_response)
         except ValidationError, e:
@@ -64,16 +63,16 @@ class Application(object):
 
             raw_response = response_error(e)
             response = self.helix_api.handle_response(action_name, raw_response, validation=False)
-            self.logger.log(logging.ERROR, 'Request from %s: %s' % (remote_addr, secured_request))
+            self.logger.log(logging.ERROR, "Request from %s: %s" % (remote_addr, secured_request))
             secured_response = security.sanitize_credentials(raw_response)
-            self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, secured_response,
+            self.logger.log(logging.ERROR, "Response to %s: %s. Error: %s" % (remote_addr, secured_response,
                 ';'.join(e.args)))
         except RequestProcessingError, e:
             raw_response = response_error(e)
             response = self.helix_api.handle_response(action_name, raw_response, validation=False)
-            self.logger.log(logging.ERROR, 'Request from %s: %s' % (remote_addr, secured_request))
+            self.logger.log(logging.ERROR, "Request from %s: %s" % (remote_addr, secured_request))
             secured_response = security.sanitize_credentials(raw_response)
-            self.logger.log(logging.ERROR, 'Response to %s: %s. Error: %s' % (remote_addr, secured_response,
+            self.logger.log(logging.ERROR, "Response to %s: %s. Error: %s" % (remote_addr, secured_response,
                 ';'.join(e.args)))
         except Exception, e:
             exc_type, value, tb = sys.exc_info()
