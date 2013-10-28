@@ -18,9 +18,6 @@ class Mapped(object):
                 val = kwargs[k]
                 if isinstance(val, cx_Oracle.LOB):
                     val = val.read()
-                elif isinstance(val, datetime.datetime):
-                    if val.tzinfo is None:
-                        val = pytz.utc.localize(val)
                 setattr(self, lk, val)
             else:
                 if not non_strict:
