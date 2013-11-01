@@ -86,11 +86,9 @@ class Application(object):
             secured_response = security.sanitize_credentials(raw_response)
             self.logger.log(logging.ERROR, 'Response to %s: %s. General error: %s' %
                 (remote_addr, secured_response, exc_descr))
-
         start_response('200 OK', [('Content-type', 'text/plain')])
-
         self._log_action(remote_addr, secured_request, secured_response,
-            action_name, processed_action_data)
+                         action_name, processed_action_data)
         return [response]
 
     def _log_action(self, remote_addr, secured_request, secured_response,
