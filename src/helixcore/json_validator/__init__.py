@@ -539,5 +539,6 @@ NON_NEGATIVE_INT = NonNegative(int)
 POSITIVE_INT = Positive(int)
 ID = POSITIVE_INT
 INT = int
+NULLABLE_ID = AnyOf(None, ID)
 BOOLEAN = bool
 EMAIL = EmailText()
