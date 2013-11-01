@@ -3,6 +3,7 @@ from helixcore.db.dataobject import Currency, ActionLog, ActionLogSubjectUser
 from helixcore.db.sql import And, Any, NullLeaf, Select, Columns, AnyOf, Or, Scoped, Eq, MoreEq, LessEq, In
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound, fetchone_dict
 from helixcore.error import CurrencyNotFound
+import iso8601
 
 
 def build_index(objs, idx_field='id'):
@@ -28,8 +29,19 @@ class ObjectsFilter(object):
     """
     cond_map = []
 
+    def _restore_dates(self):
+        dates = filter(lambda x: x.endswith('_date'), self.filter_params.keys())
+        for k in dates:
+            date = self.filter_params[k]
+            if isinstance(date, (str, unicode)):
+                try:
+                    self.filter_params[k] = iso8601.parse_date(date)
+                except (iso8601.iso8601.ParseError, TypeError):
+                    pass
+
     def __init__(self, filter_params, paging_params, ordering_params, obj_class):
         self.filter_params = filter_params
+        self._restore_dates()
         self.paging_params = paging_params
         self.ordering_params = ordering_params if ordering_params else 'id'
         self.obj_class = obj_class
