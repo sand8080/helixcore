@@ -22,6 +22,7 @@ class ClientSimpleApplication(object):
 
     def request(self, data):
         environ = {'wsgi.input': StringIO(json.dumps(data))}
+
         def start_response(_, __):
             pass
         response = self.app(environ, start_response)[0]

@@ -30,7 +30,10 @@ class ObjectsFilter(object):
     cond_map = []
 
     def _restore_dates(self):
-        dates = filter(lambda x: x.endswith('_date'), self.filter_params.keys())
+        dates = []
+        for k in self.filter_params.keys():
+            if isinstance(k, (str, unicode)) and k.endswith('_date'):
+                dates.append(k)
         for k in dates:
             date = self.filter_params[k]
             if isinstance(date, (str, unicode)):
