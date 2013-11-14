@@ -39,6 +39,11 @@ env.proj_hw_dir = os.path.join(env.proj_hw_root_dir, 'helixcore')
 env.proj_hw_dir_owner = 'helixweb'
 env.proj_hw_dir_group = 'helixweb'
 env.proj_hw_dir_perms = '700'
+env.proj_s_root_dir = '/opt/helixproject/sentry'
+env.proj_s_dir = os.path.join(env.proj_s_root_dir, 'helixcore')
+env.proj_s_dir_owner = 'sentry'
+env.proj_s_dir_group = 'sentry'
+env.proj_s_dir_perms = '700'
 
 env.rsync_exclude = ['.*', '*.sh', '*.pyc',
     'fabfile.py', 'pip-requirements-dev.txt']
@@ -59,7 +64,7 @@ def run_tests():
             print green("Tests passed")
 
 
-@hosts('helixauth@78.47.11.201')
+@hosts('helixauth@10.100.60.134')
 def sync_helixauth():
     print green("Helixcore files synchronization to helixauth started")
     run_tests()
@@ -74,7 +79,7 @@ def sync_helixauth():
     print green("Helixcore files to helixauth synchronization complete")
 
 
-@hosts('helixweb@78.47.11.201')
+@hosts('helixweb@10.100.60.134')
 def sync_helixweb():
     print green("Helixcore files synchronization to helixweb started")
     run_tests()
@@ -87,3 +92,18 @@ def sync_helixweb():
     _check_r_res(env.proj_hw_dir, env.proj_hw_dir_owner, env.proj_hw_dir_group,
         env.proj_hw_dir_perms)
     print green("Helixcore files to helixweb synchronization complete")
+
+
+@hosts('sentry@10.100.60.134')
+def sync_sentry():
+    print green("Helixcore files synchronization to sentry started")
+#    run_tests()
+    print green("Project files synchronization")
+
+    rsync_project(env.proj_s_dir, local_dir='%s/' % _project_dir(),
+        exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
+    _fix_r_res(env.proj_s_dir, env.proj_s_dir_owner, env.proj_s_dir_group,
+        env.proj_s_dir_perms)
+    _check_r_res(env.proj_s_dir, env.proj_s_dir_owner, env.proj_s_dir_group,
+        env.proj_s_dir_perms)
+    print green("Helixcore files to sentry synchronization complete")
